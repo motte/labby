@@ -29,12 +29,7 @@ class TDKLambdaPSU:
     port: str
     serial: Serial
 
-    def __init__(
-        self,
-        port: str,
-        baudrate: int,
-        address: int = 1,
-    ) -> None:
+    def __init__(self, port: str, baudrate: int, address: int = 1,) -> None:
         self.address = address
         self.port = port
         self.baudrate = baudrate
@@ -64,9 +59,7 @@ class TDKLambdaPSU:
     def _read_operational_status_register(self) -> OperationalStatusRegister:
         self._write(b":STA?;")
         line = self._read_line()
-        return OperationalStatusRegister(
-            mode=PSUMode(int(line[2]))
-        )
+        return OperationalStatusRegister(mode=PSUMode(int(line[2])))
 
     def get_mode(self) -> PSUMode:
         return self._read_operational_status_register().mode
