@@ -1,12 +1,19 @@
-# PSU Configuration
+# luizribeiro/tdklambda
+
+[![Build Status](https://travis-ci.com/luizribeiro/tdklambda.svg?branch=master)](https://travis-ci.com/luizribeiro/tdklambda)
+
+A basic library for interacting with the ZUP Series of power supplies by
+TDK-Lambda.
+
+## PSU Configuration
 
 See Chapter 5 of [manual](https://www.emea.lambda.tdk.com/de/KB/ZUP-User-Manual.pdf).
 
 You will want to:
 
-1. Setup an address. 01 should be fine.
+1. Setup an address on the PSU. `01` should be fine.
 2. Select RS232
-3. Select baud rate (9600 is probably okay)
+3. Select baud rate (`9600` is probably okay)
 4. Select remote by pushing REM button (LED should be **on**).
 5. Connect the cable from IN on the PSU to the computer.
 
@@ -22,29 +29,34 @@ If you run `sudo dmesg` on the computer, you should see something like:
 Note `ttyUSB0`. This means the PSU is available for communication under
 `/dev/ttyUSB0`.
 
-## Basic Usage
+### Basic Usage
 
-You can install `picocom` on Linux and use the PSU like this:
+```python
+from tdklambda import TDKLambdaPSU
 
+with TDKLambdaPSU("/dev/ttyUSB0", 9600) as psu:
+    psu.set_voltage(6.0)
+    psu.set_current(1.5)
+    psu.set_output_on(True)
+
+    print(f"Model: {psu.get_model()}")
+    print(f"Software Version: {psu.get_software_version()}")
+    print(f"Set Voltage: {psu.get_set_voltage():.3f} V")
+    print(f"Actual Voltage: {psu.get_actual_voltage():.3f} V")
+    print(f"Set Current: {psu.get_set_current():.3f} A")
+    print(f"Actual Current: {psu.get_actual_current():.3f} A")
+    print(f"Mode: {psu.get_mode()}")
+    print(f"Output: {'ON' if psu.is_output_on() else 'OFF'}")
+
+    psu.close()
 ```
-picocom --baud 9600 --flow x --databits 8 --parity n --stopbits 1 /dev/ttyUSB0
-```
-
-Then you can run commands a such (note that anything you type won't be
-shown on the output, just the output from the PSU):
-```
-:ADR01;
-:MDL?;
-:REV?;
-:VOL!;
-:VOL?;
-```
-
-See Section 5.5 on the manual for the list of commands
-
 
 ## TODOs
 
+* Add test coverage
+* Check limits based on PSU model
+* Clean up API
+* Add support for more operational status registers
 * Understand what foldback protection is and if we need it
 * Figure out if we need over-voltage protection
 * Figure out if we need under-voltage protection
