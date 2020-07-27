@@ -4,7 +4,7 @@ import time
 from enum import Enum
 from dataclasses import dataclass
 from types import TracebackType
-from typing import Optional, Type
+from typing import Match, Optional, Type
 
 from serial import Serial
 
@@ -21,6 +21,10 @@ class PSUMode(Enum):
 @dataclass(frozen=True)
 class OperationalStatusRegister:
     mode: PSUMode
+
+
+class TDKLambdaException(Exception):
+    pass
 
 
 class TDKLambdaPSU:
@@ -90,28 +94,34 @@ class TDKLambdaPSU:
         self._write(b":REV?;")
         return self._read_line()
 
+    def _re_search(self, regex: str, line: str) -> Match[str]:
+        search = re.search(regex, line)
+        if search is None:
+            raise TDKLambdaException(f"Could not parse response: {line}")
+        return search
+
     def get_set_voltage(self) -> float:
         self._write(b":VOL!;")
         line = self._read_line()
-        search = re.search("^SV([0-9]+\\.[0-9]+)$", line)
+        search = self._re_search("^SV([0-9]+\\.[0-9]+)$", line)
         return float(search.group(1))
 
     def get_actual_voltage(self) -> float:
         self._write(b":VOL?;")
         line = self._read_line()
-        search = re.search("^AV([0-9]+\\.[0-9]+)$", line)
+        search = self._re_search("^AV([0-9]+\\.[0-9]+)$", line)
         return float(search.group(1))
 
     def get_set_current(self) -> float:
         self._write(b":CUR!;")
         line = self._read_line()
-        search = re.search("^SA([0-9]+\\.[0-9]+)$", line)
+        search = self._re_search("^SA([0-9]+\\.[0-9]+)$", line)
         return float(search.group(1))
 
     def get_actual_current(self) -> float:
         self._write(b":CUR?;")
         line = self._read_line()
-        search = re.search("^AA([0-9]+\\.[0-9]+)$", line)
+        search = self._re_search("^AA([0-9]+\\.[0-9]+)$", line)
         return float(search.group(1))
 
     def set_voltage(self, voltage: float) -> None:
