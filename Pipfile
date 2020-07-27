@@ -3,3 +3,7 @@ python_version = '3.8'
 
 [packages]
 pyserial = "3.4"
+
+[dev-packages]
+pyre-check = "0.0.46"
+python-language-server = "0.34.1"
