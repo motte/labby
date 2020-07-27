@@ -7,6 +7,10 @@ python: "3.8"
 cache:
   pip: true
 
+before_install:
+  - export PIPENV_IGNORE_VIRTUALENVS=1
+  - export PIPENV_VENV_IN_PROJECT=1
+
 install:
   - pip install -Iv pipenv==2020.6.2
   - pipenv install -d
