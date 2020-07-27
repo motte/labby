@@ -1,3 +1,4 @@
+import fcntl
 import re
 import time
 from enum import Enum
@@ -76,6 +77,7 @@ class TDKLambdaPSU:
         self.serial.xonxoff = True
         self.serial.timeout = TIMEOUT_MS / 1000.0
         self.serial.open()
+        fcntl.flock(self.serial, fcntl.LOCK_EX | fcntl.LOCK_NB)
 
     def close(self) -> None:
         self.serial.close()
