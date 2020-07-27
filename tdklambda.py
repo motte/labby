@@ -11,6 +11,7 @@ TIMEOUT_MS = 2000
 
 
 class TDKLambdaPSU:
+    address: int
     baudrate: int
     port: str
     serial: Serial
@@ -19,7 +20,9 @@ class TDKLambdaPSU:
         self,
         port: str,
         baudrate: int,
+        address: int = 1,
     ) -> None:
+        self.address = address
         self.port = port
         self.baudrate = baudrate
         self.serial = Serial()
@@ -30,6 +33,7 @@ class TDKLambdaPSU:
 
     def __enter__(self) -> "TDKLambdaPSU":
         self.open()
+        self._write(bytes(f":ADR{self.address:02d};", "utf-8"))
         return self
 
     def __exit__(
