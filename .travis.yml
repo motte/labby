@@ -1,0 +1,15 @@
+---
+dist: bionic
+
+language: python
+python: "3.8"
+
+cache:
+  pip: true
+
+install:
+  - pip install -Iv pipenv==2020.6.2
+  - pipenv install -d
+
+script:
+  - pipenv run pyre --noninteractive
