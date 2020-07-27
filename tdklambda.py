@@ -1,5 +1,7 @@
 import re
 import time
+from enum import Enum
+from dataclasses import dataclass
 from types import TracebackType
 from typing import Optional, Type
 
@@ -8,6 +10,16 @@ from serial import Serial
 
 WAIT_TIME_AFTER_WRITE_MS: float = 50
 TIMEOUT_MS = 2000
+
+
+class PSUMode(Enum):
+    CONSTANT_VOLTAGE = 0
+    CONSTANT_CURRENT = 1
+
+
+@dataclass(frozen=True)
+class OperationalStatusRegister:
+    mode: PSUMode
 
 
 class TDKLambdaPSU:
@@ -47,6 +59,16 @@ class TDKLambdaPSU:
 
     def _read_line(self) -> str:
         return self.serial.readline()[:-2].decode("utf-8")
+
+    def _read_operational_status_register(self) -> OperationalStatusRegister:
+        self._write(b":STA?;")
+        line = self._read_line()
+        return OperationalStatusRegister(
+            mode=PSUMode(int(line[2]))
+        )
+
+    def get_mode(self) -> PSUMode:
+        return self._read_operational_status_register().mode
 
     def open(self) -> None:
         self.serial.port = self.port
