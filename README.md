@@ -41,3 +41,11 @@ shown on the output, just the output from the PSU):
 ```
 
 See Section 5.5 on the manual for the list of commands
+
+
+## TODOs
+
+* Understand what foldback protection is and if we need it
+* Figure out if we need over-voltage protection
+* Figure out if we need under-voltage protection
+* Figure out what auto-restart mode is and if we need it
