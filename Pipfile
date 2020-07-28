@@ -5,5 +5,6 @@ python_version = '3.8'
 pyserial = "3.4"
 
 [dev-packages]
+pipenv-setup = "3.1.1"
 pyre-check = "0.0.46"
 python-language-server = "0.34.1"
