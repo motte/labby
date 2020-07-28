@@ -1,21 +1,17 @@
 import fcntl
 import re
 import time
-from enum import Enum
 from dataclasses import dataclass
 from types import TracebackType
 from typing import Match, Optional, Type
 
 from serial import Serial
 
+from labctl.hw.core import PSUMode
+
 
 WAIT_TIME_AFTER_WRITE_MS: float = 50
 TIMEOUT_MS = 2000
-
-
-class PSUMode(Enum):
-    CONSTANT_VOLTAGE = 0
-    CONSTANT_CURRENT = 1
 
 
 @dataclass(frozen=True)
