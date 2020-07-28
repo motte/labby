@@ -7,7 +7,7 @@ from typing import Match, Optional, Type
 
 from serial import Serial
 
-from labctl.hw.core import PSUMode
+from labctl.hw.core import PSU, PSUMode
 
 
 WAIT_TIME_AFTER_WRITE_MS: float = 50
@@ -23,7 +23,7 @@ class TDKLambdaException(Exception):
     pass
 
 
-class ZUP:
+class ZUP(PSU):
     address: int
     baudrate: int
     port: str
