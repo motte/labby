@@ -7,12 +7,12 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
 setup(
-    name="tdklambda",
+    name="labctl",
     version="0.0.1",
     description="An utility for controlling laboratory equipment",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/luizribeiro/tdklambda",
+    url="https://github.com/luizribeiro/labctl",
     author="Luiz Ribeiro",
     author_email="luizribeiro@gmail.com",
     classifiers=[
@@ -29,7 +29,7 @@ setup(
     install_requires=["pyserial==3.4"],
     dependency_links=[],
     project_urls={
-        "Bug Reports": "https://github.com/luizribeiro/tdklambda/issues",
-        "Source": "https://github.com/luizribeiro/tdklambda/",
+        "Bug Reports": "https://github.com/luizribeiro/labctl/issues",
+        "Source": "https://github.com/luizribeiro/labctl/",
     },
 )
