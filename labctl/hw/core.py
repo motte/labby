@@ -43,3 +43,7 @@ class PSU(ABC):
     @abstractmethod
     def set_current(self, current: float) -> None:
         ...
+
+
+class TDKLambdaException(Exception):
+    pass

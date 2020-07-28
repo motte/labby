@@ -7,7 +7,7 @@ from typing import Match, Optional, Type
 
 from serial import Serial
 
-from labctl.hw.core import PSU, PSUMode
+from labctl.hw.core import PSU, PSUMode, TDKLambdaException
 
 
 WAIT_TIME_AFTER_WRITE_MS: float = 50
@@ -17,10 +17,6 @@ TIMEOUT_MS = 2000
 @dataclass(frozen=True)
 class OperationalStatusRegister:
     mode: PSUMode
-
-
-class TDKLambdaException(Exception):
-    pass
 
 
 class ZUP(PSU):
