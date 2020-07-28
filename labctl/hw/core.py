@@ -45,5 +45,5 @@ class PSU(ABC):
         ...
 
 
-class TDKLambdaException(Exception):
+class HardwareIOException(Exception):
     pass

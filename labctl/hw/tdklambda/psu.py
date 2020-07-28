@@ -7,7 +7,7 @@ from typing import Match, Optional, Type
 
 from serial import Serial
 
-from labctl.hw.core import PSU, PSUMode, TDKLambdaException
+from labctl.hw.core import HardwareIOException, PSU, PSUMode
 
 
 WAIT_TIME_AFTER_WRITE_MS: float = 50
@@ -89,7 +89,7 @@ class ZUP(PSU):
     def _re_search(self, regex: str, line: str) -> Match[str]:
         search = re.search(regex, line)
         if search is None:
-            raise TDKLambdaException(f"Could not parse response: {line}")
+            raise HardwareIOException(f"Could not parse response: {line}")
         return search
 
     def get_set_voltage(self) -> float:
