@@ -1,6 +1,6 @@
-# luizribeiro/tdklambda
+# luizribeiro/labctl
 
-[![Build Status](https://travis-ci.com/luizribeiro/tdklambda.svg?branch=master)](https://travis-ci.com/luizribeiro/tdklambda)
+[![Build Status](https://travis-ci.com/luizribeiro/labctl.svg?branch=master)](https://travis-ci.com/luizribeiro/labctl)
 
 A basic library for interacting with the ZUP Series of power supplies by
 TDK-Lambda.
@@ -32,9 +32,9 @@ Note `ttyUSB0`. This means the PSU is available for communication under
 ### Basic Usage
 
 ```python
-from tdklambda import TDKLambdaPSU
+from labctl.hw import tdklambda
 
-with TDKLambdaPSU("/dev/ttyUSB0", 9600) as psu:
+with tdklambda.psu.ZUP("/dev/ttyUSB0", 9600) as psu:
     psu.set_voltage(6.0)
     psu.set_current(1.5)
     psu.set_output_on(True)

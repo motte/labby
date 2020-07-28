@@ -27,7 +27,7 @@ class TDKLambdaException(Exception):
     pass
 
 
-class TDKLambdaPSU:
+class ZUP:
     address: int
     baudrate: int
     port: str
@@ -43,7 +43,7 @@ class TDKLambdaPSU:
         self.serial.write(msg)
         time.sleep(WAIT_TIME_AFTER_WRITE_MS / 1000.0)
 
-    def __enter__(self) -> "TDKLambdaPSU":
+    def __enter__(self) -> "ZUP":
         self.open()
         self._write(bytes(f":ADR{self.address:02d};", "utf-8"))
         return self
