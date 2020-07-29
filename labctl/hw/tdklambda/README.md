@@ -30,9 +30,9 @@ Note `ttyUSB0`. This means the PSU is available for communication under
 ### Basic Usage
 
 ```python
-from labctl.hw import tdklambda
+from labctl.hw.tdklambda import psu as tdklambda_psu
 
-with tdklambda.psu.ZUP("/dev/ttyUSB0", 9600) as psu:
+with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600) as psu:
     psu.set_voltage(6.0)
     psu.set_current(1.5)
     psu.set_output_on(True)
@@ -45,6 +45,4 @@ with tdklambda.psu.ZUP("/dev/ttyUSB0", 9600) as psu:
     print(f"Actual Current: {psu.get_actual_current():.3f} A")
     print(f"Mode: {psu.get_mode()}")
     print(f"Output: {'ON' if psu.is_output_on() else 'OFF'}")
-
-    psu.close()
 ```
