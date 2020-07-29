@@ -1,6 +1,7 @@
 # luizribeiro/labctl
 
 [![Build Status](https://travis-ci.com/luizribeiro/labctl.svg?branch=master)](https://travis-ci.com/luizribeiro/labctl)
+[![codecov](https://codecov.io/gh/luizribeiro/labctl/branch/master/graph/badge.svg)](https://codecov.io/gh/luizribeiro/labctl)
 
 A basic library for interacting with lab hardware.
 
