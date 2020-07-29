@@ -21,7 +21,7 @@ class PSU(ABC):
         ...
 
     @abstractmethod
-    def get_set_voltage(self) -> float:
+    def get_target_voltage(self) -> float:
         ...
 
     @abstractmethod
@@ -29,7 +29,7 @@ class PSU(ABC):
         ...
 
     @abstractmethod
-    def get_set_current(self) -> float:
+    def get_target_current(self) -> float:
         ...
 
     @abstractmethod
@@ -37,11 +37,11 @@ class PSU(ABC):
         ...
 
     @abstractmethod
-    def set_voltage(self, voltage: float) -> None:
+    def set_target_voltage(self, voltage: float) -> None:
         ...
 
     @abstractmethod
-    def set_current(self, current: float) -> None:
+    def set_target_current(self, current: float) -> None:
         ...
 
 

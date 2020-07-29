@@ -1,8 +1,8 @@
 from labctl.hw import tdklambda
 
 with tdklambda.psu.ZUP("/dev/ttyUSB0", 9600) as psu:
-    psu.set_voltage(2.0)
-    psu.set_current(1.5)
+    psu.set_target_voltage(2.0)
+    psu.set_target_current(1.5)
     psu.set_output_on(False)
     print(f"Model: {psu.get_model()}")
     print(f"Software Version: {psu.get_software_version()}")

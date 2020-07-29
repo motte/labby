@@ -92,7 +92,7 @@ class ZUP(PSU):
             raise HardwareIOException(f"Could not parse response: {line}")
         return search
 
-    def get_set_voltage(self) -> float:
+    def get_target_voltage(self) -> float:
         self._write(b":VOL!;")
         line = self._read_line()
         search = self._re_search("^SV([0-9]+\\.[0-9]+)$", line)
@@ -104,7 +104,7 @@ class ZUP(PSU):
         search = self._re_search("^AV([0-9]+\\.[0-9]+)$", line)
         return float(search.group(1))
 
-    def get_set_current(self) -> float:
+    def get_target_current(self) -> float:
         self._write(b":CUR!;")
         line = self._read_line()
         search = self._re_search("^SA([0-9]+\\.[0-9]+)$", line)
@@ -116,12 +116,12 @@ class ZUP(PSU):
         search = self._re_search("^AA([0-9]+\\.[0-9]+)$", line)
         return float(search.group(1))
 
-    def set_voltage(self, voltage: float) -> None:
+    def set_target_voltage(self, voltage: float) -> None:
         # TODO: assert voltage is within range
         command = bytes(f":VOL{voltage:.3f};", "utf-8")
         self._write(command)
 
-    def set_current(self, current: float) -> None:
+    def set_target_current(self, current: float) -> None:
         # TODO: assert current is within range
         command = bytes(f":CUR{current:06.2f};", "utf-8")
         self._write(command)
