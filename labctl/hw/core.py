@@ -21,6 +21,14 @@ class PSU(ABC):
         ...
 
     @abstractmethod
+    def is_output_on(self) -> bool:
+        ...
+
+    @abstractmethod
+    def set_output_on(self, is_on: bool) -> None:
+        ...
+
+    @abstractmethod
     def get_target_voltage(self) -> float:
         ...
 
