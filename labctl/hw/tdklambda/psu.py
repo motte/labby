@@ -37,7 +37,6 @@ class ZUP(PSU):
 
     def __enter__(self) -> "ZUP":
         self.open()
-        self._write(bytes(f":ADR{self.address:02d};", "utf-8"))
         return self
 
     def __exit__(
@@ -67,6 +66,7 @@ class ZUP(PSU):
         self.serial.timeout = TIMEOUT_MS / 1000.0
         self.serial.open()
         fcntl.flock(self.serial, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        self._write(bytes(f":ADR{self.address:02d};", "utf-8"))
 
     def close(self) -> None:
         self.serial.close()
