@@ -17,4 +17,8 @@ install:
 
 script:
   - pipenv run pyre --noninteractive
-  - pipenv run green
+  - pipenv run green --run-coverage
+
+after_success:
+  - pip install codecov
+  - codecov
