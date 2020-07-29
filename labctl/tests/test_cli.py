@@ -5,4 +5,6 @@ from labctl.tests.utils import captured_output
 
 class CommandLineTest(TestCase):
     def test_basic_instantiation(self):
-        cli.main()
+        with captured_output() as (stdout, _stderr):
+            cli.main()
+        self.assertEqual(stdout.getvalue(), "Hello world\n")
