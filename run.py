@@ -1,6 +1,6 @@
-from labctl.hw import tdklambda
+from labctl.hw.tdklambda import psu as tdklambda_psu
 
-with tdklambda.psu.ZUP("/dev/ttyUSB0", 9600) as psu:
+with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600) as psu:
     psu.set_target_voltage(2.0)
     psu.set_target_current(1.5)
     psu.set_output_on(False)
