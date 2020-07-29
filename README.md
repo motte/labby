@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.com/luizribeiro/labctl.svg?branch=master)](https://travis-ci.com/luizribeiro/labctl)
 
-A basic library for interacting with the lab hardware.
+A basic library for interacting with lab hardware.
 
 ## TODOs
 
