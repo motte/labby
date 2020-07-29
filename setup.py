@@ -32,4 +32,5 @@ setup(
         "Bug Reports": "https://github.com/luizribeiro/labctl/issues",
         "Source": "https://github.com/luizribeiro/labctl/",
     },
+    entry_points={"console_scripts": ["labctl=labctl.cli:main"]},
 )
