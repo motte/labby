@@ -1,3 +1,4 @@
+import inspect
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Any, Dict, Type
@@ -17,7 +18,13 @@ class Device(ABC):
 
     @classmethod
     def create(cls, driver: str, args: Dict[str, Any]) -> "Device":
-        return ALL_DRIVERS[driver](**args)
+        klass = ALL_DRIVERS[driver]
+        signature = inspect.signature(klass)
+        typed_args = {
+            key: signature.parameters[key].annotation(value)
+            for key, value in args.items()
+        }
+        return klass(**typed_args)
 
 
 class PSU(Device, ABC):
