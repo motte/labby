@@ -1,4 +1,3 @@
-import strictyaml
 from unittest import TestCase
 
 from labctl.config import Config

@@ -23,15 +23,15 @@ class ZUPTest(TestCase):
         self.serial_port_patch.stop()
 
     def test_opening_with_default_address(self) -> None:
-        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600) as psu:
+        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600):
             self.serial_port_mock.write.assert_called_once_with(b":ADR01;")
 
     def test_opening_with_custom_address(self) -> None:
-        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600, address=42) as psu:
+        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600, address=42):
             self.serial_port_mock.write.assert_called_once_with(b":ADR42;")
 
     def test_closes_automatically_from_with_block(self) -> None:
-        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600) as psu:
+        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600):
             pass
         self.serial_port_mock.close.assert_called_once()
 
