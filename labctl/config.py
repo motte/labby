@@ -1,7 +1,7 @@
 import strictyaml
 from strictyaml import Any, Enum, Map, MapPattern, Seq, Str
 
-from labctl.hw.core import Driver
+from labctl.hw.core import Device
 
 
 SCHEMA = Map(
@@ -26,6 +26,6 @@ class Config:
     def __init__(self, yaml_contents: str) -> None:
         self.config = strictyaml.load(yaml_contents, SCHEMA)
         self.devices = [
-            Driver.create(device["driver"].data, device["args"].data)
+            Device.create(device["driver"].data, device["args"].data)
             for device in self.config["devices"]
         ]

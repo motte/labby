@@ -8,19 +8,19 @@ class PSUMode(Enum):
     CONSTANT_CURRENT = 1
 
 
-ALL_DRIVERS: Dict[str, Type["Driver"]] = {}
+ALL_DRIVERS: Dict[str, Type["Device"]] = {}
 
 
-class Driver(ABC):
+class Device(ABC):
     def __init_subclass__(cls):
         ALL_DRIVERS[f"{cls.__module__}.{cls.__name__}"] = cls
 
     @classmethod
-    def create(cls, driver: str, args: Dict[str, Any]) -> "Driver":
+    def create(cls, driver: str, args: Dict[str, Any]) -> "Device":
         return ALL_DRIVERS[driver](**args)
 
 
-class PSU(Driver, ABC):
+class PSU(Device, ABC):
     @abstractmethod
     def get_mode(self) -> PSUMode:
         raise NotImplementedError
