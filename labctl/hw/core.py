@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Dict
+from typing import Any, Dict, Type
 
 
 class PSUMode(Enum):
@@ -8,12 +8,16 @@ class PSUMode(Enum):
     CONSTANT_CURRENT = 1
 
 
-ALL_DRIVERS: Dict[str, "Driver"] = {}
+ALL_DRIVERS: Dict[str, Type["Driver"]] = {}
 
 
 class Driver(ABC):
     def __init_subclass__(cls):
         ALL_DRIVERS[f"{cls.__module__}.{cls.__name__}"] = cls
+
+    @classmethod
+    def create(cls, driver: str, args: Dict[str, Any]) -> "Driver":
+        return ALL_DRIVERS[driver](**args)
 
 
 class PSU(Driver, ABC):

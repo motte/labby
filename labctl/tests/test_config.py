@@ -2,6 +2,7 @@ import strictyaml
 from unittest import TestCase
 
 from labctl.config import Config
+from labctl.hw import tdklambda
 
 
 class ConfigTest(TestCase):
@@ -15,9 +16,15 @@ devices:
     driver: labctl.hw.tdklambda.psu.ZUP
     args:
       port: "/dev/ttyUSB0"
-      baud_rate: 9600
+      baudrate: 9600
       address: 1
         """
         )
 
-        self.assertEqual(len(config.config["devices"]), 1)
+        self.assertEqual(len(config.devices), 1)
+        device = config.devices[0]
+        self.assertIsInstance(device, tdklambda.psu.ZUP)
+        self.assertEquals(device.port, "/dev/ttyUSB0")
+        # FIXME: these should be integers
+        self.assertEquals(device.baudrate, "9600")
+        self.assertEquals(device.address, "1")
