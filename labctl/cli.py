@@ -1,4 +1,13 @@
+import sys
+from enum import Enum
 from tap import Tap
+
+
+class Command(Enum):
+    HELLO = "hello"
+
+    def __repr__(self) -> str:
+        return self.value
 
 
 # pyre-ignore[13]: command is unitialized
@@ -11,6 +20,13 @@ class ArgumentParser(Tap):
 
 def main() -> None:
     args = ArgumentParser().parse_args()
-    if args.command == "hello":
+    try:
+        command = Command(args.command)
+    except ValueError:
+        print(f"Error: Invalid command {args.command}\n")
+        args.print_help()
+        sys.exit(2)
+
+    if command == Command.HELLO:
         print("Hello world")
         return

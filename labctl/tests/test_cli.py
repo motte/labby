@@ -23,6 +23,14 @@ class CommandLineTest(TestCase):
     def test_command_is_required(self):
         (rc, stdout, stderr) = self.main([])
         self.assertEqual(rc, 2)
+        self.assertTrue("usage: labctl" in stderr)
         self.assertTrue(
             "labctl: error: the following arguments are required: command\n" in stderr
         )
+
+    def test_invalid_command(self):
+        (rc, stdout, stderr) = self.main(["foobar"])
+        # TODO ehhh this should all go to stderr actually
+        self.assertTrue("Error: Invalid command foobar\n" in stdout)
+        self.assertTrue("usage: labctl" in stdout)
+        self.assertEqual(rc, 2)
