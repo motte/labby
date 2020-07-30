@@ -2,7 +2,20 @@ from unittest import TestCase
 from typing import List, Tuple
 
 from labctl import cli
-from labctl.tests.utils import captured_output, cli_arguments
+from labctl.tests.utils import captured_output, cli_arguments, labctl_config
+
+
+LABCTL_CONFIG = """
+---
+devices:
+  - name: "zup-6-132"
+    type: psu
+    driver: labctl.hw.tdklambda.psu.ZUP
+    args:
+      port: "/dev/ttyUSB0"
+      baudrate: 9600
+      address: 1
+"""
 
 
 class CommandLineTest(TestCase):
@@ -34,3 +47,14 @@ class CommandLineTest(TestCase):
         self.assertTrue("Error: Invalid command foobar\n" in stdout)
         self.assertTrue("usage: labctl" in stdout)
         self.assertEqual(rc, 2)
+
+    def test_list_devices(self) -> None:
+        with labctl_config(LABCTL_CONFIG):
+            (rc, stdout, stderr) = self.main(["devices"])
+        self.assertEqual(rc, 0)
+        self.assertEquals(
+            stdout,
+            """Available Devices:
+● zup-6-132
+""",
+        )
