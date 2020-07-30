@@ -3,6 +3,7 @@ python_version = '3.8'
 
 [packages]
 pyserial = "3.4"
+typed-argument-parser = "1.5.4"
 
 [dev-packages]
 green = "3.2.0"
