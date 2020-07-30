@@ -13,6 +13,7 @@ class Command(Enum):
 # pyre-ignore[13]: command is unitialized
 class ArgumentParser(Tap):
     command: str
+    config: str = "labctl.yml"
 
     def add_arguments(self) -> None:
         self.add_argument("command")
@@ -37,7 +38,7 @@ def main() -> None:
         print("Hello world")
         return
 
-    with open("labctl.yml", "r") as config_file:
+    with open(args.config, "r") as config_file:
         config = Config(config_file.read())
 
     if command == Command.DEVICES:
