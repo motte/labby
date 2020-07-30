@@ -21,9 +21,10 @@ devices:
         """
         )
 
-        self.assertEqual(len(config.devices), 1)
+        devices = config.get_devices()
+        self.assertEqual(len(devices), 1)
         device = config.devices[0]
-        self.assertIsInstance(device, tdklambda.psu.ZUP)
+        assert isinstance(device, tdklambda.psu.ZUP)
         self.assertEquals(device.port, "/dev/ttyUSB0")
         # FIXME: these should be integers
         self.assertEquals(device.baudrate, "9600")
