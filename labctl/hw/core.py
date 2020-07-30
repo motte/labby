@@ -13,18 +13,22 @@ ALL_DRIVERS: Dict[str, Type["Device"]] = {}
 
 
 class Device(ABC):
+    name: str = "unnamed device"
+
     def __init_subclass__(cls):
         ALL_DRIVERS[f"{cls.__module__}.{cls.__name__}"] = cls
 
     @classmethod
-    def create(cls, driver: str, args: Dict[str, Any]) -> "Device":
+    def create(cls, name: str, driver: str, args: Dict[str, Any]) -> "Device":
         klass = ALL_DRIVERS[driver]
         signature = inspect.signature(klass)
         typed_args = {
             key: signature.parameters[key].annotation(value)
             for key, value in args.items()
         }
-        return klass(**typed_args)
+        device = klass(**typed_args)
+        device.name = name
+        return device
 
 
 class PSU(Device, ABC):

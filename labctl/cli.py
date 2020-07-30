@@ -22,7 +22,7 @@ class ArgumentParser(Tap):
 def list_devices(config: Config) -> None:
     print("Available Devices:")
     for device in config.devices:
-        print(f"● {device.__class__}")
+        print(f"● {device.name}")
 
 
 def main() -> None:
