@@ -6,9 +6,6 @@ from tap import Tap
 class Command(Enum):
     HELLO = "hello"
 
-    def __repr__(self) -> str:
-        return self.value
-
 
 # pyre-ignore[13]: command is unitialized
 class ArgumentParser(Tap):
