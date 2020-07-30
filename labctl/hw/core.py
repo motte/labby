@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
+from typing import Dict
 
 
 class PSUMode(Enum):
@@ -7,7 +8,15 @@ class PSUMode(Enum):
     CONSTANT_CURRENT = 1
 
 
-class PSU(ABC):
+ALL_DRIVERS: Dict[str, "Driver"] = {}
+
+
+class Driver(ABC):
+    def __init_subclass__(cls):
+        ALL_DRIVERS[f"{cls.__module__}.{cls.__name__}"] = cls
+
+
+class PSU(Driver, ABC):
     @abstractmethod
     def get_mode(self) -> PSUMode:
         raise NotImplementedError
