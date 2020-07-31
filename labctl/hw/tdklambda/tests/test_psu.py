@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import _patch, patch, Mock
 
-from labctl.hw.core import PSUMode
+from labctl.hw.core import HardwareIOException, PSUMode
 from labctl.hw.tdklambda import psu as tdklambda_psu
 
 
@@ -132,3 +132,11 @@ class ZUPTest(TestCase):
             returned_mode = psu.get_mode()
             self.serial_port_mock.write.assert_called_once_with(b":STA?;")
             self.assertEqual(returned_mode, PSUMode.CONSTANT_CURRENT)
+
+    def test_invalid_response(self) -> None:
+        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600, address=42) as psu:
+            self.serial_port_mock.readline.return_value = b"foobar\r\n"
+            with self.assertRaisesRegex(
+                HardwareIOException, "Could not parse response"
+            ):
+                psu.get_actual_voltage()
