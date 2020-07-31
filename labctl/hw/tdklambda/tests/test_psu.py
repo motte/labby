@@ -83,6 +83,16 @@ class ZUPTest(TestCase):
             self.assertFalse(psu.is_output_on())
             self.serial_port_mock.write.assert_called_once_with(b":OUT?;")
 
+    def test_set_output_on(self) -> None:
+        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600, address=42) as psu:
+            self.serial_port_mock.reset_mock()
+            psu.set_output_on(True)
+            self.serial_port_mock.write.assert_called_once_with(b":OUT1;")
+
+            self.serial_port_mock.reset_mock()
+            psu.set_output_on(False)
+            self.serial_port_mock.write.assert_called_once_with(b":OUT0;")
+
     def test_get_target_voltage(self) -> None:
         with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600, address=42) as psu:
             self.serial_port_mock.reset_mock()
