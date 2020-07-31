@@ -62,6 +62,14 @@ class ZUPTest(TestCase):
             self.serial_port_mock.write.assert_called_once_with(b":MDL?;")
             self.assertEquals(returned_model, "FOOBAR")
 
+    def test_get_software_version(self) -> None:
+        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600, address=42) as psu:
+            self.serial_port_mock.reset_mock()
+            self.serial_port_mock.readline.return_value = b"V4.2.0\r\n"
+            returned_version = psu.get_software_version()
+            self.serial_port_mock.write.assert_called_once_with(b":REV?;")
+            self.assertEquals(returned_version, "V4.2.0")
+
     def test_is_output_on(self) -> None:
         with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600, address=42) as psu:
             self.serial_port_mock.reset_mock()
