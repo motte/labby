@@ -71,6 +71,13 @@ class ZUP(PSU):
     def close(self) -> None:
         self.serial.close()
 
+    def test_connection(self) -> None:
+        try:
+            model = self.get_model()
+            assert len(model) > 0
+        except Exception:
+            raise HardwareIOException
+
     def get_model(self) -> str:
         self._write(b":MDL?;")
         return self._read_line()

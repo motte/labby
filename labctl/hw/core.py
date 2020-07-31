@@ -18,6 +18,18 @@ class Device(ABC):
     def __init_subclass__(cls):
         ALL_DRIVERS[f"{cls.__module__}.{cls.__name__}"] = cls
 
+    @abstractmethod
+    def open(self) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def close(self) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def test_connection(self) -> None:
+        raise NotImplementedError
+
     @classmethod
     def create(cls, name: str, driver: str, args: Dict[str, Any]) -> "Device":
         klass = ALL_DRIVERS[driver]
@@ -26,6 +38,7 @@ class Device(ABC):
             key: signature.parameters[key].annotation(value)
             for key, value in args.items()
         }
+        # pyre-ignore[45]: Cannot instantiate abstract class Device
         device = klass(**typed_args)
         device.name = name
         return device
@@ -34,14 +47,6 @@ class Device(ABC):
 class PSU(Device, ABC):
     @abstractmethod
     def get_mode(self) -> PSUMode:
-        raise NotImplementedError
-
-    @abstractmethod
-    def open(self) -> None:
-        raise NotImplementedError
-
-    @abstractmethod
-    def close(self) -> None:
         raise NotImplementedError
 
     @abstractmethod

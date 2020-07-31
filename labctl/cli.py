@@ -22,7 +22,15 @@ class ArgumentParser(Tap):
 def list_devices(config: Config) -> None:
     print("Available Devices:")
     for device in config.devices:
-        print(f"● {device.name}")
+        try:
+            device.open()
+            device.test_connection()
+            print(f"● {device.name}")
+        except Exception as ex:
+            print(f"  {device.name}: {type(ex).__name__}:")
+            print(f"    {str(ex)}")
+        finally:
+            device.close()
 
 
 def main() -> None:
