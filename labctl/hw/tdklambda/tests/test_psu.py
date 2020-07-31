@@ -44,19 +44,19 @@ class ZUPTest(TestCase):
         self.serial_port_mock.close.assert_called_once()
 
     def test_setting_target_voltage(self) -> None:
-        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600, address=42) as psu:
+        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600) as psu:
             self.serial_port_mock.reset_mock()
             psu.set_target_voltage(4.25)
             self.serial_port_mock.write.assert_called_once_with(b":VOL4.250;")
 
     def test_setting_target_current(self) -> None:
-        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600, address=42) as psu:
+        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600) as psu:
             self.serial_port_mock.reset_mock()
             psu.set_target_current(1.23)
             self.serial_port_mock.write.assert_called_once_with(b":CUR001.23;")
 
     def test_get_model(self) -> None:
-        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600, address=42) as psu:
+        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600) as psu:
             self.serial_port_mock.reset_mock()
             self.serial_port_mock.readline.return_value = b"FOOBAR\r\n"
             returned_model = psu.get_model()
@@ -64,7 +64,7 @@ class ZUPTest(TestCase):
             self.assertEquals(returned_model, "FOOBAR")
 
     def test_get_software_version(self) -> None:
-        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600, address=42) as psu:
+        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600) as psu:
             self.serial_port_mock.reset_mock()
             self.serial_port_mock.readline.return_value = b"V4.2.0\r\n"
             returned_version = psu.get_software_version()
@@ -72,7 +72,7 @@ class ZUPTest(TestCase):
             self.assertEquals(returned_version, "V4.2.0")
 
     def test_is_output_on(self) -> None:
-        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600, address=42) as psu:
+        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600) as psu:
             self.serial_port_mock.reset_mock()
             self.serial_port_mock.readline.return_value = b"OT1\r\n"
             self.assertTrue(psu.is_output_on())
@@ -84,7 +84,7 @@ class ZUPTest(TestCase):
             self.serial_port_mock.write.assert_called_once_with(b":OUT?;")
 
     def test_set_output_on(self) -> None:
-        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600, address=42) as psu:
+        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600) as psu:
             self.serial_port_mock.reset_mock()
             psu.set_output_on(True)
             self.serial_port_mock.write.assert_called_once_with(b":OUT1;")
@@ -94,7 +94,7 @@ class ZUPTest(TestCase):
             self.serial_port_mock.write.assert_called_once_with(b":OUT0;")
 
     def test_get_target_voltage(self) -> None:
-        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600, address=42) as psu:
+        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600) as psu:
             self.serial_port_mock.reset_mock()
             self.serial_port_mock.readline.return_value = b"SV1.42\r\n"
             returned_target_voltage = psu.get_target_voltage()
@@ -102,7 +102,7 @@ class ZUPTest(TestCase):
             self.assertAlmostEqual(returned_target_voltage, 1.42)
 
     def test_get_target_current(self) -> None:
-        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600, address=42) as psu:
+        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600) as psu:
             self.serial_port_mock.reset_mock()
             self.serial_port_mock.readline.return_value = b"SA0.01\r\n"
             returned_target_current = psu.get_target_current()
@@ -110,7 +110,7 @@ class ZUPTest(TestCase):
             self.assertAlmostEqual(returned_target_current, 0.01)
 
     def test_get_actual_voltage(self) -> None:
-        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600, address=42) as psu:
+        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600) as psu:
             self.serial_port_mock.reset_mock()
             self.serial_port_mock.readline.return_value = b"AV1.33\r\n"
             returned_actual_voltage = psu.get_actual_voltage()
@@ -118,7 +118,7 @@ class ZUPTest(TestCase):
             self.assertAlmostEqual(returned_actual_voltage, 1.33)
 
     def test_get_actual_current(self) -> None:
-        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600, address=42) as psu:
+        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600) as psu:
             self.serial_port_mock.reset_mock()
             self.serial_port_mock.readline.return_value = b"AA0.02\r\n"
             returned_actual_current = psu.get_actual_current()
@@ -126,7 +126,7 @@ class ZUPTest(TestCase):
             self.assertAlmostEqual(returned_actual_current, 0.02)
 
     def test_get_mode(self) -> None:
-        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600, address=42) as psu:
+        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600) as psu:
             self.serial_port_mock.reset_mock()
             self.serial_port_mock.readline.return_value = b"OS100000000"
             returned_mode = psu.get_mode()
@@ -134,7 +134,7 @@ class ZUPTest(TestCase):
             self.assertEqual(returned_mode, PSUMode.CONSTANT_CURRENT)
 
     def test_invalid_response(self) -> None:
-        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600, address=42) as psu:
+        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600) as psu:
             self.serial_port_mock.readline.return_value = b"foobar\r\n"
             with self.assertRaisesRegex(
                 HardwareIOException, "Could not parse response"
