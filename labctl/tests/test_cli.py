@@ -67,3 +67,15 @@ class CommandLineTest(TestCase):
 ● zup-6-132
 """,
         )
+
+    @fake_serial_port
+    def test_list_unavailable_devices(self, serial_port_mock: Mock) -> None:
+        with labctl_config(LABCTL_CONFIG):
+            (rc, stdout, stderr) = self.main(["devices"])
+        self.assertEqual(rc, 0)
+        self.assertIn(
+            """Available Devices:
+  zup-6-132: HardwareIOException:
+""",
+            stdout,
+        )
