@@ -7,7 +7,6 @@ A basic library for interacting with lab hardware.
 
 ## TODOs
 
-* Add test coverage
 * Check limits based on PSU model
 * Clean up API
 * Add support for more operational status registers
