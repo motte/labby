@@ -5,9 +5,6 @@ from labctl.hw.core import HardwareIOException, PSUMode
 from labctl.hw.tdklambda import psu as tdklambda_psu
 
 
-SERIAL_PORT_MOCK = Mock()
-
-
 @patch("labctl.hw.tdklambda.psu.fcntl.flock", Mock())
 class ZUPTest(TestCase):
     serial_port_mock: Mock
