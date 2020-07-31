@@ -1,6 +1,7 @@
 import inspect
 from abc import ABC, abstractmethod
 from enum import Enum
+from serial import Serial
 from typing import Any, Dict, Type
 
 
@@ -42,6 +43,15 @@ class Device(ABC):
         device = klass(**typed_args)
         device.name = name
         return device
+
+
+class SerialDevice(ABC):
+    serial: Serial
+
+    def __init__(self, port: str, baudrate: int) -> None:
+        self.serial = Serial()
+        self.serial.port = port
+        self.serial.baudrate = baudrate
 
 
 class PSU(Device, ABC):

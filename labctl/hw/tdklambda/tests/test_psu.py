@@ -16,7 +16,7 @@ class ZUPTest(TestCase):
     def setUp(self) -> None:
         self.serial_port_mock = Mock()
         self.serial_port_patch = patch(
-            "labctl.hw.tdklambda.psu.Serial", return_value=self.serial_port_mock,
+            "labctl.hw.core.Serial", return_value=self.serial_port_mock,
         )
         self.serial_port_patch.start()
 
