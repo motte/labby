@@ -1,8 +1,14 @@
 from unittest import TestCase
+from unittest.mock import Mock
 from typing import List, Tuple
 
 from labctl import cli
-from labctl.tests.utils import captured_output, cli_arguments, labctl_config
+from labctl.tests.utils import (
+    captured_output,
+    cli_arguments,
+    fake_serial_port,
+    labctl_config,
+)
 
 
 LABCTL_CONFIG = """
@@ -48,7 +54,10 @@ class CommandLineTest(TestCase):
         self.assertTrue("usage: labctl" in stdout)
         self.assertEqual(rc, 2)
 
-    def test_list_devices(self) -> None:
+    @fake_serial_port
+    def test_list_devices(self, serial_port_mock: Mock) -> None:
+        serial_port_mock.readline.return_value = b"FOOBAR\r\n"
+
         with labctl_config(LABCTL_CONFIG):
             (rc, stdout, stderr) = self.main(["devices"])
         self.assertEqual(rc, 0)
