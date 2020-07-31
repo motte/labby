@@ -97,3 +97,19 @@ class ZUPTest(TestCase):
             returned_target_current = psu.get_target_current()
             self.serial_port_mock.write.assert_called_once_with(b":CUR!;")
             self.assertAlmostEqual(returned_target_current, 0.01)
+
+    def test_get_actual_voltage(self) -> None:
+        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600, address=42) as psu:
+            self.serial_port_mock.reset_mock()
+            self.serial_port_mock.readline.return_value = b"AV1.33\r\n"
+            returned_actual_voltage = psu.get_actual_voltage()
+            self.serial_port_mock.write.assert_called_once_with(b":VOL?;")
+            self.assertAlmostEqual(returned_actual_voltage, 1.33)
+
+    def test_get_actual_current(self) -> None:
+        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600, address=42) as psu:
+            self.serial_port_mock.reset_mock()
+            self.serial_port_mock.readline.return_value = b"AA0.02\r\n"
+            returned_actual_current = psu.get_actual_current()
+            self.serial_port_mock.write.assert_called_once_with(b":CUR?;")
+            self.assertAlmostEqual(returned_actual_current, 0.02)
