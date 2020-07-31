@@ -53,3 +53,11 @@ class ZUPTest(TestCase):
             self.serial_port_mock.reset_mock()
             psu.set_target_current(1.23)
             self.serial_port_mock.write.assert_called_once_with(b":CUR001.23;")
+
+    def test_get_model(self) -> None:
+        with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600, address=42) as psu:
+            self.serial_port_mock.reset_mock()
+            self.serial_port_mock.readline.return_value = b"FOOBAR\r\n"
+            returned_model = psu.get_model()
+            self.serial_port_mock.write.assert_called_once_with(b":MDL?;")
+            self.assertEquals(returned_model, "FOOBAR")
