@@ -63,7 +63,7 @@ class CommandLineTest(TestCase):
         self.assertEqual(rc, 0)
         self.assertEquals(
             stdout,
-            """Available Devices:
+            """Registered Devices:
 ● zup-6-132
 """,
         )
@@ -74,7 +74,7 @@ class CommandLineTest(TestCase):
             (rc, stdout, stderr) = self.main(["devices"])
         self.assertEqual(rc, 0)
         self.assertIn(
-            """Available Devices:
+            """Registered Devices:
   zup-6-132: HardwareIOException:
 """,
             stdout,

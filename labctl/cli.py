@@ -20,7 +20,7 @@ class ArgumentParser(Tap):
 
 
 def list_devices(config: Config) -> None:
-    print("Available Devices:")
+    print("Registered Devices:")
     for device in config.devices:
         try:
             device.open()
