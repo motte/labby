@@ -11,7 +11,7 @@ SCHEMA = Map(
             Map(
                 {
                     "name": Str(),
-                    "type": Enum("psu"),
+                    "type": Enum("power_supply"),
                     "driver": Str(),
                     "args": MapPattern(Str(), Any()),
                 }

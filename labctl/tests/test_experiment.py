@@ -60,8 +60,8 @@ class ExperimentRunnerTest(TestCase):
 ---
 devices:
   - name: "zup-6-132"
-    type: psu
-    driver: labctl.hw.tdklambda.psu.ZUP
+    type: power_supply
+    driver: labctl.hw.tdklambda.power_supply.ZUP
     args:
       port: "/dev/ttyUSB0"
       baudrate: 9600

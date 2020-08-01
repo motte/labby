@@ -30,19 +30,19 @@ Note `ttyUSB0`. This means the PSU is available for communication under
 ### Basic Usage
 
 ```python
-from labctl.hw.tdklambda import psu as tdklambda_psu
+from labctl.hw.tdklambda import power_supply as tdklambda_power_supply
 
-with tdklambda_psu.ZUP("/dev/ttyUSB0", 9600) as psu:
-    psu.set_voltage(6.0)
-    psu.set_current(1.5)
-    psu.set_output_on(True)
+with tdklambda_power_supply.ZUP("/dev/ttyUSB0", 9600) as power_supply:
+    power_supply.set_voltage(6.0)
+    power_supply.set_current(1.5)
+    power_supply.set_output_on(True)
 
-    print(f"Model: {psu.get_model()}")
-    print(f"Software Version: {psu.get_software_version()}")
-    print(f"Set Voltage: {psu.get_set_voltage():.3f} V")
-    print(f"Actual Voltage: {psu.get_actual_voltage():.3f} V")
-    print(f"Set Current: {psu.get_set_current():.3f} A")
-    print(f"Actual Current: {psu.get_actual_current():.3f} A")
-    print(f"Mode: {psu.get_mode()}")
-    print(f"Output: {'ON' if psu.is_output_on() else 'OFF'}")
+    print(f"Model: {power_supply.get_model()}")
+    print(f"Software Version: {power_supply.get_software_version()}")
+    print(f"Set Voltage: {power_supply.get_set_voltage():.3f} V")
+    print(f"Actual Voltage: {power_supply.get_actual_voltage():.3f} V")
+    print(f"Set Current: {power_supply.get_set_current():.3f} A")
+    print(f"Actual Current: {power_supply.get_actual_current():.3f} A")
+    print(f"Mode: {power_supply.get_mode()}")
+    print(f"Output: {'ON' if power_supply.is_output_on() else 'OFF'}")
 ```

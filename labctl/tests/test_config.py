@@ -11,8 +11,8 @@ class ConfigTest(TestCase):
 ---
 devices:
   - name: "zup-6-132"
-    type: psu
-    driver: labctl.hw.tdklambda.psu.ZUP
+    type: power_supply
+    driver: labctl.hw.tdklambda.power_supply.ZUP
     args:
       port: "/dev/ttyUSB0"
       baudrate: 9600
@@ -23,7 +23,7 @@ devices:
         devices = config.get_devices()
         self.assertEqual(len(devices), 1)
         device = config.devices[0]
-        assert isinstance(device, tdklambda.psu.ZUP)
+        assert isinstance(device, tdklambda.power_supply.ZUP)
         self.assertEquals(device.port, "/dev/ttyUSB0")
         self.assertEquals(device.baudrate, 9600)
         self.assertEquals(device.address, 1)

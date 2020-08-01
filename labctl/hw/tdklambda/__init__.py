@@ -1,1 +1,1 @@
-from labctl.hw.tdklambda import psu
+from labctl.hw.tdklambda import power_supply

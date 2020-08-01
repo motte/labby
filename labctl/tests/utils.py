@@ -27,7 +27,7 @@ def fake_serial_port(func) -> Iterator[Mock]:
     serial_port_mock = Mock()
 
     def wrapper(*args, **kwargs):
-        with patch("time.sleep"), patch("labctl.hw.tdklambda.psu.fcntl.flock"), patch(
+        with patch("time.sleep"), patch("labctl.hw.tdklambda.power_supply.fcntl.flock"), patch(
             "labctl.hw.core.Serial", return_value=serial_port_mock
         ):
             ret = func(*args, serial_port_mock, **kwargs)
