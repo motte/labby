@@ -29,8 +29,10 @@ experiment_output_data = experiment_data
 experiment_input_parameters = experiment_data
 
 
-TOutputData = TypeVar("TOutputData", bound=BaseOutputData)
-TInputParameters = TypeVar("TInputParameters", bound=BaseInputParameters)
+TOutputData = TypeVar("TOutputData", bound=BaseOutputData, covariant=True)
+TInputParameters = TypeVar(
+    "TInputParameters", bound=BaseInputParameters, covariant=True
+)
 
 
 class Experiment(Generic[TInputParameters, TOutputData], ABC):

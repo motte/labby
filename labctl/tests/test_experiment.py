@@ -1,6 +1,7 @@
 from unittest import TestCase
 from unittest.mock import patch
 
+from labctl.config import Config
 from labctl.experiment import (
     BaseInputParameters,
     BaseOutputData,
@@ -8,6 +9,7 @@ from labctl.experiment import (
     experiment_input_parameters,
     experiment_output_data,
 )
+from labctl.experiment.runner import ExperimentRunner
 
 
 @experiment_output_data
@@ -23,13 +25,13 @@ class InputParameters(BaseInputParameters):
 
 class TestExperiment(Experiment[InputParameters, OutputData]):
     def start(self) -> None:
-        raise NotImplementedError
+        pass
 
     def measure(self) -> OutputData:
-        raise NotImplementedError
+        return OutputData()
 
     def stop(self) -> None:
-        raise NotImplementedError
+        pass
 
 
 class ExperimentInputOutputTest(TestCase):
@@ -47,3 +49,29 @@ class ExperimentInputOutputTest(TestCase):
         with patch("labctl.experiment.time.time", return_value=43):
             output = OutputData()
             self.assertAlmostEquals(output.seconds, 43)
+
+
+class ExperimentRunnerTest(TestCase):
+    config: Config
+
+    def setUp(self) -> None:
+        self.config = Config(
+            """
+---
+devices:
+  - name: "zup-6-132"
+    type: psu
+    driver: labctl.hw.tdklambda.psu.ZUP
+    args:
+      port: "/dev/ttyUSB0"
+      baudrate: 9600
+      address: 1
+        """
+        )
+
+    def test_run_single_experiment(self) -> None:
+        input_parameters = InputParameters(sampling_rate_in_hz=1, duration_in_seconds=3)
+        experiment = TestExperiment(input_parameters)
+
+        runner = ExperimentRunner(self.config, [experiment])
+        runner.run()
