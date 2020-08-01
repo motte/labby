@@ -17,4 +17,10 @@ class ExperimentRunner:
         self.sequence = sequence
 
     def run(self) -> None:
+        for experiment in self.sequence:
+            self.run_experiment(experiment)
+
+    def run_experiment(
+        self, experiment: Experiment[BaseInputParameters, BaseOutputData]
+    ) -> None:
         pass
