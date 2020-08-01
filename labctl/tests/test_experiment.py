@@ -39,10 +39,6 @@ class ExperimentInputOutputTest(TestCase):
         self.assertAlmostEquals(params.sampling_rate_in_hz, 1.0)
         self.assertAlmostEquals(params.duration_in_seconds, 3600)
 
-        with patch("labctl.experiment.time.time", return_value=43):
-            output = OutputData()
-            self.assertAlmostEquals(output.seconds, 43)
-
     def test_output_data_instantiation(self) -> None:
         with patch("labctl.experiment.time.time", return_value=42):
             output = OutputData()
