@@ -73,5 +73,5 @@ devices:
         input_parameters = InputParameters(sampling_rate_in_hz=1, duration_in_seconds=3)
         experiment = TestExperiment(input_parameters)
 
-        runner = ExperimentRunner(self.config, [experiment])
-        runner.run()
+        runner = ExperimentRunner(self.config)
+        runner.run_sequence([experiment])

@@ -6,18 +6,16 @@ from labctl.experiment import Experiment, BaseInputParameters, BaseOutputData
 
 class ExperimentRunner:
     config: Config
-    sequence: Sequence[Experiment[BaseInputParameters, BaseOutputData]]
 
     def __init__(
-        self,
-        config: Config,
-        sequence: Sequence[Experiment[BaseInputParameters, BaseOutputData]],
+        self, config: Config,
     ):
         self.config = config
-        self.sequence = sequence
 
-    def run(self) -> None:
-        for experiment in self.sequence:
+    def run_sequence(
+        self, sequence: Sequence[Experiment[BaseInputParameters, BaseOutputData]]
+    ) -> None:
+        for experiment in sequence:
             self.run_experiment(experiment)
 
     def run_experiment(
