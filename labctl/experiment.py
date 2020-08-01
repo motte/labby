@@ -27,3 +27,26 @@ class BaseInputParameters:
 
 experiment_output_data = experiment_data
 experiment_input_parameters = experiment_data
+
+
+TOutputData = TypeVar("TOutputData", bound=BaseOutputData)
+TInputParameters = TypeVar("TInputParameters", bound=BaseInputParameters)
+
+
+class Experiment(Generic[TInputParameters, TOutputData], ABC):
+    params: TInputParameters
+
+    def __init__(self, params: TInputParameters) -> None:
+        self.params = params
+
+    @abstractmethod
+    def start(self) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def measure(self) -> TOutputData:
+        raise NotImplementedError
+
+    @abstractmethod
+    def stop(self) -> None:
+        raise NotImplementedError

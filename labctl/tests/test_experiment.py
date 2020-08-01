@@ -4,6 +4,7 @@ from unittest.mock import patch
 from labctl.experiment import (
     BaseInputParameters,
     BaseOutputData,
+    Experiment,
     experiment_input_parameters,
     experiment_output_data,
 )
@@ -18,6 +19,17 @@ class OutputData(BaseOutputData):
 class InputParameters(BaseInputParameters):
     sampling_rate_in_hz: float = 1.0
     duration_in_seconds: float = 3600
+
+
+class TestExperiment(Experiment[InputParameters, OutputData]):
+    def start(self) -> None:
+        raise NotImplementedError
+
+    def measure(self) -> OutputData:
+        raise NotImplementedError
+
+    def stop(self) -> None:
+        raise NotImplementedError
 
 
 class ExperimentTest(TestCase):
