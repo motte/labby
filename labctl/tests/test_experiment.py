@@ -32,7 +32,7 @@ class TestExperiment(Experiment[InputParameters, OutputData]):
         raise NotImplementedError
 
 
-class ExperimentTest(TestCase):
+class ExperimentInputOutputTest(TestCase):
     def test_input_parameters_instantiation(self) -> None:
         # pyre-ignore[20]: pyre doesn't seem to be aware of dataclass inheritance
         params = InputParameters()
