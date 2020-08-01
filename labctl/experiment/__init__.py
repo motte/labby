@@ -5,13 +5,6 @@ from dataclasses import dataclass
 from typing import Any, Dict, Generic, Optional, Type, TypeVar, get_args
 
 
-def experiment_data(cls=None):
-    def wrap(cls):
-        return dataclass(cls, frozen=True)
-
-    return wrap if cls is None else wrap(cls)
-
-
 @dataclass(frozen=True)
 class BaseOutputData:
     seconds: float = time.time()
@@ -24,10 +17,6 @@ class BaseOutputData:
 class BaseInputParameters:
     sampling_rate_in_hz: float
     duration_in_seconds: float
-
-
-experiment_output_data = experiment_data
-experiment_input_parameters = experiment_data
 
 
 TOutputData = TypeVar("TOutputData", bound=BaseOutputData, covariant=True)

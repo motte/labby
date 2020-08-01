@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -6,18 +7,16 @@ from labctl.experiment import (
     BaseInputParameters,
     BaseOutputData,
     Experiment,
-    experiment_input_parameters,
-    experiment_output_data,
 )
 from labctl.experiment.runner import ExperimentRunner
 
 
-@experiment_output_data
+@dataclass(frozen=True)
 class OutputData(BaseOutputData):
     pass
 
 
-@experiment_input_parameters
+@dataclass(frozen=True)
 class InputParameters(BaseInputParameters):
     sampling_rate_in_hz: float = 1.0
     duration_in_seconds: float = 3600
@@ -36,7 +35,6 @@ class TestExperiment(Experiment[InputParameters, OutputData]):
 
 class ExperimentInputOutputTest(TestCase):
     def test_input_parameters_instantiation(self) -> None:
-        # pyre-ignore[20]: pyre doesn't seem to be aware of dataclass inheritance
         params = InputParameters()
         self.assertAlmostEquals(params.sampling_rate_in_hz, 1.0)
         self.assertAlmostEquals(params.duration_in_seconds, 3600)

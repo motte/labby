@@ -1,21 +1,20 @@
+from dataclasses import dataclass
 from unittest import TestCase
 
 from labctl.experiment import (
     BaseInputParameters,
     BaseOutputData,
     Experiment,
-    experiment_input_parameters,
-    experiment_output_data,
 )
 from labctl.experiment.sequence import ExperimentSequence
 
 
-@experiment_output_data
+@dataclass(frozen=True)
 class OutputData(BaseOutputData):
     pass
 
 
-@experiment_input_parameters
+@dataclass(frozen=True)
 class InputParameters(BaseInputParameters):
     sampling_rate_in_hz: float = 1.0
     duration_in_seconds: float = 3600
