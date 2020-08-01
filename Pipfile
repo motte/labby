@@ -5,6 +5,7 @@ python_version = '3.8'
 pyserial = "3.4"
 strictyaml = "1.0.6"
 typed-argument-parser = "1.5.4"
+wasabi = "0.7.1"
 
 [dev-packages]
 flake8 = "3.8.3"

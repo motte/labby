@@ -1,6 +1,7 @@
 import sys
 from enum import Enum
 from tap import Tap
+from wasabi import color, msg
 
 from labctl.config import Config
 
@@ -20,15 +21,15 @@ class ArgumentParser(Tap):
 
 
 def list_devices(config: Config) -> None:
-    print("Registered Devices:")
+    msg.divider("Registered Devices")
     for device in config.devices:
         try:
             device.open()
             device.test_connection()
-            print(f"● {device.name}")
+            msg.good(f"{device.name}")
         except Exception as ex:
-            print(f"  {device.name}: {type(ex).__name__}:")
-            print(f"    {str(ex)}")
+            msg.fail(f"{device.name}:")
+            msg.text(f"  {color(type(ex).__name__, bold=True)}: {str(ex)}")
         finally:
             device.close()
 

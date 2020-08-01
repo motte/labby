@@ -1,3 +1,4 @@
+import re
 from unittest import TestCase
 from unittest.mock import Mock
 from typing import List, Tuple
@@ -24,6 +25,10 @@ devices:
 """
 
 
+def _strip_colors(output: str) -> str:
+    return re.sub(r"\x1b[0-9;[]+[mGK]", "", output)
+
+
 class CommandLineTest(TestCase):
     def main(self, arguments: List[str]) -> Tuple[int, str, str]:
         rc = 0
@@ -32,7 +37,7 @@ class CommandLineTest(TestCase):
                 cli.main()
             except SystemExit as ex:
                 rc = ex.code
-        return (rc, stdout.getvalue(), stderr.getvalue())
+        return (rc, _strip_colors(stdout.getvalue()), stderr.getvalue())
 
     def test_easter_egg(self):
         (rc, stdout, _stderr) = self.main(["hello"])
@@ -61,21 +66,11 @@ class CommandLineTest(TestCase):
         with labctl_config(LABCTL_CONFIG):
             (rc, stdout, stderr) = self.main(["devices"])
         self.assertEqual(rc, 0)
-        self.assertEquals(
-            stdout,
-            """Registered Devices:
-● zup-6-132
-""",
-        )
+        self.assertIn("✔ zup-6-132", stdout)
 
     @fake_serial_port
     def test_list_unavailable_devices(self, serial_port_mock: Mock) -> None:
         with labctl_config(LABCTL_CONFIG):
             (rc, stdout, stderr) = self.main(["devices"])
         self.assertEqual(rc, 0)
-        self.assertIn(
-            """Registered Devices:
-  zup-6-132: HardwareIOException:
-""",
-            stdout,
-        )
+        self.assertIn("✘ zup-6-132", stdout)
