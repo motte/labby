@@ -56,7 +56,7 @@ devices:
 
     def test_run_single_experiment(self) -> None:
         input_parameters = InputParameters()
-        experiment = TestExperiment(input_parameters)
+        experiment = TestExperiment("test_experiment", input_parameters)
 
         runner = ExperimentRunner(self.config)
         runner.run_sequence([experiment])

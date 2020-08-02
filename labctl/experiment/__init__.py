@@ -27,9 +27,11 @@ class Experiment(Generic[TInputParameters, TOutputData], ABC):
     SAMPLING_RATE_IN_HZ: float
     DURATION_IN_SECONDS: float
 
+    name: str
     params: TInputParameters
 
-    def __init__(self, params: TInputParameters) -> None:
+    def __init__(self, name: str, params: TInputParameters) -> None:
+        self.name = name
         self.params = params
 
     def __init_subclass__(cls) -> None:
@@ -37,7 +39,7 @@ class Experiment(Generic[TInputParameters, TOutputData], ABC):
 
     @classmethod
     def create(
-        cls, experiment_type: str, params: Optional[Dict[str, Any]]
+        cls, experiment_type: str, name: str, params: Optional[Dict[str, Any]]
     ) -> "Experiment":
         experiment_klass = ALL_EXPERIMENTS[experiment_type]
         # pyre-ignore[16]: experiment_klass has no __orig_bases__ attribute
@@ -53,7 +55,7 @@ class Experiment(Generic[TInputParameters, TOutputData], ABC):
         )
         params = params_klass(**typed_args)
         # pyre-ignore[45]: Cannot instantiate abstract class Experiment
-        return experiment_klass(params)
+        return experiment_klass(name, params)
 
     @abstractmethod
     def start(self) -> None:

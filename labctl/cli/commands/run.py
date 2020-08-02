@@ -35,7 +35,7 @@ class RunCommand(Command[RunArgumentParser]):
             sequence = ExperimentSequence(sequence_fd.read())
 
         runner = ExperimentRunner(self.config)
-        for index, experiment in enumerate(sequence.experiments):
-            with msg.loading(f"Experiment {index}"):
+        for experiment in sequence.experiments:
+            with msg.loading(f"Experiment {experiment.name}"):
                 runner.run_experiment(experiment)
-            msg.good(f"Experiment {index}")
+            msg.good(f"Experiment {experiment.name}")

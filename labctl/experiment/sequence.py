@@ -28,7 +28,8 @@ class ExperimentSequence:
         self.experiments = [
             Experiment.create(
                 experiment["experiment_type"],
+                f"{index:03d}",
                 experiment["params"].data if "params" in experiment else None,
             )
-            for experiment in self.sequence_config["sequence"]
+            for index, experiment in enumerate(self.sequence_config["sequence"])
         ]
