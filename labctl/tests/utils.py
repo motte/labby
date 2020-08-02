@@ -1,7 +1,7 @@
 import io
 from builtins import open as open_orig
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
-from typing import Dict, Iterator, List, Tuple
+from typing import Dict, Iterator, List, Optional, Tuple
 from unittest.mock import patch, mock_open, MagicMock, Mock
 
 
@@ -21,10 +21,10 @@ def cli_arguments(arguments: List[str]) -> Iterator[None]:
 class _OpenMockFileStore:
     filename_to_mock: Dict[str, MagicMock] = {}
 
-    def register(self, filename: str, contents: str) -> None:
+    def register(self, filename: str, contents: Optional[str]) -> None:
         assert filename not in self.filename_to_mock.keys()
         mock = mock_open(read_data=contents)
-        self.filename_to_mock[filename] = mock
+        self.filename_to_mock[filename] = mock()
 
     def unregister(self, filename: str) -> None:
         assert filename in self.filename_to_mock.keys()
@@ -33,18 +33,20 @@ class _OpenMockFileStore:
     def open(self, filename: str, *args, **kwargs) -> MagicMock:
         if filename not in self.filename_to_mock.keys():
             return open_orig(filename, *args, **kwargs)
-        return self.filename_to_mock[filename]()
+        return self.filename_to_mock[filename]
 
 
 OPEN_MOCK_FILE_STORE = _OpenMockFileStore()
 
 
 @contextmanager
-def patch_file_contents(filename: str, contents: str) -> Iterator[None]:
+def patch_file_contents(
+    filename: str, contents: Optional[str] = None
+) -> Iterator[MagicMock]:
     OPEN_MOCK_FILE_STORE.register(filename, contents)
     try:
         with patch("builtins.open", OPEN_MOCK_FILE_STORE.open):
-            yield
+            yield OPEN_MOCK_FILE_STORE.filename_to_mock[filename]
     finally:
         OPEN_MOCK_FILE_STORE.unregister(filename)
 
