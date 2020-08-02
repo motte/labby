@@ -48,13 +48,3 @@ class Command(Generic[TArgumentParser], ABC):
     @abstractmethod
     def main(self, args: TArgumentParser) -> None:
         raise NotImplementedError
-
-
-def auto_discover_experiments() -> None:
-    from importlib import import_module
-    from pathlib import Path
-
-    COMMANDS_PATH = Path("./experiments")
-    for f in COMMANDS_PATH.glob("*.py"):
-        if "__" not in f.stem:
-            import_module(f"experiments.{f.stem}", __package__)
