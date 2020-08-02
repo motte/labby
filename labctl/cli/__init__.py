@@ -4,7 +4,7 @@ from tap import Tap
 # import all commands
 import labctl.cli.commands  # noqa: F401
 
-from labctl.cli.core import Command
+from labctl.cli.core import ALL_COMMANDS, Command
 
 
 # pyre-ignore[13]: command is unitialized
@@ -12,7 +12,7 @@ class ArgumentParser(Tap):
     command: str
 
     def add_arguments(self) -> None:
-        self.add_argument("command")
+        self.add_argument("command", choices=set(ALL_COMMANDS.keys() - {"hello"}))
 
 
 def main() -> None:
@@ -21,6 +21,5 @@ def main() -> None:
         sys.exit(0)
 
     args = ArgumentParser().parse_args()
-    print(f"Error: Invalid command {args.command}\n")
     args.print_help()
     sys.exit(2)

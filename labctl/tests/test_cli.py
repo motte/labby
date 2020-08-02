@@ -54,9 +54,8 @@ class CommandLineTest(TestCase):
 
     def test_invalid_command(self):
         (rc, stdout, stderr) = self.main(["foobar"])
-        # TODO ehhh this should all go to stderr actually
-        self.assertTrue("Error: Invalid command foobar\n" in stdout)
-        self.assertTrue("usage: labctl" in stdout)
+        self.assertTrue("usage: labctl" in stderr)
+        self.assertTrue("labctl: error: argument command: invalid choice" in stderr)
         self.assertEqual(rc, 2)
 
     @fake_serial_port
