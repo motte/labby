@@ -13,7 +13,7 @@ from labctl.hw.core import auto_discover_drivers
 
 @dataclass(frozen=True)
 class OutputData(BaseOutputData):
-    pass
+    voltage: float
 
 
 @dataclass(frozen=True)
@@ -29,7 +29,7 @@ class TestExperiment(Experiment[InputParameters, OutputData]):
         pass
 
     def measure(self) -> OutputData:
-        return OutputData()
+        return OutputData(voltage=2.0)
 
     def stop(self) -> None:
         pass
@@ -53,6 +53,12 @@ devices:
       address: 1
         """
         )
+
+    def test_output_data_type_metadata(self) -> None:
+        input_parameters = InputParameters()
+        experiment = TestExperiment("test_experiment", input_parameters)
+        output_data_type = experiment.get_output_data_type()
+        self.assertEquals(output_data_type.get_column_names(), ["voltage"])
 
     def test_run_single_experiment(self) -> None:
         input_parameters = InputParameters()

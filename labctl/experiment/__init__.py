@@ -1,12 +1,15 @@
 import inspect
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Dict, Generic, Optional, Type, TypeVar, get_args
+from typing import Any, Dict, Generic, Optional, Type, TypeVar, Sequence, get_args
 
 
 @dataclass(frozen=True)
 class BaseOutputData:
-    pass
+    @classmethod
+    def get_column_names(self) -> Sequence[str]:
+        # pyre-ignore[16]: pyre doesn't seem to know about __dataclass_fields__
+        return list(self.__dataclass_fields__.keys())
 
 
 @dataclass(frozen=True)
@@ -56,6 +59,11 @@ class Experiment(Generic[TInputParameters, TOutputData], ABC):
         params = params_klass(**typed_args)
         # pyre-ignore[45]: Cannot instantiate abstract class Experiment
         return experiment_klass(name, params)
+
+    @classmethod
+    def get_output_data_type(cls) -> Type[BaseOutputData]:
+        # pyre-ignore[16]: cls has no __orig_bases__ attribute
+        return get_args(cls.__orig_bases__[0])[1]
 
     @abstractmethod
     def start(self) -> None:
