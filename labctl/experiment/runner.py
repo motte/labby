@@ -7,6 +7,7 @@ from labctl.experiment import Experiment, BaseInputParameters, BaseOutputData
 class ExperimentRunner:
     config: Config
     experiment: Experiment[BaseInputParameters, BaseOutputData]
+    has_started = False
 
     def __init__(
         self,
@@ -17,6 +18,8 @@ class ExperimentRunner:
         self.experiment = experiment
 
     def run_experiment(self) -> None:
+        assert not self.has_started
+        self.has_started = True
         self.experiment.start()
         try:
             start_time = time.time()

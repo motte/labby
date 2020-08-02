@@ -60,3 +60,7 @@ devices:
 
         runner = ExperimentRunner(self.config, experiment)
         runner.run_experiment()
+
+        with self.assertRaises(AssertionError):
+            # cannot run the same experiment again with the same ExperimentRunner
+            runner.run_experiment()
