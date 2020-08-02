@@ -16,7 +16,8 @@ class OutputData(BaseOutputData):
 
 @dataclass(frozen=True)
 class InputParameters(BaseInputParameters):
-    pass
+    current_in_amps: float
+    voltage_in_volts: float = 6
 
 
 class TestExperiment(Experiment[InputParameters, OutputData]):
@@ -40,7 +41,12 @@ class ExperimentSequenceTest(TestCase):
 ---
 sequence:
   - experiment_type: labctl.experiment.tests.test_sequence.TestExperiment
+    params:
+      current_in_amps: 7
   - experiment_type: labctl.experiment.tests.test_sequence.TestExperiment
+    params:
+      current_in_amps: 3
+      voltage_in_volts: 2
 """
         )
 
@@ -48,3 +54,10 @@ sequence:
 
         first_experiment = sequence.experiments[0]
         self.assertIsInstance(first_experiment, TestExperiment)
+        self.assertAlmostEquals(first_experiment.params.current_in_amps, 7)
+        self.assertAlmostEquals(first_experiment.params.voltage_in_volts, 6)
+
+        second_experiment = sequence.experiments[1]
+        self.assertIsInstance(second_experiment, TestExperiment)
+        self.assertAlmostEquals(second_experiment.params.current_in_amps, 3)
+        self.assertAlmostEquals(second_experiment.params.voltage_in_volts, 2)
