@@ -1,5 +1,4 @@
 import time
-from typing import Sequence
 
 from labctl.config import Config
 from labctl.experiment import Experiment, BaseInputParameters, BaseOutputData

@@ -1,4 +1,3 @@
-import sys
 from importlib import import_module
 from pathlib import Path
 from wasabi import msg
@@ -28,10 +27,7 @@ class RunCommand(Command[RunArgumentParser]):
     def main(self, args: RunArgumentParser) -> None:
         self._auto_discover_experiments()
 
-        filename = args.sequence_filename
-        if filename is None:
-            sys.exit(1)
-        with open(filename, "r") as sequence_fd:
+        with open(args.sequence_filename, "r") as sequence_fd:
             sequence = ExperimentSequence(sequence_fd.read())
 
         runner = ExperimentRunner(self.config)
