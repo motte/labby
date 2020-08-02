@@ -74,3 +74,14 @@ class CommandLineTest(TestCase):
             (rc, stdout, stderr) = self.main(["devices"])
         self.assertEqual(rc, 0)
         self.assertIn("[x] zup-6-132", stdout)
+
+    def test_run_without_sequence_file(self) -> None:
+        with labctl_config(LABCTL_CONFIG):
+            (rc, stdout, stderr) = self.main(["run"])
+        self.assertEqual(rc, 2)
+        self.assertTrue("usage: labctl" in stderr)
+        self.assertTrue(
+            "labctl run: error: the following arguments are required:"
+            + " sequence_filename\n"
+            in stderr
+        )
