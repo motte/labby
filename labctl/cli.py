@@ -79,13 +79,11 @@ class DevicesCommand(Command[BaseArgumentParser]):
 
 
 def main() -> None:
-    # FIXME: labctl devices --help isn't showing the right help message
+    if len(sys.argv) > 1 and sys.argv[1] in ALL_COMMANDS.keys():
+        Command.run(sys.argv[1], sys.argv[2:])
+        sys.exit(0)
+
     args = ArgumentParser().parse_args()
-
-    if args.command not in ALL_COMMANDS.keys():
-        print(f"Error: Invalid command {args.command}\n")
-        args.print_help()
-        sys.exit(2)
-
-    Command.run(args.command, sys.argv[2:])
-    sys.exit(0)
+    print(f"Error: Invalid command {args.command}\n")
+    args.print_help()
+    sys.exit(2)
