@@ -30,7 +30,7 @@ class Command(Generic[TArgumentParser], ABC):
         command_klass = ALL_COMMANDS[trigger]
         # pyre-ignore[16]: command_klass has no __orig_bases__ attribute
         args_klass = get_args(command_klass.__orig_bases__[0])[0]
-        args = args_klass().parse_args(argv)
+        args = args_klass(prog=f"labctl {trigger}").parse_args(argv)
 
         with open(args.config, "r") as config_file:
             config = Config(config_file.read())
