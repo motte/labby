@@ -16,11 +16,13 @@ class OutputData(BaseOutputData):
 
 @dataclass(frozen=True)
 class InputParameters(BaseInputParameters):
-    sampling_rate_in_hz: float = 1.0
-    duration_in_seconds: float = 3600
+    pass
 
 
 class TestExperiment(Experiment[InputParameters, OutputData]):
+    SAMPLING_RATE_IN_HZ: float = 1.0
+    DURATION_IN_SECONDS: float = 3600
+
     def start(self) -> None:
         pass
 

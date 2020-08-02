@@ -1,5 +1,4 @@
 import inspect
-import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Dict, Generic, Optional, Type, TypeVar, get_args
@@ -7,16 +6,12 @@ from typing import Any, Dict, Generic, Optional, Type, TypeVar, get_args
 
 @dataclass(frozen=True)
 class BaseOutputData:
-    seconds: float = time.time()
-
-    def __post_init__(self):
-        super().__setattr__("seconds", time.time())
+    pass
 
 
 @dataclass(frozen=True)
 class BaseInputParameters:
-    sampling_rate_in_hz: float
-    duration_in_seconds: float
+    pass
 
 
 TOutputData = TypeVar("TOutputData", bound=BaseOutputData, covariant=True)
@@ -29,6 +24,9 @@ ALL_EXPERIMENTS: Dict[str, Type["Experiment"]] = {}
 
 
 class Experiment(Generic[TInputParameters, TOutputData], ABC):
+    SAMPLING_RATE_IN_HZ: float
+    DURATION_IN_SECONDS: float
+
     params: TInputParameters
 
     def __init__(self, params: TInputParameters) -> None:
