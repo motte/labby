@@ -1,4 +1,5 @@
 import io
+from builtins import open as open_orig
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from typing import Dict, Iterator, List, Tuple
 from unittest.mock import patch, mock_open, MagicMock, Mock
@@ -30,6 +31,8 @@ class _OpenMockFileStore:
         del self.filename_to_mock[filename]
 
     def open(self, filename: str, *args, **kwargs) -> MagicMock:
+        if filename not in self.filename_to_mock.keys():
+            return open_orig(filename, *args, **kwargs)
         return self.filename_to_mock[filename]()
 
 
