@@ -1,6 +1,9 @@
 from serial.serialutil import *
 from serial.serialjava import Serial as Serial
-from serial.serialposix import PosixPollSerial as PosixPollSerial, VTIMESerial as VTIMESerial
+from serial.serialposix import (
+    PosixPollSerial as PosixPollSerial,
+    VTIMESerial as VTIMESerial,
+)
 from typing import Any
 
 VERSION: Any
