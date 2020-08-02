@@ -1,3 +1,4 @@
+import time
 from typing import Sequence
 
 from labctl.config import Config
@@ -21,4 +22,16 @@ class ExperimentRunner:
     def run_experiment(
         self, experiment: Experiment[BaseInputParameters, BaseOutputData]
     ) -> None:
-        pass
+        experiment.start()
+        try:
+            start_time = time.time()
+            now = start_time
+
+            while now - start_time <= experiment.DURATION_IN_SECONDS:
+                experiment.measure()
+
+                elapsed = time.time() - now
+                time.sleep(1.0 / experiment.SAMPLING_RATE_IN_HZ - elapsed)
+                now = time.time()
+        finally:
+            experiment.stop()

@@ -21,8 +21,8 @@ class InputParameters(BaseInputParameters):
 
 
 class TestExperiment(Experiment[InputParameters, OutputData]):
-    SAMPLING_RATE_IN_HZ: float = 1.0
-    DURATION_IN_SECONDS: float = 3600
+    SAMPLING_RATE_IN_HZ: float = 2.0
+    DURATION_IN_SECONDS: float = 1.0
 
     def start(self) -> None:
         pass
