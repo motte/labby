@@ -40,7 +40,8 @@ class CommandLineTest(TestCase):
         return (rc, _strip_colors(stdout.getvalue()), stderr.getvalue())
 
     def test_easter_egg(self):
-        (rc, stdout, _stderr) = self.main(["hello"])
+        with labctl_config(LABCTL_CONFIG):
+            (rc, stdout, _stderr) = self.main(["hello"])
         self.assertEqual(rc, 0)
         self.assertEqual(stdout, "Hello world\n")
 
