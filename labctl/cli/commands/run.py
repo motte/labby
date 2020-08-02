@@ -1,3 +1,4 @@
+import os
 from importlib import import_module
 from pathlib import Path
 from wasabi import msg
@@ -24,6 +25,10 @@ class RunCommand(Command[RunArgumentParser]):
             if "__" not in f.stem:
                 import_module(f"experiments.{f.stem}", __package__)
 
+    def _get_output_directory(self, sequence_filename: str) -> Path:
+        sequence_name = Path(sequence_filename).stem
+        return Path(f"./output/{sequence_name}/")
+
     def main(self, args: RunArgumentParser) -> None:
         self._auto_discover_experiments()
 
@@ -35,3 +40,7 @@ class RunCommand(Command[RunArgumentParser]):
             with msg.loading(f"Experiment {experiment.name}"):
                 runner.run_experiment()
             msg.good(f"Experiment {experiment.name}")
+
+            output_dir = self._get_output_directory(args.sequence_filename)
+            os.makedirs(output_dir, exist_ok=True)
+            runner.dataframe.to_csv(output_dir / f"{experiment.name}.csv", index=False)

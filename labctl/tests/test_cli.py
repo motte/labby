@@ -1,7 +1,8 @@
 import re
-from unittest import TestCase
-from unittest.mock import Mock
+from pathlib import PosixPath
 from typing import List, Tuple
+from unittest import TestCase
+from unittest.mock import call, patch, Mock
 
 from labctl import cli
 from labctl.tests.utils import (
@@ -102,6 +103,19 @@ sequence:
 """
         with labctl_config(LABCTL_CONFIG), patch_file_contents(
             "sequence/test.yml", SEQUENCE_CONTENTS
-        ):
+        ), patch_file_contents("output/test/000.csv") as output_0, patch_file_contents(
+            "output/test/001.csv"
+        ) as output_1, patch(
+            "os.makedirs"
+        ) as makedirs:
             (rc, stdout, stderr) = self.main(["run", "sequence/test.yml"])
+            makedirs.assert_called_with(PosixPath("output/test/"), exist_ok=True)
+            output_0.write.assert_has_calls(
+                # TODO check second datapoint too
+                [call("seconds,voltage\n"), call("0.0,2.0\n")]
+            )
+            output_1.write.assert_has_calls(
+                # TODO check second datapoint too
+                [call("seconds,voltage\n"), call("0.0,2.0\n")]
+            )
         self.assertEqual(rc, 0)
