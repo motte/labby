@@ -39,6 +39,10 @@ class Command(Generic[TArgumentParser], ABC):
         command = command_klass(config)
         command.main(args)
 
+    @classmethod
+    def is_valid(cls, trigger: str) -> bool:
+        return trigger in ALL_COMMANDS.keys()
+
     @abstractmethod
     def main(self, args: TArgumentParser) -> None:
         raise NotImplementedError
