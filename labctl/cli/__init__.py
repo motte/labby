@@ -25,6 +25,4 @@ def main() -> None:
         Command.run(sys.argv[1], sys.argv[2:])
         sys.exit(0)
 
-    args = ArgumentParser().parse_args()
-    args.print_help()
-    sys.exit(2)
+    ArgumentParser().parse_args()
