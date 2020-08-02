@@ -66,11 +66,11 @@ class CommandLineTest(TestCase):
         with labctl_config(LABCTL_CONFIG):
             (rc, stdout, stderr) = self.main(["devices"])
         self.assertEqual(rc, 0)
-        self.assertIn("✔ zup-6-132", stdout)
+        self.assertIn("[+] zup-6-132", stdout)
 
     @fake_serial_port
     def test_list_unavailable_devices(self, serial_port_mock: Mock) -> None:
         with labctl_config(LABCTL_CONFIG):
             (rc, stdout, stderr) = self.main(["devices"])
         self.assertEqual(rc, 0)
-        self.assertIn("✘ zup-6-132", stdout)
+        self.assertIn("[x] zup-6-132", stdout)

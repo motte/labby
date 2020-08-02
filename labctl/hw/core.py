@@ -1,6 +1,8 @@
 import inspect
 from abc import ABC, abstractmethod
 from enum import Enum
+from importlib import import_module
+from pathlib import Path
 from serial import Serial
 from typing import Any, Dict, Type
 
@@ -97,9 +99,6 @@ class HardwareIOException(Exception):
 
 
 def auto_discover_drivers() -> None:
-    from importlib import import_module
-    from pathlib import Path
-
     HW_PATH = Path(__file__).parent
     for f in HW_PATH.glob("**/*.py"):
         if "__" in f.stem or "test" in f.stem or f.parent.stem == "hw":
