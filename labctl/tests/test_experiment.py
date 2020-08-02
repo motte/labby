@@ -59,4 +59,4 @@ devices:
         experiment = TestExperiment("test_experiment", input_parameters)
 
         runner = ExperimentRunner(self.config)
-        runner.run_sequence([experiment])
+        runner.run_experiment(experiment)
