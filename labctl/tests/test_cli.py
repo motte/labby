@@ -10,6 +10,7 @@ from labctl.tests.utils import (
     environment_variable,
     fake_serial_port,
     labctl_config,
+    patch_file_contents,
 )
 
 
@@ -89,3 +90,18 @@ class CommandLineTest(TestCase):
             + " sequence_filename\n"
             in stderr
         )
+
+    def test_run_sequence(self) -> None:
+        import labctl.tests.test_experiment  # noqa
+
+        SEQUENCE_CONTENTS = """
+---
+sequence:
+  - experiment_type: labctl.tests.test_experiment.TestExperiment
+  - experiment_type: labctl.tests.test_experiment.TestExperiment
+"""
+        with labctl_config(LABCTL_CONFIG), patch_file_contents(
+            "sequence/test.yml", SEQUENCE_CONTENTS
+        ):
+            (rc, stdout, stderr) = self.main(["run", "sequence/test.yml"])
+        self.assertEqual(rc, 0)
