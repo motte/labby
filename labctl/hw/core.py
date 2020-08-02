@@ -7,7 +7,7 @@ from serial import Serial
 from typing import Any, Dict, Type
 
 
-class PSUMode(Enum):
+class PowerSupplyMode(Enum):
     CONSTANT_VOLTAGE = 0
     CONSTANT_CURRENT = 1
 
@@ -56,9 +56,9 @@ class SerialDevice(ABC):
         self.serial.baudrate = baudrate
 
 
-class PSU(Device, ABC):
+class PowerSupply(Device, ABC):
     @abstractmethod
-    def get_mode(self) -> PSUMode:
+    def get_mode(self) -> PowerSupplyMode:
         raise NotImplementedError
 
     @abstractmethod

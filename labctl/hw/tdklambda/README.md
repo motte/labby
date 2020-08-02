@@ -3,17 +3,17 @@
 A basic library for interacting with the ZUP Series of power supplies by
 TDK-Lambda.
 
-## PSU Configuration
+## Power Supply Configuration
 
 See Chapter 5 of [manual](https://www.emea.lambda.tdk.com/de/KB/ZUP-User-Manual.pdf).
 
 You will want to:
 
-1. Setup an address on the PSU. `01` should be fine.
+1. Setup an address on the power supply. `01` should be fine.
 2. Select RS232
 3. Select baud rate (`9600` is probably okay)
 4. Select remote by pushing REM button (LED should be **on**).
-5. Connect the cable from IN on the PSU to the computer.
+5. Connect the cable from IN on the power supply to the computer.
 
 If you run `sudo dmesg` on the computer, you should see something like:
 
@@ -24,7 +24,7 @@ If you run `sudo dmesg` on the computer, you should see something like:
 [ 1729.923912] usb 1-1.4: pl2303 converter now attached to ttyUSB0
 ```
 
-Note `ttyUSB0`. This means the PSU is available for communication under
+Note `ttyUSB0`. This means the power supply is available for communication under
 `/dev/ttyUSB0`.
 
 ### Basic Usage

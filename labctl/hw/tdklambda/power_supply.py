@@ -5,7 +5,12 @@ from dataclasses import dataclass
 from types import TracebackType
 from typing import Match, Optional, Type
 
-from labctl.hw.core import HardwareIOException, PSU, PSUMode, SerialDevice
+from labctl.hw.core import (
+    HardwareIOException,
+    PowerSupply,
+    PowerSupplyMode,
+    SerialDevice,
+)
 
 
 WAIT_TIME_AFTER_WRITE_MS: float = 50
@@ -14,10 +19,10 @@ TIMEOUT_MS = 2000
 
 @dataclass(frozen=True)
 class OperationalStatusRegister:
-    mode: PSUMode
+    mode: PowerSupplyMode
 
 
-class ZUP(PSU, SerialDevice):
+class ZUP(PowerSupply, SerialDevice):
     address: int
     baudrate: int
     port: str
@@ -51,9 +56,9 @@ class ZUP(PSU, SerialDevice):
     def _read_operational_status_register(self) -> OperationalStatusRegister:
         self._write(b":STA?;")
         line = self._read_line()
-        return OperationalStatusRegister(mode=PSUMode(int(line[2])))
+        return OperationalStatusRegister(mode=PowerSupplyMode(int(line[2])))
 
-    def get_mode(self) -> PSUMode:
+    def get_mode(self) -> PowerSupplyMode:
         return self._read_operational_status_register().mode
 
     def open(self) -> None:

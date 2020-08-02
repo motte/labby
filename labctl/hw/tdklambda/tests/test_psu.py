@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import Mock
 
-from labctl.hw.core import HardwareIOException, PSUMode
+from labctl.hw.core import HardwareIOException, PowerSupplyMode
 from labctl.hw.tdklambda import power_supply as tdklambda_power_supply
 from labctl.tests.utils import fake_serial_port
 
@@ -130,7 +130,7 @@ class ZUPTest(TestCase):
             serial_port_mock.readline.return_value = b"OS100000000"
             returned_mode = power_supply.get_mode()
             serial_port_mock.write.assert_called_once_with(b":STA?;")
-            self.assertEqual(returned_mode, PSUMode.CONSTANT_CURRENT)
+            self.assertEqual(returned_mode, PowerSupplyMode.CONSTANT_CURRENT)
 
     @fake_serial_port
     def test_invalid_response(self, serial_port_mock: Mock) -> None:

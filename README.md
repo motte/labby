@@ -7,7 +7,7 @@ A basic library for interacting with lab hardware.
 
 ## TODOs
 
-* Check limits based on PSU model
+* Check limits based on power supply model
 * Clean up API
 * Add support for more operational status registers
 * Understand what foldback protection is and if we need it

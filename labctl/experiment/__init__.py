@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Dict, Generic, Optional, Type, TypeVar, Sequence, get_args
 
-from labctl.hw.core import PSU
+from labctl.hw.core import PowerSupply
 from labctl.config import Config
 
 
@@ -69,12 +69,14 @@ class Experiment(Generic[TInputParameters, TOutputData], ABC):
         # pyre-ignore[16]: cls has no __orig_bases__ attribute
         return get_args(cls.__orig_bases__[0])[1]
 
-    def get_power_supply(self, name: str) -> PSU:
+    def get_power_supply(self, name: str) -> PowerSupply:
         config = self.config
         assert config is not None
         try:
             return next(
-                d for d in config.get_devices() if isinstance(d, PSU) and d.name == name
+                d
+                for d in config.get_devices()
+                if isinstance(d, PowerSupply) and d.name == name
             )
         except StopIteration:
             raise Exception(f"Power Supply not found: {name}")
