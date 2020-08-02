@@ -1,10 +1,15 @@
 import sys
+from importlib import import_module
+from pathlib import Path
 from tap import Tap
 
-# import all commands
-import labctl.cli.commands  # noqa: F401
-
 from labctl.cli.core import ALL_COMMANDS, Command
+
+
+COMMANDS_PATH = Path(__file__).parent / "commands"
+for f in COMMANDS_PATH.glob("*.py"):
+    if "__" not in f.stem:
+        import_module(f".commands.{f.stem}", __package__)
 
 
 # pyre-ignore[13]: command is unitialized
