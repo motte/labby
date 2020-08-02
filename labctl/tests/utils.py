@@ -63,3 +63,16 @@ def fake_serial_port(func) -> Iterator[Mock]:
         return ret
 
     return wrapper
+
+
+ENV_VARIABLES: Dict[str, str] = {}
+
+
+@contextmanager
+def environment_variable(name: str, value: str) -> Iterator[None]:
+    import os
+
+    ENV_VARIABLES[name] = value
+    with patch.dict(os.environ, ENV_VARIABLES):
+        yield
+    del ENV_VARIABLES[name]

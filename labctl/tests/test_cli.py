@@ -7,6 +7,7 @@ from labctl import cli
 from labctl.tests.utils import (
     captured_output,
     cli_arguments,
+    environment_variable,
     fake_serial_port,
     labctl_config,
 )
@@ -32,7 +33,10 @@ def _strip_colors(output: str) -> str:
 class CommandLineTest(TestCase):
     def main(self, arguments: List[str]) -> Tuple[int, str, str]:
         rc = 0
-        with cli_arguments(arguments), captured_output() as (stdout, stderr):
+        with cli_arguments(arguments), captured_output() as (
+            stdout,
+            stderr,
+        ), environment_variable("WASABI_LOG_FRIENDLY", "1"):
             try:
                 cli.main()
             except SystemExit as ex:
