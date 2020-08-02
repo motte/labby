@@ -16,6 +16,7 @@ install:
   - pipenv install -d
 
 script:
+  - pipenv run flake8 labctl
   - pipenv run pyre --noninteractive
   - pipenv run green --run-coverage
 
