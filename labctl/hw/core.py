@@ -94,3 +94,14 @@ class PSU(Device, ABC):
 
 class HardwareIOException(Exception):
     pass
+
+
+def auto_discover_drivers() -> None:
+    from importlib import import_module
+    from pathlib import Path
+
+    HW_PATH = Path(__file__).parent
+    for f in HW_PATH.glob("**/*.py"):
+        if "__" in f.stem or "test" in f.stem or f.parent.stem == "hw":
+            continue
+        import_module(f"labctl.hw.{f.parent.stem}.{f.stem}", __package__)

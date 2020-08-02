@@ -8,6 +8,7 @@ from labctl.experiment import (
     Experiment,
 )
 from labctl.experiment.runner import ExperimentRunner
+from labctl.hw.core import auto_discover_drivers
 
 
 @dataclass(frozen=True)
@@ -38,6 +39,7 @@ class ExperimentRunnerTest(TestCase):
     config: Config
 
     def setUp(self) -> None:
+        auto_discover_drivers()
         self.config = Config(
             """
 ---

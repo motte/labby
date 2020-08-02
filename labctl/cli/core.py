@@ -3,6 +3,7 @@ from tap import Tap
 from typing import Dict, Generic, Sequence, Type, TypeVar, get_args
 
 from labctl.config import Config
+from labctl.hw.core import auto_discover_drivers
 
 
 class BaseArgumentParser(Tap):
@@ -32,6 +33,7 @@ class Command(Generic[TArgumentParser], ABC):
         args_klass = get_args(command_klass.__orig_bases__[0])[0]
         args = args_klass(prog=f"labctl {trigger}").parse_args(argv)
 
+        auto_discover_drivers()
         with open(args.config, "r") as config_file:
             config = Config(config_file.read())
 

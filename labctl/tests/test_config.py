@@ -2,9 +2,13 @@ from unittest import TestCase
 
 from labctl.config import Config
 from labctl.hw import tdklambda
+from labctl.hw.core import auto_discover_drivers
 
 
 class ConfigTest(TestCase):
+    def setUp(self) -> None:
+        auto_discover_drivers()
+
     def test_basic_config(self) -> None:
         config = Config(
             """
