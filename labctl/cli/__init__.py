@@ -1,3 +1,4 @@
+import os
 import sys
 from importlib import import_module
 from pathlib import Path
@@ -22,6 +23,7 @@ def _auto_discover_commands() -> None:
 
 
 def main() -> None:
+    sys.path.append(os.getcwd())
     _auto_discover_commands()
 
     if len(sys.argv) > 1 and Command.is_valid(sys.argv[1]):
