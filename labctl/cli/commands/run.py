@@ -1,7 +1,7 @@
 import sys
 from wasabi import msg
 
-from labctl.cli.core import BaseArgumentParser, Command
+from labctl.cli.core import auto_discover_experiments, BaseArgumentParser, Command
 from labctl.experiment.runner import ExperimentRunner
 from labctl.experiment.sequence import ExperimentSequence
 
@@ -18,6 +18,8 @@ class RunCommand(Command[RunArgumentParser]):
     TRIGGER: str = "run"
 
     def main(self, args: RunArgumentParser) -> None:
+        auto_discover_experiments()
+
         filename = args.sequence_filename
         if filename is None:
             sys.exit(1)
