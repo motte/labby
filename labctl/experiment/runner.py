@@ -6,25 +6,27 @@ from labctl.experiment import Experiment, BaseInputParameters, BaseOutputData
 
 class ExperimentRunner:
     config: Config
+    experiment: Experiment[BaseInputParameters, BaseOutputData]
 
     def __init__(
-        self, config: Config,
+        self,
+        config: Config,
+        experiment: Experiment[BaseInputParameters, BaseOutputData],
     ):
         self.config = config
+        self.experiment = experiment
 
-    def run_experiment(
-        self, experiment: Experiment[BaseInputParameters, BaseOutputData]
-    ) -> None:
-        experiment.start()
+    def run_experiment(self) -> None:
+        self.experiment.start()
         try:
             start_time = time.time()
             now = start_time
 
-            while now - start_time <= experiment.DURATION_IN_SECONDS:
-                experiment.measure()
+            while now - start_time <= self.experiment.DURATION_IN_SECONDS:
+                self.experiment.measure()
 
                 elapsed = time.time() - now
-                time.sleep(1.0 / experiment.SAMPLING_RATE_IN_HZ - elapsed)
+                time.sleep(1.0 / self.experiment.SAMPLING_RATE_IN_HZ - elapsed)
                 now = time.time()
         finally:
-            experiment.stop()
+            self.experiment.stop()

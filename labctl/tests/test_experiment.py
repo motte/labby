@@ -58,5 +58,5 @@ devices:
         input_parameters = InputParameters()
         experiment = TestExperiment("test_experiment", input_parameters)
 
-        runner = ExperimentRunner(self.config)
-        runner.run_experiment(experiment)
+        runner = ExperimentRunner(self.config, experiment)
+        runner.run_experiment()

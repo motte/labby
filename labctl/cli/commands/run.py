@@ -30,8 +30,8 @@ class RunCommand(Command[RunArgumentParser]):
         with open(args.sequence_filename, "r") as sequence_fd:
             sequence = ExperimentSequence(sequence_fd.read())
 
-        runner = ExperimentRunner(self.config)
         for experiment in sequence.experiments:
+            runner = ExperimentRunner(self.config, experiment)
             with msg.loading(f"Experiment {experiment.name}"):
-                runner.run_experiment(experiment)
+                runner.run_experiment()
             msg.good(f"Experiment {experiment.name}")
