@@ -18,6 +18,8 @@ class ExperimentRunner:
     ):
         self.config = config
         self.experiment = experiment
+        # TODO find a better place for this assignment
+        self.experiment.config = self.config
         column_names = ["seconds"] + list(
             experiment.get_output_data_type().get_column_names()
         )

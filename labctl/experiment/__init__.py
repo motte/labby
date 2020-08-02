@@ -3,6 +3,9 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Dict, Generic, Optional, Type, TypeVar, Sequence, get_args
 
+from labctl.hw.core import PSU
+from labctl.config import Config
+
 
 @dataclass(frozen=True)
 class BaseOutputData:
@@ -32,6 +35,7 @@ class Experiment(Generic[TInputParameters, TOutputData], ABC):
 
     name: str
     params: TInputParameters
+    config: Optional[Config] = None
 
     def __init__(self, name: str, params: TInputParameters) -> None:
         self.name = name
@@ -64,6 +68,16 @@ class Experiment(Generic[TInputParameters, TOutputData], ABC):
     def get_output_data_type(cls) -> Type[BaseOutputData]:
         # pyre-ignore[16]: cls has no __orig_bases__ attribute
         return get_args(cls.__orig_bases__[0])[1]
+
+    def get_power_supply(self, name: str) -> PSU:
+        config = self.config
+        assert config is not None
+        try:
+            return next(
+                d for d in config.get_devices() if isinstance(d, PSU) and d.name == name
+            )
+        except StopIteration:
+            raise Exception(f"Power Supply not found: {name}")
 
     @abstractmethod
     def start(self) -> None:

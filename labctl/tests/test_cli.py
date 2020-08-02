@@ -1,4 +1,5 @@
 import re
+from time import sleep as sleep_orig
 from pathlib import PosixPath
 from typing import List, Tuple
 from unittest import TestCase
@@ -92,7 +93,9 @@ class CommandLineTest(TestCase):
             in stderr
         )
 
-    def test_run_sequence(self) -> None:
+    @fake_serial_port
+    def test_run_sequence(self, serial_port_mock: Mock) -> None:
+        serial_port_mock.readline.return_value = b"AV2.0\r\n"
         import labctl.tests.test_experiment  # noqa
 
         SEQUENCE_CONTENTS = """
@@ -107,7 +110,11 @@ sequence:
             "output/test/001.csv"
         ) as output_1, patch(
             "os.makedirs"
-        ) as makedirs:
+        ) as makedirs, patch(
+            "time.sleep", side_effect=sleep_orig
+        ):
+            # TODO remove time.sleep patch and make these tests less dependent on time
+            # and less hacky
             (rc, stdout, stderr) = self.main(["run", "sequence/test.yml"])
             makedirs.assert_called_with(PosixPath("output/test/"), exist_ok=True)
             output_0.write.assert_has_calls(
