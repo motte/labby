@@ -67,6 +67,10 @@ devices:
         runner = ExperimentRunner(self.config, experiment)
         runner.run_experiment()
 
+        dataframe = runner.dataframe
+        self.assertEquals(dataframe.columns.to_list(), ["seconds", "voltage"])
+        self.assertEquals(dataframe["voltage"].to_list(), [2.0, 2.0])
+
         with self.assertRaises(AssertionError):
             # cannot run the same experiment again with the same ExperimentRunner
             runner.run_experiment()
