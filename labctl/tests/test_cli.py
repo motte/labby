@@ -164,3 +164,21 @@ sequence:
                 ]
             )
         self.assertEqual(rc, 0)
+
+    def test_invalid_device_info(self) -> None:
+        with labctl_config(LABCTL_CONFIG):
+            (rc, stdout, stderr) = self.main(["device-info", "foobar"])
+        self.assertEqual(rc, 1)
+        self.assertIn("[x] Unknown device foobar", stdout)
+
+    def test_available_device_info(self) -> None:
+        with labctl_config(LABCTL_CONFIG):
+            (rc, stdout, stderr) = self.main(["device-info", "virtual-power-supply"])
+        self.assertEqual(rc, 0)
+        self.assertIn("Connection       [+] OK", stdout)
+
+    def test_unavailable_device_info(self) -> None:
+        with labctl_config(LABCTL_CONFIG):
+            (rc, stdout, stderr) = self.main(["device-info", "broken-power-supply"])
+        self.assertEqual(rc, 0)
+        self.assertIn("Connection   [x] Error", stdout)
