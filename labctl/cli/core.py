@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from tap import Tap
 from typing import Dict, Generic, Sequence, Type, TypeVar, get_args
@@ -13,7 +15,7 @@ class BaseArgumentParser(Tap):
 TArgumentParser = TypeVar("TArgumentParser", bound=BaseArgumentParser)
 
 
-ALL_COMMANDS: Dict[str, Type["Command[BaseArgumentParser]"]] = {}
+ALL_COMMANDS: Dict[str, Type[Command[BaseArgumentParser]]] = {}
 
 
 class Command(Generic[TArgumentParser], ABC):
@@ -23,7 +25,7 @@ class Command(Generic[TArgumentParser], ABC):
     def __init__(self, config: Config) -> None:
         self.config = config
 
-    def __init_subclass__(cls: Type["Command[BaseArgumentParser]"]) -> None:
+    def __init_subclass__(cls: Type[Command[BaseArgumentParser]]) -> None:
         ALL_COMMANDS[f"{cls.TRIGGER}"] = cls
 
     @classmethod
