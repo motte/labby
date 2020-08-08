@@ -60,4 +60,4 @@ class PowerSupply(BasePowerSupply):
 
 class BrokenPowerSupply(PowerSupply):
     def test_connection(self) -> None:
-        raise Exception("foo")
+        raise Exception("Unavailable device")
