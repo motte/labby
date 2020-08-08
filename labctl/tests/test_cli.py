@@ -108,14 +108,11 @@ class CommandLineTest(TestCase):
         self.assertTrue("labctl: error: argument command: invalid choice" in stderr)
         self.assertEqual(rc, 2)
 
-    @fake_serial_port
-    def test_list_devices(self, serial_port_mock: Mock) -> None:
-        serial_port_mock.readline.return_value = b"FOOBAR\r\n"
-
+    def test_list_devices(self) -> None:
         with labctl_config(LABCTL_CONFIG):
             (rc, stdout, stderr) = self.main(["devices"])
         self.assertEqual(rc, 0)
-        self.assertIn("[+] zup-6-132", stdout)
+        self.assertIn("[+] virtual-power-supply", stdout)
 
     @fake_serial_port
     def test_list_unavailable_devices(self, serial_port_mock: Mock) -> None:
