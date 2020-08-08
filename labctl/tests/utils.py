@@ -71,7 +71,7 @@ def fake_serial_port(func: Callable[..., TReturn]) -> Callable[..., TReturn]:
     def wrapper(*args: object, **kwargs: object) -> TReturn:
         with patch("labctl.hw.tdklambda.power_supply.fcntl.flock"), patch(
             "labctl.hw.core.Serial", return_value=serial_port_mock
-        ):
+        ), patch_time("2020-08-08"):
             ret = func(*args, serial_port_mock, **kwargs)
         return ret
 
