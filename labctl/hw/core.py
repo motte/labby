@@ -3,8 +3,9 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from importlib import import_module
 from pathlib import Path
-from serial import Serial
 from typing import Any, Dict, Type
+
+from serial import Serial
 
 
 class PowerSupplyMode(Enum):

@@ -1,6 +1,7 @@
+from typing import Sequence
+
 import strictyaml
 from strictyaml import Any, Enum, Map, MapPattern, Seq, Str
-from typing import Sequence
 
 from labctl.hw.core import Device
 

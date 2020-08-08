@@ -1,6 +1,7 @@
+from typing import Sequence
+
 import strictyaml
 from strictyaml import Any, Map, MapPattern, Optional, Seq, Str
-from typing import Sequence
 
 from labctl.experiment import BaseInputParameters, BaseOutputData, Experiment
 

@@ -1,5 +1,6 @@
-import pandas
 import time
+
+import pandas
 
 from labctl.config import Config
 from labctl.experiment import Experiment, BaseInputParameters, BaseOutputData

@@ -1,8 +1,8 @@
 from __future__ import annotations
-
 from abc import ABC, abstractmethod
-from tap import Tap
 from typing import Dict, Generic, Sequence, Type, TypeVar, get_args
+
+from tap import Tap
 
 from labctl.config import Config
 from labctl.hw.core import auto_discover_drivers
