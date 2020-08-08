@@ -6,7 +6,7 @@ __pycache__/
 .coverage
 
 # ignore local workbench
-labctl.yml
+labby.yml
 experiments/
 output/
 sequences/

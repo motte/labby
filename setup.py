@@ -7,12 +7,12 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
 setup(
-    name="labctl",
+    name="labby",
     version="0.0.1",
     description="An utility for controlling laboratory equipment",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/luizribeiro/labctl",
+    url="https://github.com/luizribeiro/labby",
     author="Luiz Ribeiro",
     author_email="luizribeiro@gmail.com",
     classifiers=[
@@ -44,8 +44,8 @@ setup(
     ],
     dependency_links=[],
     project_urls={
-        "Bug Reports": "https://github.com/luizribeiro/labctl/issues",
-        "Source": "https://github.com/luizribeiro/labctl/",
+        "Bug Reports": "https://github.com/luizribeiro/labby/issues",
+        "Source": "https://github.com/luizribeiro/labby/",
     },
-    entry_points={"console_scripts": ["labctl=labctl.cli:main"]},
+    entry_points={"console_scripts": ["labby=labby.cli:main"]},
 )
