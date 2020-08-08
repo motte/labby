@@ -1,10 +1,16 @@
 import re
+from dataclasses import dataclass
 from pathlib import PosixPath
 from typing import List, Tuple
 from unittest import TestCase
 from unittest.mock import call, patch, Mock
 
 from labctl import cli
+from labctl.experiment import (
+    BaseInputParameters,
+    BaseOutputData,
+    Experiment,
+)
 from labctl.tests.utils import (
     captured_output,
     cli_arguments,
@@ -27,6 +33,34 @@ devices:
       baudrate: 9600
       address: 1
 """
+
+
+@dataclass(frozen=True)
+class OutputData(BaseOutputData):
+    voltage: float
+
+
+@dataclass(frozen=True)
+class InputParameters(BaseInputParameters):
+    pass
+
+
+class TestExperiment(Experiment[InputParameters, OutputData]):
+    SAMPLING_RATE_IN_HZ: float = 2.0
+    DURATION_IN_SECONDS: float = 1.0
+
+    def start(self) -> None:
+        power_supply = self.get_power_supply("zup-6-132")
+        power_supply.open()
+
+    def measure(self) -> OutputData:
+        power_supply = self.get_power_supply("zup-6-132")
+        actual_voltage = power_supply.get_actual_voltage()
+        return OutputData(voltage=actual_voltage)
+
+    def stop(self) -> None:
+        power_supply = self.get_power_supply("zup-6-132")
+        power_supply.close()
 
 
 def _strip_colors(output: str) -> str:
@@ -101,8 +135,8 @@ class CommandLineTest(TestCase):
         SEQUENCE_CONTENTS = """
 ---
 sequence:
-  - experiment_type: labctl.tests.test_experiment.TestExperiment
-  - experiment_type: labctl.tests.test_experiment.TestExperiment
+  - experiment_type: labctl.tests.test_cli.TestExperiment
+  - experiment_type: labctl.tests.test_cli.TestExperiment
 """
         with labctl_config(LABCTL_CONFIG), patch_file_contents(
             "sequence/test.yml", SEQUENCE_CONTENTS
