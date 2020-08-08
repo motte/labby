@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from pathlib import PosixPath
 from typing import List, Tuple
 from unittest import TestCase
-from unittest.mock import call, patch, Mock
+from unittest.mock import call, patch
 
 from labctl import cli
 from labctl.experiment import (
@@ -15,7 +15,6 @@ from labctl.tests.utils import (
     captured_output,
     cli_arguments,
     environment_variable,
-    fake_serial_port,
     labctl_config,
     patch_file_contents,
     patch_time,
@@ -25,16 +24,14 @@ from labctl.tests.utils import (
 LABCTL_CONFIG = """
 ---
 devices:
-  - name: "zup-6-132"
-    type: power_supply
-    driver: labctl.hw.tdklambda.power_supply.ZUP
-    args:
-      port: "/dev/ttyUSB0"
-      baudrate: 9600
-      address: 1
   - name: "virtual-power-supply"
     type: power_supply
     driver: labctl.hw.virtual.power_supply.PowerSupply
+    args:
+      load_in_ohms: 5
+  - name: "broken-power-supply"
+    type: power_supply
+    driver: labctl.hw.virtual.power_supply.BrokenPowerSupply
     args:
       load_in_ohms: 5
 """
@@ -114,12 +111,11 @@ class CommandLineTest(TestCase):
         self.assertEqual(rc, 0)
         self.assertIn("[+] virtual-power-supply", stdout)
 
-    @fake_serial_port
-    def test_list_unavailable_devices(self, serial_port_mock: Mock) -> None:
+    def test_list_unavailable_devices(self) -> None:
         with labctl_config(LABCTL_CONFIG):
             (rc, stdout, stderr) = self.main(["devices"])
         self.assertEqual(rc, 0)
-        self.assertIn("[x] zup-6-132", stdout)
+        self.assertIn("[x] broken-power-supply", stdout)
 
     def test_run_without_sequence_file(self) -> None:
         with labctl_config(LABCTL_CONFIG):
