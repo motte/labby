@@ -13,7 +13,7 @@ class BaseArgumentParser(Tap):
 TArgumentParser = TypeVar("TArgumentParser", bound=BaseArgumentParser)
 
 
-ALL_COMMANDS: Dict[str, Type["Command"]] = {}
+ALL_COMMANDS: Dict[str, Type["Command[BaseArgumentParser]"]] = {}
 
 
 class Command(Generic[TArgumentParser], ABC):
@@ -24,6 +24,7 @@ class Command(Generic[TArgumentParser], ABC):
         self.config = config
 
     def __init_subclass__(cls) -> None:
+        # pyre-ignore[6]
         ALL_COMMANDS[f"{cls.TRIGGER}"] = cls
 
     @classmethod

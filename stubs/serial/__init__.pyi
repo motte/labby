@@ -4,9 +4,9 @@ from serial.serialposix import (
     PosixPollSerial as PosixPollSerial,
     VTIMESerial as VTIMESerial,
 )
-from typing import Any
+from typing import List
 
-VERSION: Any
-protocol_handler_packages: Any
+VERSION: str
+protocol_handler_packages: List[str]
 
-def serial_for_url(url: Any, *args: Any, **kwargs: Any): ...
+def serial_for_url(url: str, *args: object, **kwargs: object) -> Serial: ...

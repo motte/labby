@@ -2,7 +2,7 @@ import strictyaml
 from strictyaml import Any, Map, MapPattern, Optional, Seq, Str
 from typing import Sequence
 
-from labctl.experiment import Experiment
+from labctl.experiment import BaseInputParameters, BaseOutputData, Experiment
 
 
 SCHEMA = Map(
@@ -21,7 +21,7 @@ SCHEMA = Map(
 
 class ExperimentSequence:
     sequence_config: strictyaml.YAML
-    experiments: Sequence[Experiment]
+    experiments: Sequence[Experiment[BaseInputParameters, BaseOutputData]]
 
     def __init__(self, yaml_contents: str) -> None:
         self.sequence_config = strictyaml.load(yaml_contents, SCHEMA)

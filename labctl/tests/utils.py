@@ -1,7 +1,7 @@
 import io
 from builtins import open as open_orig
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
-from typing import Dict, Iterator, List, Optional, Tuple
+from typing import Callable, Dict, Iterator, List, Optional, Tuple, TypeVar
 from unittest.mock import patch, mock_open, MagicMock, Mock
 
 
@@ -30,7 +30,7 @@ class _OpenMockFileStore:
         assert filename in self.filename_to_mock.keys()
         del self.filename_to_mock[filename]
 
-    def open(self, filename: str, *args, **kwargs) -> MagicMock:
+    def open(self, filename: str, *args: object, **kwargs: object) -> MagicMock:
         if filename not in self.filename_to_mock.keys():
             return open_orig(filename, *args, **kwargs)
         return self.filename_to_mock[filename]
@@ -57,10 +57,13 @@ def labctl_config(config_contents: str) -> Iterator[None]:
         yield
 
 
-def fake_serial_port(func) -> Iterator[Mock]:
-    serial_port_mock = Mock()
+TReturn = TypeVar("TReturn")
 
-    def wrapper(*args, **kwargs):
+
+def fake_serial_port(func: Callable[..., TReturn]) -> Callable[..., TReturn]:
+    serial_port_mock: Mock = Mock()
+
+    def wrapper(*args: object, **kwargs: object) -> TReturn:
         with patch("time.sleep"), patch(
             "labctl.hw.tdklambda.power_supply.fcntl.flock"
         ), patch("labctl.hw.core.Serial", return_value=serial_port_mock):

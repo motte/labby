@@ -26,7 +26,7 @@ TInputParameters = TypeVar(
 )
 
 
-ALL_EXPERIMENTS: Dict[str, Type["Experiment"]] = {}
+ALL_EXPERIMENTS: Dict[str, Type["Experiment[BaseInputParameters, BaseOutputData]"]] = {}
 
 
 class Experiment(Generic[TInputParameters, TOutputData], ABC):
@@ -47,7 +47,7 @@ class Experiment(Generic[TInputParameters, TOutputData], ABC):
     @classmethod
     def create(
         cls, experiment_type: str, name: str, params: Optional[Dict[str, Any]]
-    ) -> "Experiment":
+    ) -> "Experiment[BaseInputParameters, BaseOutputData]":
         experiment_klass = ALL_EXPERIMENTS[experiment_type]
         # pyre-ignore[16]: experiment_klass has no __orig_bases__ attribute
         params_klass = get_args(experiment_klass.__orig_bases__[0])[0]

@@ -46,13 +46,13 @@ class CommandLineTest(TestCase):
                 rc = ex.code
         return (rc, _strip_colors(stdout.getvalue()), stderr.getvalue())
 
-    def test_easter_egg(self):
+    def test_easter_egg(self) -> None:
         with labctl_config(LABCTL_CONFIG):
             (rc, stdout, _stderr) = self.main(["hello"])
         self.assertEqual(rc, 0)
         self.assertEqual(stdout, "Hello world\n")
 
-    def test_command_is_required(self):
+    def test_command_is_required(self) -> None:
         (rc, stdout, stderr) = self.main([])
         self.assertEqual(rc, 2)
         self.assertTrue("usage: labctl" in stderr)
@@ -60,7 +60,7 @@ class CommandLineTest(TestCase):
             "labctl: error: the following arguments are required: command\n" in stderr
         )
 
-    def test_invalid_command(self):
+    def test_invalid_command(self) -> None:
         (rc, stdout, stderr) = self.main(["foobar"])
         self.assertTrue("usage: labctl" in stderr)
         self.assertTrue("labctl: error: argument command: invalid choice" in stderr)

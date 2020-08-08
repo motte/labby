@@ -15,7 +15,7 @@ class ExperimentRunner:
         self,
         config: Config,
         experiment: Experiment[BaseInputParameters, BaseOutputData],
-    ):
+    ) -> None:
         self.config = config
         self.experiment = experiment
         # TODO find a better place for this assignment

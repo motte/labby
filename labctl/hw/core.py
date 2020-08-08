@@ -18,7 +18,7 @@ ALL_DRIVERS: Dict[str, Type["Device"]] = {}
 class Device(ABC):
     name: str = "unnamed device"
 
-    def __init_subclass__(cls):
+    def __init_subclass__(cls) -> None:
         ALL_DRIVERS[f"{cls.__module__}.{cls.__name__}"] = cls
 
     @abstractmethod
