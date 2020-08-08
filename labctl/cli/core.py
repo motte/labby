@@ -23,8 +23,7 @@ class Command(Generic[TArgumentParser], ABC):
     def __init__(self, config: Config) -> None:
         self.config = config
 
-    def __init_subclass__(cls) -> None:
-        # pyre-ignore[6]
+    def __init_subclass__(cls: Type["Command[BaseArgumentParser]"]) -> None:
         ALL_COMMANDS[f"{cls.TRIGGER}"] = cls
 
     @classmethod
