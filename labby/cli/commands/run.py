@@ -9,7 +9,7 @@ from labby.experiment.runner import ExperimentRunner
 from labby.experiment.sequence import ExperimentSequence
 
 
-# pyre-ignore[13]: command is unitialized
+# pyre-ignore[13]: sequence_filename is unitialized
 class RunArgumentParser(BaseArgumentParser):
     sequence_filename: str
 
