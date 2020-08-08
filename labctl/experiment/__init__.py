@@ -3,6 +3,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Dict, Generic, Optional, Type, TypeVar, Sequence, get_args
 
+from pyre_extensions import none_throws
+
 from labctl.hw.core import PowerSupply
 from labctl.config import Config
 
@@ -70,8 +72,7 @@ class Experiment(Generic[TInputParameters, TOutputData], ABC):
         return get_args(cls.__orig_bases__[0])[1]
 
     def get_power_supply(self, name: str) -> PowerSupply:
-        config = self.config
-        assert config is not None
+        config = none_throws(self.config)
         try:
             return next(
                 d
