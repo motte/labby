@@ -56,3 +56,8 @@ class PowerSupply(BasePowerSupply):
 
     def set_target_current(self, current: float) -> None:
         self.target_current = current
+
+
+class BrokenPowerSupply(PowerSupply):
+    def test_connection(self) -> None:
+        raise Exception("foo")

@@ -1,11 +1,16 @@
 from unittest import TestCase
 
-from labctl.hw.virtual.power_supply import PowerSupply, PowerSupplyMode
+from labctl.hw.virtual.power_supply import (
+    BrokenPowerSupply,
+    PowerSupply,
+    PowerSupplyMode,
+)
 
 
 class PowerSupplyTest(TestCase):
     def test_power_supply_initial_state(self) -> None:
         power_supply = PowerSupply(42)
+        power_supply.test_connection()
         self.assertEquals(power_supply.is_output_on(), False)
         self.assertAlmostEquals(power_supply.get_target_current(), 0)
         self.assertAlmostEquals(power_supply.get_target_voltage(), 0)
@@ -52,3 +57,10 @@ class PowerSupplyTest(TestCase):
         power_supply.set_target_current(3)
         self.assertAlmostEquals(power_supply.get_actual_current(), 0.0)
         self.assertAlmostEquals(power_supply.get_actual_voltage(), 0.0)
+
+
+class BrokenPowerSupplyTest(TestCase):
+    def test_power_supply_initial_state(self) -> None:
+        power_supply = BrokenPowerSupply(42)
+        with self.assertRaises(Exception):
+            power_supply.test_connection()
