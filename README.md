@@ -44,7 +44,7 @@ pyre
 
 We use [`flake8`](https://flake8.pycqa.org/en/latest/) for linting:
 ```
-flake8 labby
+flake8
 ```
 
 
