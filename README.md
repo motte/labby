@@ -7,7 +7,7 @@ A basic library for interacting with lab hardware.
 
 ## Usage
 
-See [`luizribeiro/workench`](https://github.com/luizribeiro/workbench) for an example.
+See [`luizribeiro/workbench`](https://github.com/luizribeiro/workbench) for an example.
 
 ## Contributing
 
