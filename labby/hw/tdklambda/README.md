@@ -1,7 +1,9 @@
 # labby.hw.tdklambda
 
-A basic library for interacting with the ZUP Series of power supplies by
-TDK-Lambda.
+This module contains drivers for TDK-Lambda hardware.
+
+Currently, there is only support for driving  the ZUP Series of power
+supplies.
 
 ## Power Supply Configuration
 
@@ -29,6 +31,30 @@ Note `ttyUSB0`. This means the power supply is available for communication under
 
 ### Basic Usage
 
+Just add an entry to your `labby.yml` under the `devices` section like
+this:
+
+```yaml
+---
+devices:
+  - name: "zup-6-132"
+    type: power_supply
+    driver: labby.hw.tdklambda.power_supply.ZUP
+    args:
+      port: "/dev/ttyUSB0"
+      baudrate: 9600
+      address: 1
+```
+
+Note that address here is the address that was setup on step 1 of the
+[Power Supply Configuration section](#power-supply-configuration) above.
+
+### Using from Python
+
+You most likely won't need to do this, as you will be using the power
+supply through `labby` itself. However, this is how one interfaces with
+the power supply through this module:
+
 ```python
 from labby.hw.tdklambda import power_supply as tdklambda_power_supply
 
@@ -46,3 +72,12 @@ with tdklambda_power_supply.ZUP("/dev/ttyUSB0", 9600) as power_supply:
     print(f"Mode: {power_supply.get_mode()}")
     print(f"Output: {'ON' if power_supply.is_output_on() else 'OFF'}")
 ```
+
+## TODOs
+
+* Check limits based on power supply model
+* Add support for more operational status registers
+* Add support for foldback protection
+* Add support for over-voltage protection
+* Add support for under-voltage protection
+* Add support for auto-restart mode

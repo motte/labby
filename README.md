@@ -54,13 +54,3 @@ before each commit:
 ```
 pre-commit install
 ```
-
-## TODOs
-
-* Check limits based on power supply model
-* Clean up API
-* Add support for more operational status registers
-* Understand what foldback protection is and if we need it
-* Figure out if we need over-voltage protection
-* Figure out if we need under-voltage protection
-* Figure out what auto-restart mode is and if we need it
