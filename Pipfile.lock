@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "1997568a9bac3d5580d7c54d77fa559f2e8c1ea368f0c03b2c1362b0c3d6400b"
+            "sha256": "2cbea3b89f5e03846ade131b6565826075c20644a6d10c1e0f002a23ad0c8b1f"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -76,6 +76,14 @@
             ],
             "index": "pypi",
             "version": "==1.1.0"
+        },
+        "pyre-extensions": {
+            "hashes": [
+                "sha256:60e0411e91ecbeaf1fd5d8851ffce42baf6a74ec7ccd01db545c7a97f15aac30",
+                "sha256:e6ad1facef54c982d9c0d9780b1aee9faf5cf53b3c7860a087062a206d1598c8"
+            ],
+            "index": "pypi",
+            "version": "==0.0.18"
         },
         "pyserial": {
             "hashes": [
@@ -567,6 +575,7 @@
                 "sha256:60e0411e91ecbeaf1fd5d8851ffce42baf6a74ec7ccd01db545c7a97f15aac30",
                 "sha256:e6ad1facef54c982d9c0d9780b1aee9faf5cf53b3c7860a087062a206d1598c8"
             ],
+            "index": "pypi",
             "version": "==0.0.18"
         },
         "python-dateutil": {

@@ -30,6 +30,7 @@ setup(
         "mypy-extensions==0.4.3",
         "numpy==1.19.1; python_version >= '3.6'",
         "pandas==1.1.0",
+        "pyre-extensions==0.0.18",
         "pyserial==3.4",
         "python-dateutil==2.8.1; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
         "pytz==2020.1",
