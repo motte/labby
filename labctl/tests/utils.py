@@ -1,8 +1,12 @@
 import io
+from datetime import timedelta
 from builtins import open as open_orig
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from typing import Callable, Dict, Iterator, List, Optional, Tuple, TypeVar
 from unittest.mock import patch, mock_open, MagicMock, Mock
+
+import freezegun
+from freezegun import freeze_time
 
 
 @contextmanager
@@ -84,3 +88,15 @@ def environment_variable(name: str, value: str) -> Iterator[None]:
     with patch.dict(os.environ, ENV_VARIABLES):
         yield
     del ENV_VARIABLES[name]
+
+
+@contextmanager
+def patch_time(start_time: str) -> Iterator[None]:
+    frozen_time: freezegun.api._freeze_time
+    with freeze_time(start_time) as frozen_time:
+
+        def _sleep(seconds: float) -> None:
+            frozen_time.tick(timedelta(seconds=seconds))
+
+        with patch("time.sleep", _sleep):
+            yield
