@@ -29,7 +29,7 @@ class RunCommand(Command[RunArgumentParser]):
         sequence_name = Path(sequence_filename).stem
         return Path(f"./output/{sequence_name}/")
 
-    def main(self, args: RunArgumentParser) -> None:
+    def main(self, args: RunArgumentParser) -> int:
         self._auto_discover_experiments()
 
         with open(args.sequence_filename, "r") as sequence_fd:
@@ -44,3 +44,5 @@ class RunCommand(Command[RunArgumentParser]):
             output_dir = self._get_output_directory(args.sequence_filename)
             os.makedirs(output_dir, exist_ok=True)
             runner.dataframe.to_csv(output_dir / f"{experiment.name}.csv", index=False)
+
+        return 0

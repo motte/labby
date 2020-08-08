@@ -27,7 +27,7 @@ def main() -> None:
     _auto_discover_commands()
 
     if len(sys.argv) > 1 and Command.is_valid(sys.argv[1]):
-        Command.run(sys.argv[1], sys.argv[2:])
-        sys.exit(0)
+        rc = Command.run(sys.argv[1], sys.argv[2:])
+        sys.exit(rc)
 
     ArgumentParser().parse_args()

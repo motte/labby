@@ -56,7 +56,7 @@ class DeviceInfoCommand(Command[DeviceInfoArguments]):
             return self._get_power_supply_info(device)
         raise Exception(f"Unknown device type {type(device)}")
 
-    def main(self, args: DeviceInfoArguments) -> None:
+    def main(self, args: DeviceInfoArguments) -> int:
         try:
             device = next(
                 device
@@ -68,7 +68,7 @@ class DeviceInfoCommand(Command[DeviceInfoArguments]):
                 f"Unknown device {args.device_name}",
                 text="See `labctl devices` for a list of available devices.",
             )
-            return
+            return 1
 
         msg.divider(f"{device.name} (Power Supply)")
 
@@ -84,3 +84,5 @@ class DeviceInfoCommand(Command[DeviceInfoArguments]):
             msg.text(f"{color(type(ex).__name__, bold=True)}: {str(ex)}")
         finally:
             device.close()
+
+        return 0

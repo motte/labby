@@ -28,7 +28,7 @@ class Command(Generic[TArgumentParser], ABC):
         ALL_COMMANDS[f"{cls.TRIGGER}"] = cls
 
     @classmethod
-    def run(cls, trigger: str, argv: Sequence[str]) -> None:
+    def run(cls, trigger: str, argv: Sequence[str]) -> int:
         command_klass = ALL_COMMANDS[trigger]
         # pyre-ignore[16]: command_klass has no __orig_bases__ attribute
         args_klass = get_args(command_klass.__orig_bases__[0])[0]
@@ -40,12 +40,12 @@ class Command(Generic[TArgumentParser], ABC):
 
         # pyre-ignore[45]: cannot instantiate Command with abstract method
         command = command_klass(config)
-        command.main(args)
+        return command.main(args)
 
     @classmethod
     def is_valid(cls, trigger: str) -> bool:
         return trigger in ALL_COMMANDS.keys()
 
     @abstractmethod
-    def main(self, args: TArgumentParser) -> None:
+    def main(self, args: TArgumentParser) -> int:
         raise NotImplementedError
