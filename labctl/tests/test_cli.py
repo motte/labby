@@ -1,5 +1,4 @@
 import re
-from time import sleep as sleep_orig
 from pathlib import PosixPath
 from typing import List, Tuple
 from unittest import TestCase
@@ -13,6 +12,7 @@ from labctl.tests.utils import (
     fake_serial_port,
     labctl_config,
     patch_file_contents,
+    patch_time,
 )
 
 
@@ -110,19 +110,26 @@ sequence:
             "output/test/001.csv"
         ) as output_1, patch(
             "os.makedirs"
-        ) as makedirs, patch(
-            "time.sleep", side_effect=sleep_orig
+        ) as makedirs, patch_time(
+            "2020-08-08"
         ):
-            # TODO remove time.sleep patch and make these tests less dependent on time
-            # and less hacky
             (rc, stdout, stderr) = self.main(["run", "sequence/test.yml"])
             makedirs.assert_called_with(PosixPath("output/test/"), exist_ok=True)
+            self.assertEquals(len(output_0.write.call_args_list), 4)
             output_0.write.assert_has_calls(
-                # TODO check second datapoint too
-                [call("seconds,voltage\n"), call("0.0,2.0\n")]
+                [
+                    call("seconds,voltage\n"),
+                    call("0.0,2.0\n"),
+                    call("0.5,2.0\n"),
+                    call("1.0,2.0\n"),
+                ]
             )
             output_1.write.assert_has_calls(
-                # TODO check second datapoint too
-                [call("seconds,voltage\n"), call("0.0,2.0\n")]
+                [
+                    call("seconds,voltage\n"),
+                    call("0.0,2.0\n"),
+                    call("0.5,2.0\n"),
+                    call("1.0,2.0\n"),
+                ]
             )
         self.assertEqual(rc, 0)
