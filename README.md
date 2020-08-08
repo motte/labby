@@ -5,6 +5,8 @@
 
 A basic library for interacting with lab hardware.
 
+![Screenshot](img/screenshot.png)
+
 ## Usage
 
 See [`luizribeiro/workbench`](https://github.com/luizribeiro/workbench) for an example.
