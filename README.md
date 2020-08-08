@@ -5,7 +5,7 @@
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
 
 An application for interacting with laboratory equipment and running
-sequences of experiments.
+experiment sequences.
 
 ![Screenshot](docs/img/screenshot.png)
 
