@@ -17,6 +17,7 @@ install:
 
 script:
   - pipenv run flake8
+  - pipenv run black --check .
   - pipenv run pyre --noninteractive
   - pipenv run green --run-coverage
 
