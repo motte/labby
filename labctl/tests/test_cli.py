@@ -32,6 +32,11 @@ devices:
       port: "/dev/ttyUSB0"
       baudrate: 9600
       address: 1
+  - name: "virtual-power-supply"
+    type: power_supply
+    driver: labctl.hw.virtual.power_supply.PowerSupply
+    args:
+      load_in_ohms: 5
 """
 
 
@@ -50,16 +55,19 @@ class TestExperiment(Experiment[InputParameters, OutputData]):
     DURATION_IN_SECONDS: float = 1.0
 
     def start(self) -> None:
-        power_supply = self.get_power_supply("zup-6-132")
+        power_supply = self.get_power_supply("virtual-power-supply")
+        power_supply.set_target_voltage(15)
+        power_supply.set_target_current(4)
+        power_supply.set_output_on(True)
         power_supply.open()
 
     def measure(self) -> OutputData:
-        power_supply = self.get_power_supply("zup-6-132")
+        power_supply = self.get_power_supply("virtual-power-supply")
         actual_voltage = power_supply.get_actual_voltage()
         return OutputData(voltage=actual_voltage)
 
     def stop(self) -> None:
-        power_supply = self.get_power_supply("zup-6-132")
+        power_supply = self.get_power_supply("virtual-power-supply")
         power_supply.close()
 
 
@@ -127,11 +135,7 @@ class CommandLineTest(TestCase):
             in stderr
         )
 
-    @fake_serial_port
-    def test_run_sequence(self, serial_port_mock: Mock) -> None:
-        serial_port_mock.readline.return_value = b"AV2.0\r\n"
-        import labctl.tests.test_experiment  # noqa
-
+    def test_run_sequence(self) -> None:
         SEQUENCE_CONTENTS = """
 ---
 sequence:
@@ -153,17 +157,17 @@ sequence:
             output_0.write.assert_has_calls(
                 [
                     call("seconds,voltage\n"),
-                    call("0.0,2.0\n"),
-                    call("0.5,2.0\n"),
-                    call("1.0,2.0\n"),
+                    call("0.0,15.0\n"),
+                    call("0.5,15.0\n"),
+                    call("1.0,15.0\n"),
                 ]
             )
             output_1.write.assert_has_calls(
                 [
                     call("seconds,voltage\n"),
-                    call("0.0,2.0\n"),
-                    call("0.5,2.0\n"),
-                    call("1.0,2.0\n"),
+                    call("0.0,15.0\n"),
+                    call("0.5,15.0\n"),
+                    call("1.0,15.0\n"),
                 ]
             )
         self.assertEqual(rc, 0)
