@@ -5,7 +5,8 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from importlib import import_module
 from pathlib import Path
-from typing import Any, Dict, Type
+from types import TracebackType
+from typing import Any, Dict, Optional, Type
 
 from serial import Serial
 
@@ -31,6 +32,19 @@ class Device(ABC):
     @abstractmethod
     def close(self) -> None:
         raise NotImplementedError
+
+    def __enter__(self) -> "Device":
+        self.open()
+        return self
+
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> bool:
+        self.close()
+        return False
 
     @abstractmethod
     def test_connection(self) -> None:
@@ -85,6 +99,10 @@ class SerialDevice(ABC):
 
 
 class PowerSupply(Device, ABC):
+    def __enter__(self) -> "PowerSupply":
+        Device.__enter__(self)
+        return self
+
     @abstractmethod
     def get_mode(self) -> PowerSupplyMode:
         raise NotImplementedError

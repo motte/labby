@@ -1,7 +1,6 @@
 import re
 from dataclasses import dataclass
-from types import TracebackType
-from typing import Match, Optional, Type
+from typing import Match
 
 from labby.hw.core import (
     HardwareIOException,
@@ -31,17 +30,8 @@ class ZUP(SerialDevice, PowerSupply):
         self.address = address
 
     def __enter__(self) -> "ZUP":
-        self.open()
+        PowerSupply.__enter__(self)
         return self
-
-    def __exit__(
-        self,
-        exc_type: Optional[Type[BaseException]],
-        exc_value: Optional[BaseException],
-        traceback: Optional[TracebackType],
-    ) -> bool:
-        self.close()
-        return False
 
     def _on_open(self) -> None:
         self._write(bytes(f":ADR{self.address:02d};", "utf-8"))
