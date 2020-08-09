@@ -6,8 +6,8 @@ from labby.hw.core import (
     HardwareIOException,
     PowerSupply,
     PowerSupplyMode,
-    SerialDevice,
 )
+from labby.hw.core.serial import SerialDevice
 
 
 TIMEOUT_MS = 2000
