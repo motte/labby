@@ -1,9 +1,9 @@
 from unittest import TestCase
 
+from labby.hw.core.power_supply import PowerSupplyMode
 from labby.hw.virtual.power_supply import (
     BrokenPowerSupply,
     PowerSupply,
-    PowerSupplyMode,
 )
 
 

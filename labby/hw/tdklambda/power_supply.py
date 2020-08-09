@@ -2,7 +2,7 @@ import re
 from dataclasses import dataclass
 from typing import Match
 
-from labby.hw.core import (
+from labby.hw.core.power_supply import (
     PowerSupply,
     PowerSupplyMode,
 )

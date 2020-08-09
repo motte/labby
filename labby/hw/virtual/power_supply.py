@@ -1,6 +1,6 @@
 import math
 
-from labby.hw.core import (
+from labby.hw.core.power_supply import (
     PowerSupply as BasePowerSupply,
     PowerSupplyMode,
 )

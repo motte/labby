@@ -2,7 +2,8 @@ from typing import List, Tuple
 
 from wasabi import color, msg, Printer
 
-from labby.hw.core import Device, PowerSupply, PowerSupplyMode
+from labby.hw.core import Device
+from labby.hw.core.power_supply import PowerSupply, PowerSupplyMode
 from labby.cli.core import BaseArgumentParser, Command
 
 

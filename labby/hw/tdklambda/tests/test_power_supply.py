@@ -1,8 +1,8 @@
 from unittest import TestCase
 from unittest.mock import Mock
 
-from labby.hw.core import PowerSupplyMode
 from labby.hw.core.exceptions import HardwareIOError
+from labby.hw.core.power_supply import PowerSupplyMode
 from labby.hw.tdklambda import power_supply as tdklambda_power_supply
 from labby.tests.utils import fake_serial_port
 

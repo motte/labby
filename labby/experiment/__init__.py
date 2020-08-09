@@ -5,8 +5,8 @@ from typing import Any, Dict, Generic, Optional, Type, TypeVar, Sequence, get_ar
 
 from pyre_extensions import none_throws
 
-from labby.hw.core import PowerSupply
 from labby.config import Config
+from labby.hw.core.power_supply import PowerSupply
 
 
 @dataclass(frozen=True)
