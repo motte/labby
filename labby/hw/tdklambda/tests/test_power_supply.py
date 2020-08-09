@@ -1,7 +1,8 @@
 from unittest import TestCase
 from unittest.mock import Mock
 
-from labby.hw.core import HardwareIOException, PowerSupplyMode
+from labby.hw.core import PowerSupplyMode
+from labby.hw.core.exceptions import HardwareIOError
 from labby.hw.tdklambda import power_supply as tdklambda_power_supply
 from labby.tests.utils import fake_serial_port
 
@@ -136,7 +137,5 @@ class ZUPTest(TestCase):
     def test_invalid_response(self, serial_port_mock: Mock) -> None:
         with tdklambda_power_supply.ZUP("/dev/ttyUSB0", 9600) as power_supply:
             serial_port_mock.readline.return_value = b"foobar\r\n"
-            with self.assertRaisesRegex(
-                HardwareIOException, "Could not parse response"
-            ):
+            with self.assertRaisesRegex(HardwareIOError, "Could not parse response"):
                 power_supply.get_actual_voltage()

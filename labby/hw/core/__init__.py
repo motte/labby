@@ -102,10 +102,6 @@ class PowerSupply(Device, ABC):
         raise NotImplementedError
 
 
-class HardwareIOException(Exception):
-    pass
-
-
 def auto_discover_drivers() -> None:
     HW_PATH = Path(__file__).parent.parent
     for f in HW_PATH.glob("**/*.py"):

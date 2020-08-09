@@ -3,10 +3,10 @@ from dataclasses import dataclass
 from typing import Match
 
 from labby.hw.core import (
-    HardwareIOException,
     PowerSupply,
     PowerSupplyMode,
 )
+from labby.hw.core.exceptions import HardwareIOError
 from labby.hw.core.serial import SerialDevice
 
 
@@ -48,7 +48,7 @@ class ZUP(SerialDevice, PowerSupply):
             model = self.get_model()
             assert len(model) > 0
         except Exception:
-            raise HardwareIOException
+            raise HardwareIOError
 
     def get_model(self) -> str:
         return self._query(b":MDL?;")
@@ -65,7 +65,7 @@ class ZUP(SerialDevice, PowerSupply):
     def _re_search(self, regex: str, line: str) -> Match[str]:
         search = re.search(regex, line)
         if search is None:
-            raise HardwareIOException(f"Could not parse response: {line}")
+            raise HardwareIOError(f"Could not parse response: {line}")
         return search
 
     def get_target_voltage(self) -> float:
