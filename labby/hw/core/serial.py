@@ -47,18 +47,24 @@ REGISTRY_LOCK = threading.Lock()
 SERIAL_CONTROLLERS: Dict[str, "SerialController"] = {}
 
 
+class SerialControllerJobPriority(Enum):
+    HIGH = 0
+    LOW = 10
+
+
 class SerialControllerJobType(Enum):
     WRITE = 0
     QUERY = 1
     CLOSE = 2
 
 
-@dataclass
+@dataclass(order=True)
 class SerialControllerJob:
-    condition: threading.Condition = field(init=False)
-    uuid: str = field(init=False)
-    type: SerialControllerJobType
-    message: bytes = b""
+    condition: threading.Condition = field(init=False, compare=False)
+    uuid: str = field(init=False, compare=False)
+    type: SerialControllerJobType = field(compare=False)
+    message: bytes = field(default=b"", compare=False)
+    priority: SerialControllerJobPriority = SerialControllerJobPriority.LOW
 
     def __post_init__(self) -> None:
         self.condition = threading.Condition()
@@ -67,7 +73,7 @@ class SerialControllerJob:
 
 class SerialController(threading.Thread):
     serial: Serial
-    job_queue: "queue.Queue[SerialControllerJob]"
+    job_queue: "queue.PriorityQueue[SerialControllerJob]"
     job_results: Dict[str, str]
     num_clients: int
     wait_time_after_write_ms: float
@@ -86,7 +92,7 @@ class SerialController(threading.Thread):
 
         self.wait_time_after_write_ms = wait_time_after_write_ms
 
-        self.job_queue = queue.Queue()
+        self.job_queue = queue.PriorityQueue()
         self.job_results = {}
         self.num_clients = 0
 
