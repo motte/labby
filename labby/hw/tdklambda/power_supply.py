@@ -1,6 +1,4 @@
-import fcntl
 import re
-import time
 from dataclasses import dataclass
 from types import TracebackType
 from typing import Match, Optional, Type
@@ -13,7 +11,6 @@ from labby.hw.core import (
 )
 
 
-WAIT_TIME_AFTER_WRITE_MS: float = 50
 TIMEOUT_MS = 2000
 
 
@@ -22,7 +19,9 @@ class OperationalStatusRegister:
     mode: PowerSupplyMode
 
 
-class ZUP(PowerSupply, SerialDevice):
+class ZUP(SerialDevice, PowerSupply):
+    WAIT_TIME_AFTER_WRITE_MS: float = 50.0
+
     address: int
 
     def __init__(self, port: str, baudrate: int, address: int = 1,) -> None:
@@ -30,10 +29,6 @@ class ZUP(PowerSupply, SerialDevice):
         self.serial.xonxoff = True
         self.serial.timeout = TIMEOUT_MS / 1000.0
         self.address = address
-
-    def _write(self, msg: bytes) -> None:
-        self.serial.write(msg)
-        time.sleep(WAIT_TIME_AFTER_WRITE_MS / 1000.0)
 
     def __enter__(self) -> "ZUP":
         self.open()
@@ -48,8 +43,8 @@ class ZUP(PowerSupply, SerialDevice):
         self.close()
         return False
 
-    def _read_line(self) -> str:
-        return self.serial.readline()[:-2].decode("utf-8")
+    def _on_open(self) -> None:
+        self._write(bytes(f":ADR{self.address:02d};", "utf-8"))
 
     def _read_operational_status_register(self) -> OperationalStatusRegister:
         self._write(b":STA?;")
@@ -58,14 +53,6 @@ class ZUP(PowerSupply, SerialDevice):
 
     def get_mode(self) -> PowerSupplyMode:
         return self._read_operational_status_register().mode
-
-    def open(self) -> None:
-        self.serial.open()
-        fcntl.flock(self.serial, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        self._write(bytes(f":ADR{self.address:02d};", "utf-8"))
-
-    def close(self) -> None:
-        self.serial.close()
 
     def test_connection(self) -> None:
         try:
