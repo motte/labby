@@ -100,7 +100,7 @@ class HardwareIOException(Exception):
 
 
 def auto_discover_drivers() -> None:
-    HW_PATH = Path(__file__).parent
+    HW_PATH = Path(__file__).parent.parent
     for f in HW_PATH.glob("**/*.py"):
         if "__" in f.stem or "test" in f.stem or f.parent.stem == "hw":
             continue
