@@ -74,6 +74,7 @@ class SerialControllerJob:
 class SerialController(threading.Thread):
     serial: Serial
     job_queue: "queue.PriorityQueue[SerialControllerJob]"
+    # TODO: implement error handling through exceptions
     job_results: Dict[str, str]
     num_clients: int
     wait_time_after_write_ms: float
@@ -87,6 +88,7 @@ class SerialController(threading.Thread):
         self.serial = Serial()
         self.serial.port = port
         self.serial.baudrate = baudrate
+        # TODO: make these customizable to the SerialDevice
         self.serial.xonxoff = True
         self.serial.timeout = TIMEOUT_MS / 1000.0
 
