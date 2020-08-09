@@ -47,9 +47,8 @@ class ZUP(SerialDevice, PowerSupply):
         self._write(bytes(f":ADR{self.address:02d};", "utf-8"))
 
     def _read_operational_status_register(self) -> OperationalStatusRegister:
-        self._write(b":STA?;")
-        line = self._read_line()
-        return OperationalStatusRegister(mode=PowerSupplyMode(int(line[2])))
+        response = self._query(b":STA?;")
+        return OperationalStatusRegister(mode=PowerSupplyMode(int(response[2])))
 
     def get_mode(self) -> PowerSupplyMode:
         return self._read_operational_status_register().mode
@@ -62,19 +61,16 @@ class ZUP(SerialDevice, PowerSupply):
             raise HardwareIOException
 
     def get_model(self) -> str:
-        self._write(b":MDL?;")
-        return self._read_line()
+        return self._query(b":MDL?;")
 
     def is_output_on(self) -> bool:
-        self._write(b":OUT?;")
-        return self._read_line() == "OT1"
+        return self._query(b":OUT?;") == "OT1"
 
     def set_output_on(self, is_on: bool) -> None:
         self._write(b":OUT1;" if is_on else b":OUT0;")
 
     def get_software_version(self) -> str:
-        self._write(b":REV?;")
-        return self._read_line()
+        return self._query(b":REV?;")
 
     def _re_search(self, regex: str, line: str) -> Match[str]:
         search = re.search(regex, line)
@@ -83,27 +79,23 @@ class ZUP(SerialDevice, PowerSupply):
         return search
 
     def get_target_voltage(self) -> float:
-        self._write(b":VOL!;")
-        line = self._read_line()
-        search = self._re_search("^SV([0-9]+\\.[0-9]+)$", line)
+        response = self._query(b":VOL!;")
+        search = self._re_search("^SV([0-9]+\\.[0-9]+)$", response)
         return float(search.group(1))
 
     def get_actual_voltage(self) -> float:
-        self._write(b":VOL?;")
-        line = self._read_line()
-        search = self._re_search("^AV([0-9]+\\.[0-9]+)$", line)
+        response = self._query(b":VOL?;")
+        search = self._re_search("^AV([0-9]+\\.[0-9]+)$", response)
         return float(search.group(1))
 
     def get_target_current(self) -> float:
-        self._write(b":CUR!;")
-        line = self._read_line()
-        search = self._re_search("^SA([0-9]+\\.[0-9]+)$", line)
+        response = self._query(b":CUR!;")
+        search = self._re_search("^SA([0-9]+\\.[0-9]+)$", response)
         return float(search.group(1))
 
     def get_actual_current(self) -> float:
-        self._write(b":CUR?;")
-        line = self._read_line()
-        search = self._re_search("^AA([0-9]+\\.[0-9]+)$", line)
+        response = self._query(b":CUR?;")
+        search = self._re_search("^AA([0-9]+\\.[0-9]+)$", response)
         return float(search.group(1))
 
     def set_target_voltage(self, voltage: float) -> None:

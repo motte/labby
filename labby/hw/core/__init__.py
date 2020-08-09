@@ -67,6 +67,10 @@ class SerialDevice(ABC):
         self.serial.write(msg)
         time.sleep(self.WAIT_TIME_AFTER_WRITE_MS / 1000.0)
 
+    def _query(self, msg: bytes) -> str:
+        self._write(msg)
+        return self._read_line()
+
     def open(self) -> None:
         self.serial.open()
         fcntl.flock(self.serial, fcntl.LOCK_EX | fcntl.LOCK_NB)
