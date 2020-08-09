@@ -28,6 +28,6 @@ devices:
         self.assertEqual(len(devices), 1)
         device = config.devices[0]
         assert isinstance(device, tdklambda.power_supply.ZUP)
-        self.assertEquals(device.port, "/dev/ttyUSB0")
-        self.assertEquals(device.baudrate, 9600)
+        self.assertEquals(device.serial.port, "/dev/ttyUSB0")
+        self.assertEquals(device.serial.baudrate, 9600)
         self.assertEquals(device.address, 1)

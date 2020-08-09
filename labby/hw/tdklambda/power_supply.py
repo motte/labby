@@ -24,14 +24,10 @@ class OperationalStatusRegister:
 
 class ZUP(PowerSupply, SerialDevice):
     address: int
-    baudrate: int
-    port: str
 
     def __init__(self, port: str, baudrate: int, address: int = 1,) -> None:
         SerialDevice.__init__(self, port, baudrate)
         self.address = address
-        self.port = port
-        self.baudrate = baudrate
 
     def _write(self, msg: bytes) -> None:
         self.serial.write(msg)
