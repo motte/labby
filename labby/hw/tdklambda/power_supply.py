@@ -27,6 +27,8 @@ class ZUP(PowerSupply, SerialDevice):
 
     def __init__(self, port: str, baudrate: int, address: int = 1,) -> None:
         SerialDevice.__init__(self, port, baudrate)
+        self.serial.xonxoff = True
+        self.serial.timeout = TIMEOUT_MS / 1000.0
         self.address = address
 
     def _write(self, msg: bytes) -> None:
@@ -58,8 +60,6 @@ class ZUP(PowerSupply, SerialDevice):
         return self._read_operational_status_register().mode
 
     def open(self) -> None:
-        self.serial.xonxoff = True
-        self.serial.timeout = TIMEOUT_MS / 1000.0
         self.serial.open()
         fcntl.flock(self.serial, fcntl.LOCK_EX | fcntl.LOCK_NB)
         self._write(bytes(f":ADR{self.address:02d};", "utf-8"))
