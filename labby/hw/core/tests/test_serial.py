@@ -52,8 +52,8 @@ class SerialDeviceTest(TestCase):
         serial_port_mock.is_open = False
         serial_port_mock.open.side_effect = SerialException("Cannot open serial port")
         with self.assertRaises(SerialException):
-            with TestSerialPowerSupply("/dev/ttyUSB0", 9600):
-                pass
+            with TestSerialPowerSupply("/dev/ttyUSB0", 9600) as power_supply:
+                power_supply.get_mode()
 
     @fake_serial_port
     def test_write_timeout(self, serial_port_mock: Mock) -> None:
@@ -78,4 +78,19 @@ class SerialControllerTest(TestCase):
         with TestSerialPowerSupply("/dev/ttyUSB0", 9600):
             self.assertEquals(len(SERIAL_CONTROLLERS), 1)
             self.assertIn("/dev/ttyUSB0", SERIAL_CONTROLLERS.keys())
+        self.assertEquals(len(SERIAL_CONTROLLERS), 0)
+
+    @fake_serial_port
+    def test_serial_controllers_are_purged_on_open_failure(
+        self, serial_port_mock: Mock
+    ) -> None:
+        serial_port_mock.is_open = False
+        serial_port_mock.open.side_effect = SerialException("Cannot open serial port")
+
+        self.assertEquals(len(SERIAL_CONTROLLERS), 0)
+
+        with self.assertRaises(SerialException):
+            with TestSerialPowerSupply("/dev/ttyUSB0", 9600) as power_supply:
+                power_supply.get_mode()
+
         self.assertEquals(len(SERIAL_CONTROLLERS), 0)

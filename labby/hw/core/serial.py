@@ -193,6 +193,13 @@ class SerialController(threading.Thread):
 
     def _execute_job(self, job: SerialControllerJob) -> None:
         try:
+            if job.type == SerialControllerJobType.CLOSE:
+                with REGISTRY_LOCK:
+                    self.num_clients -= 1
+                    if self.num_clients == 0:
+                        del SERIAL_CONTROLLERS[self.serial.port]
+                return
+
             if not self.serial.is_open:
                 self.serial.open()
                 fcntl.flock(self.serial, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -205,13 +212,6 @@ class SerialController(threading.Thread):
                 self._write(job.message)
                 response = self.serial.readline()[:-2].decode("utf-8")
                 self.job_results[job.uuid] = response
-                return
-
-            if job.type == SerialControllerJobType.CLOSE:
-                with REGISTRY_LOCK:
-                    self.num_clients -= 1
-                    if self.num_clients == 0:
-                        del SERIAL_CONTROLLERS[self.serial.port]
                 return
         except Exception as ex:
             self.job_results[job.uuid] = ex
