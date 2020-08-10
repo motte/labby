@@ -97,3 +97,20 @@ class SerialControllerTest(TestCase):
             self.assertEquals(len(SERIAL_CONTROLLERS), 1)
 
         self.assertEquals(len(SERIAL_CONTROLLERS), 0)
+
+    @fake_serial_port
+    def test_serial_controllers_are_purged_on_write_failure(
+        self, serial_port_mock: Mock
+    ) -> None:
+        serial_port_mock.write.side_effect = SerialTimeoutException("Timeout")
+
+        self.assertEquals(len(SERIAL_CONTROLLERS), 0)
+
+        with TestSerialPowerSupply("/dev/ttyUSB0", 9600) as power_supply:
+            self.assertEquals(len(SERIAL_CONTROLLERS), 1)
+            self.assertIn("/dev/ttyUSB0", SERIAL_CONTROLLERS.keys())
+            with self.assertRaises(SerialTimeoutException):
+                power_supply.get_mode()
+            self.assertEquals(len(SERIAL_CONTROLLERS), 1)
+
+        self.assertEquals(len(SERIAL_CONTROLLERS), 0)
