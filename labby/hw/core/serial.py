@@ -227,8 +227,5 @@ class SerialController(threading.Thread):
 
             assert self.job_queue.empty()
 
-        except Exception as ex:
-            raise ex
-
         finally:
             self.serial.close()
