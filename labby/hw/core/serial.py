@@ -6,7 +6,7 @@ import uuid
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, Optional
+from typing import Dict, Optional, Type, TypeVar, Union
 
 from serial import PARITY_NONE, Serial
 
@@ -83,11 +83,14 @@ class SerialControllerJob:
         self.uuid = str(uuid.uuid4())
 
 
+TResult = TypeVar("TResult")
+
+
 class SerialController(threading.Thread):
     serial: Serial
     job_queue: "queue.PriorityQueue[SerialControllerJob]"
     # TODO: implement error handling through exceptions
-    job_results: Dict[str, str]
+    job_results: Dict[str, Union[str, Exception]]
     num_clients: int
     wait_time_after_write_ms: float
 
@@ -157,21 +160,33 @@ class SerialController(threading.Thread):
             self.job_queue.put(job)
             job.condition.wait()
 
+    def _read_result(
+        self, job: SerialControllerJob, result_type: Type[TResult]
+    ) -> TResult:
+        result = self.job_results.get(job.uuid)
+        try:
+            del self.job_results[job.uuid]
+        except KeyError:
+            pass
+        if isinstance(result, result_type):
+            return result
+        assert isinstance(result, Exception)
+        raise result
+
     def write(self, message: bytes) -> None:
         job = SerialControllerJob(type=SerialControllerJobType.WRITE, message=message)
         self._run_and_wait(job)
+        return self._read_result(job, type(None))
 
     def query(self, message: bytes) -> str:
         job = SerialControllerJob(type=SerialControllerJobType.QUERY, message=message)
         self._run_and_wait(job)
-
-        result = self.job_results[job.uuid]
-        del self.job_results[job.uuid]
-        return result
+        return self._read_result(job, str)
 
     def close(self) -> None:
         job = SerialControllerJob(type=SerialControllerJobType.CLOSE)
         self._run_and_wait(job)
+        return self._read_result(job, type(None))
 
     def _write(self, message: bytes) -> None:
         self.serial.write(message)
