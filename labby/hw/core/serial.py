@@ -3,7 +3,7 @@ import queue
 import threading
 import time
 import uuid
-from abc import ABC, abstractmethod
+from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, Optional
@@ -51,7 +51,6 @@ class SerialDevice(ABC):
     def close(self) -> None:
         self.serial_controller.close()
 
-    @abstractmethod
     def _on_open(self) -> None:
         pass
 
