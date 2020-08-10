@@ -19,7 +19,7 @@ class TestSerialPowerSupply(SerialDevice, PowerSupply):
         return
 
     def get_mode(self) -> PowerSupplyMode:
-        return PowerSupplyMode(self._query(b":mode?"))
+        return PowerSupplyMode(int(self._query(b":mode?")))
 
     def is_output_on(self) -> bool:
         raise NotImplementedError
@@ -61,3 +61,9 @@ class SerialDeviceTest(TestCase):
         with self.assertRaises(SerialTimeoutException):
             with TestSerialPowerSupply("/dev/ttyUSB1", 9600) as power_supply:
                 power_supply.get_mode()
+
+    @fake_serial_port
+    def test_successful_write_and_read(self, serial_port_mock: Mock) -> None:
+        serial_port_mock.readline.return_value = b"0\r\n"
+        with TestSerialPowerSupply("/dev/ttyUSB1", 9600) as power_supply:
+            self.assertEquals(power_supply.get_mode(), PowerSupplyMode.CONSTANT_VOLTAGE)
