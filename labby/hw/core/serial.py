@@ -139,19 +139,20 @@ class SerialController(threading.Thread):
                 port in SERIAL_CONTROLLERS.keys()
                 and SERIAL_CONTROLLERS[port].is_alive()
             ):
-                return SERIAL_CONTROLLERS[port]
-            serial_controller = SerialController(
-                port=port,
-                baudrate=baudrate,
-                bytesize=bytesize,
-                parity=parity,
-                stopbits=stopbits,
-                xonxoff=xonxoff,
-                timeout_ms=timeout_ms,
-                wait_time_after_write_ms=wait_time_after_write_ms,
-            )
+                serial_controller = SERIAL_CONTROLLERS[port]
+            else:
+                serial_controller = SerialController(
+                    port=port,
+                    baudrate=baudrate,
+                    bytesize=bytesize,
+                    parity=parity,
+                    stopbits=stopbits,
+                    xonxoff=xonxoff,
+                    timeout_ms=timeout_ms,
+                    wait_time_after_write_ms=wait_time_after_write_ms,
+                )
+                SERIAL_CONTROLLERS[port] = serial_controller
             serial_controller.num_clients += 1
-            SERIAL_CONTROLLERS[port] = serial_controller
             return serial_controller
 
     def _run_and_wait(self, job: SerialControllerJob) -> None:
