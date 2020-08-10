@@ -89,8 +89,11 @@ class SerialControllerTest(TestCase):
 
         self.assertEquals(len(SERIAL_CONTROLLERS), 0)
 
-        with self.assertRaises(SerialException):
-            with TestSerialPowerSupply("/dev/ttyUSB0", 9600) as power_supply:
+        with TestSerialPowerSupply("/dev/ttyUSB0", 9600) as power_supply:
+            self.assertEquals(len(SERIAL_CONTROLLERS), 1)
+            self.assertIn("/dev/ttyUSB0", SERIAL_CONTROLLERS.keys())
+            with self.assertRaises(SerialException):
                 power_supply.get_mode()
+            self.assertEquals(len(SERIAL_CONTROLLERS), 1)
 
         self.assertEquals(len(SERIAL_CONTROLLERS), 0)
