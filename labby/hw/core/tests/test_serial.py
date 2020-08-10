@@ -7,7 +7,7 @@ from labby.hw.core.power_supply import (
     PowerSupply,
     PowerSupplyMode,
 )
-from labby.hw.core.serial import SerialDevice
+from labby.hw.core.serial import SerialDevice, SERIAL_CONTROLLERS
 from labby.tests.utils import fake_serial_port
 
 
@@ -67,3 +67,15 @@ class SerialDeviceTest(TestCase):
         serial_port_mock.readline.return_value = b"0\r\n"
         with TestSerialPowerSupply("/dev/ttyUSB1", 9600) as power_supply:
             self.assertEquals(power_supply.get_mode(), PowerSupplyMode.CONSTANT_VOLTAGE)
+
+
+class SerialControllerTest(TestCase):
+    @fake_serial_port
+    def test_serial_controllers_are_purged_on_close(
+        self, _serial_port_mock: Mock
+    ) -> None:
+        self.assertEquals(len(SERIAL_CONTROLLERS), 0)
+        with TestSerialPowerSupply("/dev/ttyUSB0", 9600):
+            self.assertEquals(len(SERIAL_CONTROLLERS), 1)
+            self.assertIn("/dev/ttyUSB0", SERIAL_CONTROLLERS.keys())
+        self.assertEquals(len(SERIAL_CONTROLLERS), 0)
