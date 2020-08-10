@@ -1,15 +1,18 @@
 from unittest import TestCase
+from unittest.mock import Mock
 
 from labby.config import Config
 from labby.hw import tdklambda
 from labby.hw.core import auto_discover_drivers
+from labby.tests.utils import fake_serial_port
 
 
 class ConfigTest(TestCase):
     def setUp(self) -> None:
         auto_discover_drivers()
 
-    def test_basic_config(self) -> None:
+    @fake_serial_port
+    def test_basic_config(self, _serial_port_mock: Mock) -> None:
         config = Config(
             """
 ---

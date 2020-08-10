@@ -89,7 +89,6 @@ TResult = TypeVar("TResult")
 class SerialController(threading.Thread):
     serial: Serial
     job_queue: "queue.PriorityQueue[SerialControllerJob]"
-    # TODO: implement error handling through exceptions
     job_results: Dict[str, Union[str, Exception]]
     num_clients: int
     wait_time_after_write_ms: float
@@ -193,28 +192,32 @@ class SerialController(threading.Thread):
         time.sleep(self.wait_time_after_write_ms / 1000.0)
 
     def _execute_job(self, job: SerialControllerJob) -> None:
-        if job.type == SerialControllerJobType.WRITE:
-            self._write(job.message)
-            return
+        try:
+            if not self.serial.is_open:
+                self.serial.open()
+                fcntl.flock(self.serial, fcntl.LOCK_EX | fcntl.LOCK_NB)
 
-        if job.type == SerialControllerJobType.QUERY:
-            self._write(job.message)
-            response = self.serial.readline()[:-2].decode("utf-8")
-            self.job_results[job.uuid] = response
-            return
+            if job.type == SerialControllerJobType.WRITE:
+                self._write(job.message)
+                return
 
-        if job.type == SerialControllerJobType.CLOSE:
-            with REGISTRY_LOCK:
-                self.num_clients -= 1
-                if self.num_clients == 0:
-                    del SERIAL_CONTROLLERS[self.serial.port]
-            return
+            if job.type == SerialControllerJobType.QUERY:
+                self._write(job.message)
+                response = self.serial.readline()[:-2].decode("utf-8")
+                self.job_results[job.uuid] = response
+                return
+
+            if job.type == SerialControllerJobType.CLOSE:
+                with REGISTRY_LOCK:
+                    self.num_clients -= 1
+                    if self.num_clients == 0:
+                        del SERIAL_CONTROLLERS[self.serial.port]
+                return
+        except Exception as ex:
+            self.job_results[job.uuid] = ex
 
     def run(self) -> None:
         try:
-            self.serial.open()
-            fcntl.flock(self.serial, fcntl.LOCK_EX | fcntl.LOCK_NB)
-
             while self.serial.port in SERIAL_CONTROLLERS.keys():
                 job = self.job_queue.get()
                 with job.condition:
@@ -223,6 +226,9 @@ class SerialController(threading.Thread):
                 self.job_queue.task_done()
 
             assert self.job_queue.empty()
+
+        except Exception as ex:
+            raise ex
 
         finally:
             self.serial.close()
