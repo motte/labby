@@ -177,6 +177,17 @@ sequence:
         self.assertEqual(rc, 0)
         self.assertIn("Connection       [+] OK", stdout)
 
+    def test_device_that_cannot_be_opened(self) -> None:
+        with patch(
+            "labby.hw.virtual.power_supply.PowerSupply.open", side_effect=Exception
+        ):
+            with labby_config(LABBY_CONFIG):
+                (rc, stdout, stderr) = self.main(
+                    ["device-info", "virtual-power-supply"]
+                )
+        self.assertEqual(rc, 0)
+        self.assertIn("Connection   [x] Error", stdout)
+
     def test_unavailable_device_info(self) -> None:
         with labby_config(LABBY_CONFIG):
             (rc, stdout, stderr) = self.main(["device-info", "broken-power-supply"])
