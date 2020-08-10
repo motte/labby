@@ -5,9 +5,22 @@ from labby.hw.core.exceptions import HardwareIOError
 from labby.hw.core.power_supply import PowerSupplyMode
 from labby.hw.tdklambda import power_supply as tdklambda_power_supply
 from labby.tests.utils import fake_serial_port
+from serial import EIGHTBITS, PARITY_NONE, STOPBITS_ONE
 
 
 class ZUPTest(TestCase):
+    @fake_serial_port
+    def test_serial_port_settings(self, serial_port_mock: Mock) -> None:
+        with tdklambda_power_supply.ZUP("/dev/ttyUSB0", 9600) as power_supply:
+            self.assertEquals(power_supply.serial_controller.serial.baudrate, 9600)
+            self.assertEquals(power_supply.serial_controller.serial.bytesize, EIGHTBITS)
+            self.assertEquals(power_supply.serial_controller.serial.parity, PARITY_NONE)
+            self.assertEquals(
+                power_supply.serial_controller.serial.stopbits, STOPBITS_ONE
+            )
+            self.assertTrue(power_supply.serial_controller.serial.xonxoff)
+            self.assertAlmostEquals(power_supply.serial_controller.serial.timeout, 2.0)
+
     @fake_serial_port
     def test_opening_with_default_address(self, serial_port_mock: Mock) -> None:
         with tdklambda_power_supply.ZUP("/dev/ttyUSB0", 9600):

@@ -6,9 +6,9 @@ import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict
+from typing import Dict, Optional
 
-from serial import Serial
+from serial import PARITY_NONE, Serial
 
 
 class SerialDevice(ABC):
@@ -16,9 +16,25 @@ class SerialDevice(ABC):
 
     serial_controller: "SerialController"
 
-    def __init__(self, port: str, baudrate: int) -> None:
+    def __init__(
+        self,
+        port: str,
+        baudrate: int,
+        bytesize: int = 8,
+        parity: str = PARITY_NONE,
+        stopbits: int = 1,
+        xonxoff: bool = False,
+        timeout_ms: Optional[float] = None,
+    ) -> None:
         self.serial_controller = SerialController.get_or_create(
-            port, baudrate, self.WAIT_TIME_AFTER_WRITE_MS
+            port=port,
+            baudrate=baudrate,
+            bytesize=bytesize,
+            parity=parity,
+            stopbits=stopbits,
+            xonxoff=xonxoff,
+            timeout_ms=timeout_ms,
+            wait_time_after_write_ms=self.WAIT_TIME_AFTER_WRITE_MS,
         )
 
     def _write(self, msg: bytes) -> None:
@@ -38,9 +54,6 @@ class SerialDevice(ABC):
     @abstractmethod
     def _on_open(self) -> None:
         pass
-
-
-TIMEOUT_MS = 2000
 
 
 REGISTRY_LOCK = threading.Lock()
@@ -80,7 +93,15 @@ class SerialController(threading.Thread):
     wait_time_after_write_ms: float
 
     def __init__(
-        self, port: str, baudrate: int, wait_time_after_write_ms: float
+        self,
+        port: str,
+        baudrate: int,
+        bytesize: int,
+        parity: str,
+        stopbits: int,
+        xonxoff: bool,
+        timeout_ms: Optional[float],
+        wait_time_after_write_ms: float,
     ) -> None:
         super().__init__()
         self.daemon = True
@@ -88,9 +109,11 @@ class SerialController(threading.Thread):
         self.serial = Serial()
         self.serial.port = port
         self.serial.baudrate = baudrate
-        # TODO: make these customizable to the SerialDevice
-        self.serial.xonxoff = True
-        self.serial.timeout = TIMEOUT_MS / 1000.0
+        self.serial.bytesize = bytesize
+        self.serial.parity = parity
+        self.serial.stopbits = stopbits
+        self.serial.xonxoff = xonxoff
+        self.serial.timeout = timeout_ms / 1000.0 if timeout_ms else None
 
         self.wait_time_after_write_ms = wait_time_after_write_ms
 
@@ -100,7 +123,15 @@ class SerialController(threading.Thread):
 
     @classmethod
     def get_or_create(
-        cls, port: str, baudrate: int, wait_time_after_write_ms: float = 0.0
+        cls,
+        port: str,
+        baudrate: int,
+        bytesize: int,
+        parity: str,
+        stopbits: int,
+        xonxoff: bool,
+        timeout_ms: Optional[float],
+        wait_time_after_write_ms: float,
     ) -> "SerialController":
         with REGISTRY_LOCK:
             if (
@@ -109,7 +140,14 @@ class SerialController(threading.Thread):
             ):
                 return SERIAL_CONTROLLERS[port]
             serial_controller = SerialController(
-                port, baudrate, wait_time_after_write_ms
+                port=port,
+                baudrate=baudrate,
+                bytesize=bytesize,
+                parity=parity,
+                stopbits=stopbits,
+                xonxoff=xonxoff,
+                timeout_ms=timeout_ms,
+                wait_time_after_write_ms=wait_time_after_write_ms,
             )
             serial_controller.num_clients += 1
             SERIAL_CONTROLLERS[port] = serial_controller

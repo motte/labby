@@ -10,6 +10,9 @@ from labby.hw.core.exceptions import HardwareIOError
 from labby.hw.core.serial import SerialDevice
 
 
+TIMEOUT_MS = 2000
+
+
 @dataclass(frozen=True)
 class OperationalStatusRegister:
     mode: PowerSupplyMode
@@ -20,8 +23,10 @@ class ZUP(SerialDevice, PowerSupply):
 
     address: int
 
-    def __init__(self, port: str, baudrate: int, address: int = 1,) -> None:
-        SerialDevice.__init__(self, port, baudrate)
+    def __init__(self, port: str, baudrate: int, address: int = 1) -> None:
+        SerialDevice.__init__(
+            self, port, baudrate, xonxoff=True, timeout_ms=TIMEOUT_MS,
+        )
         self.address = address
 
     def __enter__(self) -> "ZUP":
