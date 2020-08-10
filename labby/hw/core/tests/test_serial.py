@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import Mock
 
-from serial import SerialException
+from serial import SerialException, SerialTimeoutException
 
 from labby.hw.core.power_supply import (
     PowerSupply,
@@ -19,7 +19,7 @@ class TestSerialPowerSupply(SerialDevice, PowerSupply):
         return
 
     def get_mode(self) -> PowerSupplyMode:
-        raise NotImplementedError
+        return PowerSupplyMode(self._query(b":mode?"))
 
     def is_output_on(self) -> bool:
         raise NotImplementedError
@@ -54,3 +54,10 @@ class SerialDeviceTest(TestCase):
         with self.assertRaises(SerialException):
             with TestSerialPowerSupply("/dev/ttyUSB0", 9600):
                 pass
+
+    @fake_serial_port
+    def test_write_timeout(self, serial_port_mock: Mock) -> None:
+        serial_port_mock.write.side_effect = SerialTimeoutException("Timeout")
+        with self.assertRaises(SerialTimeoutException):
+            with TestSerialPowerSupply("/dev/ttyUSB1", 9600) as power_supply:
+                power_supply.get_mode()
