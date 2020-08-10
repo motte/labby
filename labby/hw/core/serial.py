@@ -87,6 +87,7 @@ TResult = TypeVar("TResult")
 
 
 class SerialController(threading.Thread):
+    port: str
     serial: Serial
     job_queue: "queue.PriorityQueue[SerialControllerJob]"
     job_results: Dict[str, Union[str, Exception]]
@@ -106,6 +107,8 @@ class SerialController(threading.Thread):
     ) -> None:
         super().__init__()
         self.daemon = True
+
+        self.port = port
 
         self.serial = Serial()
         self.serial.port = port
@@ -198,7 +201,7 @@ class SerialController(threading.Thread):
                 with REGISTRY_LOCK:
                     self.num_clients -= 1
                     if self.num_clients == 0:
-                        del SERIAL_CONTROLLERS[self.serial.port]
+                        del SERIAL_CONTROLLERS[self.port]
                 return
 
             if not self.serial.is_open:

@@ -80,6 +80,17 @@ class SerialControllerTest(TestCase):
         self.assertEquals(len(SERIAL_CONTROLLERS), 0)
 
     @fake_serial_port
+    def test_multiple_serial_controllers(self, _serial_port_mock: Mock) -> None:
+        self.assertEquals(len(SERIAL_CONTROLLERS), 0)
+        with TestSerialPowerSupply("/dev/ttyUSB0", 9600):
+            self.assertEquals(SERIAL_CONTROLLERS.keys(), {"/dev/ttyUSB0"})
+            with TestSerialPowerSupply("/dev/ttyUSB1", 9600):
+                self.assertEquals(
+                    SERIAL_CONTROLLERS.keys(), {"/dev/ttyUSB0", "/dev/ttyUSB1"}
+                )
+        self.assertEquals(len(SERIAL_CONTROLLERS), 0)
+
+    @fake_serial_port
     def test_serial_controllers_are_purged_on_close(
         self, _serial_port_mock: Mock
     ) -> None:
