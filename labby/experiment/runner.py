@@ -41,8 +41,6 @@ class ExperimentRunner(threading.Thread):
         self.subscription_address = _ADDRESS
         self.pub = Pub0(listen=self.subscription_address)
 
-    # TODO: turn these into actual messages with pyserde
-    # https://github.com/yukinarit/pyserde
     def _publish_status(self, relative_time: float) -> None:
         try:
             progress = relative_time / self.experiment.DURATION_IN_SECONDS
