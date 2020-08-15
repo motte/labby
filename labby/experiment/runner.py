@@ -13,7 +13,7 @@ from labby.experiment import Experiment, BaseInputParameters, BaseOutputData
 _ADDRESS = "inproc://experiment_runner"
 
 
-@dataclass
+@dataclass(frozen=True)
 class ExperimentStatus(DataClassMessagePackMixin):
     progress: float
 
