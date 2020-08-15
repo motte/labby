@@ -71,15 +71,11 @@ class ExperimentRunnerTest(TestCase):
         experiment = TestExperiment("test_experiment", input_parameters)
 
         runner = ExperimentRunner(config, experiment)
-
         with patch_time("2020-08-08"):
-            runner.run_experiment()
+            runner.start()
+            runner.join()
 
         dataframe = runner.dataframe
         self.assertEquals(dataframe.columns.to_list(), ["seconds", "voltage"])
         self.assertEquals(dataframe["seconds"].to_list(), [0.0, 0.5, 1.0])
         self.assertEquals(dataframe["voltage"].to_list(), [15.0, 15.0, 15.0])
-
-        with self.assertRaises(AssertionError):
-            # cannot run the same experiment again with the same ExperimentRunner
-            runner.run_experiment()

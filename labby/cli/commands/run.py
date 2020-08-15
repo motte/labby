@@ -39,7 +39,8 @@ class RunCommand(Command[RunArgumentParser]):
         for experiment in sequence.experiments:
             runner = ExperimentRunner(self.config, experiment)
             with msg.loading(f"Experiment {experiment.name}"):
-                runner.run_experiment()
+                runner.start()
+                runner.join()
             msg.good(f"Experiment {experiment.name}")
 
             output_dir = self._get_output_directory(args.sequence_filename)

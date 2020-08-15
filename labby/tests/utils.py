@@ -7,7 +7,6 @@ from typing import Callable, Dict, Generator, Iterator, List, Optional, Tuple, T
 from unittest.mock import patch, mock_open, MagicMock, Mock
 
 import freezegun
-from freezegun import freeze_time
 
 
 @contextmanager
@@ -95,8 +94,14 @@ def environment_variable(name: str, value: str) -> Iterator[None]:
 def patch_time(
     start_time: str, ticker: Optional[Generator[float, None, None]] = None,
 ) -> Iterator[None]:
+    def patched_freeze_time(start_time: str) -> freezegun.api._freeze_time:
+        # see https://github.com/spulec/freezegun/issues/307
+        f = freezegun.freeze_time(start_time)
+        f.ignore = tuple(set(f.ignore) - {"threading"})
+        return f
+
     frozen_time: freezegun.api._freeze_time
-    with freeze_time(start_time) as frozen_time:
+    with patched_freeze_time(start_time) as frozen_time:
 
         class Ticker:
             initial_tick_time: float = time.time()

@@ -1,3 +1,4 @@
+import threading
 import time
 
 import pandas
@@ -6,17 +7,17 @@ from labby.config import Config
 from labby.experiment import Experiment, BaseInputParameters, BaseOutputData
 
 
-class ExperimentRunner:
+class ExperimentRunner(threading.Thread):
     config: Config
     experiment: Experiment[BaseInputParameters, BaseOutputData]
     dataframe: pandas.DataFrame
-    has_started = False
 
     def __init__(
         self,
         config: Config,
         experiment: Experiment[BaseInputParameters, BaseOutputData],
     ) -> None:
+        super().__init__()
         self.config = config
         self.experiment = experiment
         # TODO find a better place for this assignment
@@ -26,9 +27,7 @@ class ExperimentRunner:
         )
         self.dataframe = pandas.DataFrame(columns=column_names)
 
-    def run_experiment(self) -> None:
-        assert not self.has_started
-        self.has_started = True
+    def run(self) -> None:
         self.experiment.start()
         try:
             start_time = time.time()
