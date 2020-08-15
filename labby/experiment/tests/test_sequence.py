@@ -37,6 +37,7 @@ class TestExperiment(Experiment[InputParameters, OutputData]):
 class ExperimentSequenceTest(TestCase):
     def test_parsing(self) -> None:
         sequence = ExperimentSequence(
+            "sequences/test.yaml",
             """
 ---
 sequence:
@@ -47,7 +48,7 @@ sequence:
     params:
       current_in_amps: 3
       voltage_in_volts: 2
-"""
+""",
         )
 
         self.assertEquals(len(sequence.experiments), 2)

@@ -1,7 +1,7 @@
-import math
 from dataclasses import dataclass
 from typing import List
 from unittest import TestCase
+from unittest.mock import call, patch
 
 from pynng import Sub0
 
@@ -11,8 +11,14 @@ from labby.experiment import (
     BaseOutputData,
     Experiment,
 )
-from labby.experiment.runner import ExperimentRunner, ExperimentStatus
-from labby.tests.utils import patch_time
+from labby.experiment.sequence import ExperimentSequence
+from labby.experiment.runner import (
+    ExperimentRunner,
+    ExperimentSequenceStatus,
+    ExperimentState,
+    ExperimentStatus,
+)
+from labby.tests.utils import patch_file_contents, patch_time
 from labby.hw.core import auto_discover_drivers
 
 
@@ -57,6 +63,12 @@ devices:
       load_in_ohms: 5
 """
 
+SEQUENCE_YAML = """
+---
+sequence:
+  - experiment_type: labby.tests.test_experiment.TestExperiment
+"""
+
 
 class ExperimentRunnerTest(TestCase):
     def setUp(self) -> None:
@@ -70,47 +82,78 @@ class ExperimentRunnerTest(TestCase):
 
     def test_run_single_experiment(self) -> None:
         config = Config(LABBY_CONFIG_YAML)
+        sequence = ExperimentSequence("./sequences/seq.yaml", SEQUENCE_YAML)
+        runner = ExperimentRunner(config, sequence)
 
-        input_parameters = InputParameters()
-        experiment = TestExperiment("test_experiment", input_parameters)
-
-        runner = ExperimentRunner(config, experiment)
-        with patch_time("2020-08-08"):
+        with patch_time("2020-08-08"), patch_file_contents(
+            "output/seq/000.csv"
+        ) as output, patch("os.makedirs"):
             runner.start()
             runner.join()
 
-        dataframe = runner.dataframe
-        self.assertEquals(dataframe.columns.to_list(), ["seconds", "voltage"])
-        self.assertEquals(dataframe["seconds"].to_list(), [0.0, 0.5, 1.0])
-        self.assertEquals(dataframe["voltage"].to_list(), [15.0, 15.0, 15.0])
+        output.write.assert_has_calls(
+            [
+                call("seconds,voltage\n"),
+                call("0.0,15.0\n"),
+                call("0.5,15.0\n"),
+                call("1.0,15.0\n"),
+            ]
+        )
 
     def test_published_messages(self) -> None:
         config = Config(LABBY_CONFIG_YAML)
+        sequence = ExperimentSequence("./sequences/seq.yaml", SEQUENCE_YAML)
+        runner = ExperimentRunner(config, sequence)
 
-        input_parameters = InputParameters()
-        experiment = TestExperiment("test_experiment", input_parameters)
-
-        runner = ExperimentRunner(config, experiment)
         with Sub0(dial=runner.subscription_address) as sub:
             sub.subscribe(b"")
-            received_messages: List[ExperimentStatus] = []
+            received_messages: List[ExperimentSequenceStatus] = []
 
             with patch_time("2020-08-08"):
                 runner.start()
                 while True:
                     msg = sub.recv()
-                    status = ExperimentStatus.from_msgpack(msg)
+                    status = ExperimentSequenceStatus.from_msgpack(msg)
                     received_messages.append(status)
-                    if math.isclose(status.progress, 1.0):
+                    if all(
+                        experiment.state == ExperimentState.FINISHED
+                        for experiment in status.experiments
+                    ):
                         break
                 runner.join()
 
             self.assertEquals(
                 received_messages,
                 [
-                    ExperimentStatus(progress=0.0),
-                    ExperimentStatus(progress=0.0),
-                    ExperimentStatus(progress=0.5),
-                    ExperimentStatus(progress=1.0),
+                    ExperimentSequenceStatus(
+                        experiments=[
+                            ExperimentStatus(
+                                name="000", state=ExperimentState.RUNNING, progress=0.0,
+                            )
+                        ]
+                    ),
+                    ExperimentSequenceStatus(
+                        experiments=[
+                            ExperimentStatus(
+                                name="000", state=ExperimentState.RUNNING, progress=0.0,
+                            )
+                        ]
+                    ),
+                    ExperimentSequenceStatus(
+                        experiments=[
+                            ExperimentStatus(
+                                name="000", state=ExperimentState.RUNNING, progress=0.5,
+                            )
+                        ]
+                    ),
+                    ExperimentSequenceStatus(
+                        experiments=[
+                            ExperimentStatus(
+                                name="000",
+                                state=ExperimentState.FINISHED,
+                                progress=1.0,
+                            )
+                        ]
+                    ),
                 ],
             )

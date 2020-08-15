@@ -21,10 +21,12 @@ SCHEMA = Map(
 
 
 class ExperimentSequence:
+    filename: str
     sequence_config: strictyaml.YAML
     experiments: Sequence[Experiment[BaseInputParameters, BaseOutputData]]
 
-    def __init__(self, yaml_contents: str) -> None:
+    def __init__(self, filename: str, yaml_contents: str) -> None:
+        self.filename = filename
         self.sequence_config = strictyaml.load(yaml_contents, SCHEMA)
         self.experiments = [
             Experiment.create(

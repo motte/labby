@@ -1,11 +1,15 @@
-import os
 from importlib import import_module
 from pathlib import Path
 
-from wasabi import msg
+import wasabi
+from pynng import Sub0
 
 from labby.cli.core import BaseArgumentParser, Command
-from labby.experiment.runner import ExperimentRunner
+from labby.experiment.runner import (
+    ExperimentRunner,
+    ExperimentSequenceStatus,
+    ExperimentState,
+)
 from labby.experiment.sequence import ExperimentSequence
 
 
@@ -26,25 +30,28 @@ class RunCommand(Command[RunArgumentParser]):
             if "__" not in f.stem:
                 import_module(f"experiments.{f.stem}", __package__)
 
-    def _get_output_directory(self, sequence_filename: str) -> Path:
-        sequence_name = Path(sequence_filename).stem
-        return Path(f"./output/{sequence_name}/")
-
     def main(self, args: RunArgumentParser) -> int:
         self._auto_discover_experiments()
 
         with open(args.sequence_filename, "r") as sequence_fd:
-            sequence = ExperimentSequence(sequence_fd.read())
+            sequence = ExperimentSequence(args.sequence_filename, sequence_fd.read())
 
-        for experiment in sequence.experiments:
-            runner = ExperimentRunner(self.config, experiment)
-            with msg.loading(f"Experiment {experiment.name}"):
-                runner.start()
-                runner.join()
-            msg.good(f"Experiment {experiment.name}")
+        runner = ExperimentRunner(self.config, sequence)
+        runner.start()
 
-            output_dir = self._get_output_directory(args.sequence_filename)
-            os.makedirs(output_dir, exist_ok=True)
-            runner.dataframe.to_csv(output_dir / f"{experiment.name}.csv", index=False)
+        with Sub0(dial=runner.subscription_address) as sub:
+            sub.subscribe(b"")
+            for index, experiment in enumerate(sequence.experiments):
+                with wasabi.msg.loading(f"Experiment {experiment.name}"):
+                    while True:
+                        msg = sub.recv()
+                        sequence_status = ExperimentSequenceStatus.from_msgpack(msg)
+                        if (
+                            sequence_status.experiments[index].state
+                            == ExperimentState.FINISHED
+                        ):
+                            break
+                wasabi.msg.good(f"Experiment {experiment.name}")
+            runner.join()
 
         return 0
