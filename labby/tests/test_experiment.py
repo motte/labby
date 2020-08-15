@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from pathlib import PosixPath
 from typing import List
 from unittest import TestCase
 from unittest.mock import call, patch
@@ -80,17 +81,19 @@ class ExperimentRunnerTest(TestCase):
         output_data_type = experiment.get_output_data_type()
         self.assertEquals(output_data_type.get_column_names(), ["voltage"])
 
-    def test_run_single_experiment(self) -> None:
+    def test_experiment_output(self) -> None:
         config = Config(LABBY_CONFIG_YAML)
         sequence = ExperimentSequence("./sequences/seq.yaml", SEQUENCE_YAML)
         runner = ExperimentRunner(config, sequence)
 
         with patch_time("2020-08-08"), patch_file_contents(
             "output/seq/000.csv"
-        ) as output, patch("os.makedirs"):
+        ) as output, patch("os.makedirs") as makedirs:
             runner.start()
             runner.join()
 
+        makedirs.assert_called_with(PosixPath("output/seq/"), exist_ok=True)
+        self.assertEquals(len(output.write.call_args_list), 4)
         output.write.assert_has_calls(
             [
                 call("seconds,voltage\n"),
