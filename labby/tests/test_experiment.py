@@ -1,5 +1,8 @@
 from dataclasses import dataclass
+from typing import List
 from unittest import TestCase
+
+from pynng import Sub0
 
 from labby.config import Config
 from labby.experiment import (
@@ -79,3 +82,35 @@ class ExperimentRunnerTest(TestCase):
         self.assertEquals(dataframe.columns.to_list(), ["seconds", "voltage"])
         self.assertEquals(dataframe["seconds"].to_list(), [0.0, 0.5, 1.0])
         self.assertEquals(dataframe["voltage"].to_list(), [15.0, 15.0, 15.0])
+
+    def test_published_messages(self) -> None:
+        config = Config(LABBY_CONFIG_YAML)
+
+        input_parameters = InputParameters()
+        experiment = TestExperiment("test_experiment", input_parameters)
+
+        runner = ExperimentRunner(config, experiment)
+        with Sub0(dial=runner.subscription_address) as sub:
+            sub.subscribe(b"")
+            received_messages: List[bytes] = []
+
+            with patch_time("2020-08-08"):
+                runner.start()
+                while True:
+                    msg = sub.recv()
+                    received_messages.append(msg)
+                    if msg == b"finished":
+                        break
+                runner.join()
+
+            self.assertEquals(
+                received_messages,
+                [
+                    b"starting",
+                    b"started",
+                    b"measured",
+                    b"measured",
+                    b"measured",
+                    b"finished",
+                ],
+            )
