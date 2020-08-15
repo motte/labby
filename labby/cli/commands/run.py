@@ -5,11 +5,7 @@ import wasabi
 from pynng import Sub0
 
 from labby.cli.core import BaseArgumentParser, Command
-from labby.experiment.runner import (
-    ExperimentRunner,
-    ExperimentSequenceStatus,
-    ExperimentState,
-)
+from labby.experiment.runner import ExperimentRunner, ExperimentSequenceStatus
 from labby.experiment.sequence import ExperimentSequence
 
 
@@ -46,10 +42,7 @@ class RunCommand(Command[RunArgumentParser]):
                     while True:
                         msg = sub.recv()
                         sequence_status = ExperimentSequenceStatus.from_msgpack(msg)
-                        if (
-                            sequence_status.experiments[index].state
-                            == ExperimentState.FINISHED
-                        ):
+                        if sequence_status.experiments[index].is_finished():
                             break
                 wasabi.msg.good(f"Experiment {experiment.name}")
             runner.join()

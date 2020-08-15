@@ -31,10 +31,16 @@ class ExperimentStatus(DataClassMessagePackMixin):
     state: ExperimentState
     progress: float
 
+    def is_finished(self) -> bool:
+        return self.state == ExperimentState.FINISHED
+
 
 @dataclass
 class ExperimentSequenceStatus(DataClassMessagePackMixin):
     experiments: List[ExperimentStatus]
+
+    def is_finished(self) -> bool:
+        return all(experiment.is_finished() for experiment in self.experiments)
 
 
 class ExperimentRunner(threading.Thread):

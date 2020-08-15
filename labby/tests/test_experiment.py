@@ -115,10 +115,7 @@ class ExperimentRunnerTest(TestCase):
                     msg = sub.recv()
                     status = ExperimentSequenceStatus.from_msgpack(msg)
                     received_messages.append(status)
-                    if all(
-                        experiment.state == ExperimentState.FINISHED
-                        for experiment in status.experiments
-                    ):
+                    if status.is_finished():
                         break
                 runner.join()
 
