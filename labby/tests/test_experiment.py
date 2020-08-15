@@ -1,3 +1,4 @@
+import math
 from dataclasses import dataclass
 from typing import List
 from unittest import TestCase
@@ -10,7 +11,7 @@ from labby.experiment import (
     BaseOutputData,
     Experiment,
 )
-from labby.experiment.runner import ExperimentRunner
+from labby.experiment.runner import ExperimentRunner, ExperimentStatus
 from labby.tests.utils import patch_time
 from labby.hw.core import auto_discover_drivers
 
@@ -92,25 +93,24 @@ class ExperimentRunnerTest(TestCase):
         runner = ExperimentRunner(config, experiment)
         with Sub0(dial=runner.subscription_address) as sub:
             sub.subscribe(b"")
-            received_messages: List[bytes] = []
+            received_messages: List[ExperimentStatus] = []
 
             with patch_time("2020-08-08"):
                 runner.start()
                 while True:
                     msg = sub.recv()
-                    received_messages.append(msg)
-                    if msg == b"finished":
+                    status = ExperimentStatus.from_msgpack(msg)
+                    received_messages.append(status)
+                    if math.isclose(status.progress, 1.0):
                         break
                 runner.join()
 
             self.assertEquals(
                 received_messages,
                 [
-                    b"starting",
-                    b"started",
-                    b"measured",
-                    b"measured",
-                    b"measured",
-                    b"finished",
+                    ExperimentStatus(progress=0.0),
+                    ExperimentStatus(progress=0.0),
+                    ExperimentStatus(progress=0.5),
+                    ExperimentStatus(progress=1.0),
                 ],
             )

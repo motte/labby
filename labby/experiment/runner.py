@@ -1,7 +1,9 @@
 import threading
 import time
+from dataclasses import dataclass
 
 import pandas
+from mashumaro import DataClassMessagePackMixin
 from pynng import Message, NNGException, Pub0
 
 from labby.config import Config
@@ -9,6 +11,11 @@ from labby.experiment import Experiment, BaseInputParameters, BaseOutputData
 
 
 _ADDRESS = "inproc://experiment_runner"
+
+
+@dataclass
+class ExperimentStatus(DataClassMessagePackMixin):
+    progress: float
 
 
 class ExperimentRunner(threading.Thread):
@@ -34,16 +41,20 @@ class ExperimentRunner(threading.Thread):
         self.subscription_address = _ADDRESS
         self.pub = Pub0(listen=self.subscription_address)
 
-    def _publish(self, msg: bytes) -> None:
+    # TODO: turn these into actual messages with pyserde
+    # https://github.com/yukinarit/pyserde
+    def _publish_status(self, relative_time: float) -> None:
         try:
-            self.pub.send_msg(Message(msg), block=False)
+            progress = relative_time / self.experiment.DURATION_IN_SECONDS
+            experiment_status = ExperimentStatus(progress=progress)
+            msg = Message(experiment_status.to_msgpack())
+            self.pub.send_msg(msg, block=False)
         except NNGException:
             pass
 
     def run(self) -> None:
-        self._publish(b"starting")
+        self._publish_status(0.0)
         self.experiment.start()
-        self._publish(b"started")
 
         try:
             start_time = time.time()
@@ -51,6 +62,7 @@ class ExperimentRunner(threading.Thread):
             period_in_sec = 1.0 / self.experiment.SAMPLING_RATE_IN_HZ
 
             while now - start_time <= self.experiment.DURATION_IN_SECONDS:
+                self._publish_status(now - start_time)
                 output_data = self.experiment.measure()
                 raw_data = {
                     key: getattr(output_data, key)
@@ -60,10 +72,9 @@ class ExperimentRunner(threading.Thread):
                     {"seconds": (now - start_time), **raw_data}, ignore_index=True
                 )
 
-                self._publish(b"measured")
                 time.sleep(period_in_sec - (time.time() - start_time) % period_in_sec)
                 now = time.time()
         finally:
-            self._publish(b"finished")
             self.experiment.stop()
+            self._publish_status(self.experiment.DURATION_IN_SECONDS)
             self.pub.close()
