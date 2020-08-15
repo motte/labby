@@ -33,6 +33,7 @@ class ExperimentRunner:
         try:
             start_time = time.time()
             now = start_time
+            period_in_sec = 1.0 / self.experiment.SAMPLING_RATE_IN_HZ
 
             while now - start_time <= self.experiment.DURATION_IN_SECONDS:
                 output_data = self.experiment.measure()
@@ -44,8 +45,7 @@ class ExperimentRunner:
                     {"seconds": (now - start_time), **raw_data}, ignore_index=True
                 )
 
-                elapsed = time.time() - now
-                time.sleep(1.0 / self.experiment.SAMPLING_RATE_IN_HZ - elapsed)
+                time.sleep(period_in_sec - (time.time() - start_time) % period_in_sec)
                 now = time.time()
         finally:
             self.experiment.stop()
