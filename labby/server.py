@@ -138,7 +138,7 @@ class PowerSupplyInfo(ServerResponseComponent):
 
 @dataclass(frozen=True)
 class DeviceInfoResponse(ServerResponse):
-    device_type: DeviceType
+    device_type: Optional[DeviceType]
     is_connected: bool
     error_type: Optional[str] = None
     error_message: Optional[str] = None
@@ -180,8 +180,7 @@ class DeviceInfoRequest(ServerRequest[DeviceInfoResponse]):
                 device for device in config.devices if device.name == self.device_name
             )
         except StopIteration:
-            # TODO implement error handling
-            raise NotImplementedError
+            return DeviceInfoResponse(device_type=None, is_connected=False)
 
         try:
             device_info = self._get_device_info(device)

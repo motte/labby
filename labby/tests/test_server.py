@@ -144,4 +144,9 @@ class ClientTest(TestCase):
                 error_message="Unavailable device",
             ),
         )
-        # TODO: handle unknown device (error)
+
+    def test_device_info_for_unknown_device(self) -> None:
+        device_info = self.client.device_info("foobar")
+        self.assertEqual(
+            device_info, DeviceInfoResponse(device_type=None, is_connected=False),
+        )
