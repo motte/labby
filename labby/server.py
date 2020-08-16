@@ -125,6 +125,9 @@ class ListDevicesRequest(ServerRequest[ListDevicesResponse]):
 
 
 class Server:
+    def __init__(self, config_filename: str = "labby.yml") -> None:
+        self.config_filename = config_filename
+
     def start(self) -> ServerInfo:
         child_pid = os.fork()
         address = _ADDRESS
@@ -139,8 +142,7 @@ class Server:
 
     def _run(self, socket: Rep0) -> None:
         auto_discover_drivers()
-        # TODO read this from arguments
-        with open("labby.yml", "r") as config_file:
+        with open(self.config_filename, "r") as config_file:
             config = Config(config_file.read())
 
         while True:
