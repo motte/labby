@@ -175,7 +175,6 @@ class DeviceInfoRequest(ServerRequest[DeviceInfoResponse]):
         raise NotImplementedError
 
     def handle(self, config: Config) -> DeviceInfoResponse:
-        config.get_devices
         try:
             device = next(
                 device for device in config.devices if device.name == self.device_name
