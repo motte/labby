@@ -8,6 +8,9 @@ from mashumaro import DataClassMessagePackMixin
 from mashumaro.serializer.msgpack import EncodedData
 from pynng import Rep0, Req0
 
+from labby.config import Config
+from labby.hw.core import auto_discover_drivers
+
 
 _ADDRESS = "tcp://127.0.0.1:14337"
 
@@ -39,23 +42,25 @@ class ServerRequest(Generic[TResponse], DataClassMessagePackMixin, ABC):
         return get_args(cls.__orig_bases__[0])[0]
 
     @classmethod
-    def handle_from_msgpack(cls, msg: EncodedData) -> Optional[EncodedData]:
+    def handle_from_msgpack(
+        cls, config: Config, msg: EncodedData
+    ) -> Optional[EncodedData]:
         (request_type, msg) = cast(bytes, msg).split(b":", 1)
         klass = _ALL_REQUEST_TYPES[request_type.decode()]
         request = klass.from_msgpack(msg)
-        response = klass.handle(request)
+        response = request.handle(config)
         if response is None:
             return None
         return response.to_msgpack()
 
     @abstractmethod
-    def handle(self) -> TResponse:
+    def handle(self, config: Config) -> TResponse:
         raise NotImplementedError
 
 
 @dataclass(frozen=True)
 class HaltRequest(ServerRequest[None]):
-    def handle(self) -> None:
+    def handle(self, config: Config) -> None:
         sys.exit(0)
 
 
@@ -66,7 +71,7 @@ class HelloWorldResponse(ServerResponse):
 
 @dataclass(frozen=True)
 class HelloWorldRequest(ServerRequest[HelloWorldResponse]):
-    def handle(self) -> HelloWorldResponse:
+    def handle(self, config: Config) -> HelloWorldResponse:
         return HelloWorldResponse(content="Hello world")
 
 
@@ -84,9 +89,14 @@ class Server:
         sys.exit(0)
 
     def _run(self, socket: Rep0) -> None:
+        auto_discover_drivers()
+        # TODO read this from arguments
+        with open("labby.yml", "r") as config_file:
+            config = Config(config_file.read())
+
         while True:
             message = socket.recv()
-            response = ServerRequest.handle_from_msgpack(message)
+            response = ServerRequest.handle_from_msgpack(config, message)
             if response is not None:
                 socket.send(response)
 
