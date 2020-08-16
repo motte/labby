@@ -114,3 +114,7 @@ class ClientTest(TestCase):
 
     def test_device_info(self) -> None:
         self.client.device_info("virtual-power-supply")
+        # TODO: handle unknown device (error)
+        # TODO: handle multiple different types of devices
+        # TODO: handle connection being okay and not okay
+        #   - need to pass down error message
