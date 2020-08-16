@@ -1,8 +1,6 @@
 import inspect
 from abc import ABC, abstractmethod
 from enum import Enum
-from importlib import import_module
-from pathlib import Path
 from types import TracebackType
 from typing import Any, Dict, Optional, Type
 
@@ -58,11 +56,3 @@ class Device(ABC):
         device = klass(**typed_args)
         device.name = name
         return device
-
-
-def auto_discover_drivers() -> None:
-    HW_PATH = Path(__file__).parent.parent
-    for f in HW_PATH.glob("**/*.py"):
-        if "__" in f.stem or "test" in f.stem or f.parent.stem == "hw":
-            continue
-        import_module(f"labby.hw.{f.parent.stem}.{f.stem}", __package__)

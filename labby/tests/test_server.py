@@ -6,7 +6,7 @@ from typing import cast
 from mashumaro.serializer.msgpack import EncodedData
 
 from labby.config import Config
-from labby.hw.core import DeviceType, auto_discover_drivers
+from labby.hw.core import DeviceType
 from labby.hw.core.power_supply import PowerSupplyMode
 from labby.server import (
     Client,
@@ -19,6 +19,7 @@ from labby.server import (
     ServerRequest,
 )
 from labby.tests.utils import labby_config
+from labby.utils import auto_discover_drivers
 
 
 FAKE_PID = 42

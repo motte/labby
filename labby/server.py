@@ -19,8 +19,9 @@ from mashumaro.serializer.msgpack import EncodedData
 from pynng import Rep0, Req0
 
 from labby.config import Config
-from labby.hw.core import Device, DeviceType, auto_discover_drivers
+from labby.hw.core import Device, DeviceType
 from labby.hw.core.power_supply import PowerSupply, PowerSupplyMode
+from labby.utils import auto_discover_drivers
 
 
 _ADDRESS = "tcp://127.0.0.1:14337"

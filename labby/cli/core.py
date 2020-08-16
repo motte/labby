@@ -5,7 +5,7 @@ from typing import Dict, Generic, Sequence, Type, TypeVar, get_args
 from tap import Tap
 
 from labby.config import Config
-from labby.hw.core import auto_discover_drivers
+from labby.utils import auto_discover_drivers
 
 
 class BaseArgumentParser(Tap):

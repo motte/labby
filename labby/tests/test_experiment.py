@@ -20,7 +20,7 @@ from labby.experiment.runner import (
     ExperimentStatus,
 )
 from labby.tests.utils import patch_file_contents, patch_time
-from labby.hw.core import auto_discover_drivers
+from labby.utils import auto_discover_drivers
 
 
 @dataclass(frozen=True)

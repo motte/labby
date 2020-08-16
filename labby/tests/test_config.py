@@ -3,8 +3,8 @@ from unittest.mock import Mock
 
 from labby.config import Config
 from labby.hw import tdklambda
-from labby.hw.core import auto_discover_drivers
 from labby.tests.utils import fake_serial_port
+from labby.utils import auto_discover_drivers
 
 
 class ConfigTest(TestCase):
