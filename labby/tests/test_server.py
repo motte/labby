@@ -7,11 +7,13 @@ from mashumaro.serializer.msgpack import EncodedData
 
 from labby.config import Config
 from labby.hw.core import DeviceType, auto_discover_drivers
+from labby.hw.core.power_supply import PowerSupplyMode
 from labby.server import (
     Client,
     DeviceStatus,
     HaltRequest,
     ListDevicesResponse,
+    PowerSupplyInfo,
     Server,
     ServerRequest,
 )
@@ -115,7 +117,18 @@ class ClientTest(TestCase):
     def test_device_info(self) -> None:
         device_info = self.client.device_info("virtual-power-supply")
         self.assertEqual(device_info.device_type, DeviceType.POWER_SUPPLY)
+        self.assertTrue(device_info.is_connected)
+        self.assertEqual(
+            device_info.power_supply_info,
+            PowerSupplyInfo(
+                is_output_on=False,
+                mode=PowerSupplyMode.CONSTANT_VOLTAGE,
+                target_voltage=0.0,
+                target_current=0.0,
+                actual_voltage=0.0,
+                actual_current=0.0,
+            ),
+        )
         # TODO: handle unknown device (error)
-        # TODO: handle multiple different types of devices
         # TODO: handle connection being okay and not okay
         #   - need to pass down error message
