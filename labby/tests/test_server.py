@@ -1,6 +1,9 @@
 import unittest
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
+from typing import cast
+
+from mashumaro.serializer.msgpack import EncodedData
 
 from labby.server import Client, HaltRequest, Server, ServerRequest
 
@@ -22,7 +25,7 @@ class ServerTest(TestCase):
         self, rep0_mock: MagicMock, _fork_mock: MagicMock
     ) -> None:
         rep0_mock.return_value.__enter__.return_value.recv.return_value = (
-            HaltRequest().to_msgpack()
+            b"HaltRequest:" + cast(bytes, HaltRequest().to_msgpack())
         )
 
         server = Server()
@@ -36,9 +39,13 @@ class ClientTest(TestCase):
     client: Client
 
     def setUp(self) -> None:
+        def _handle(msg: EncodedData) -> None:
+            response_bytes = ServerRequest.handle_from_msgpack(msg)
+            self.req_mock.return_value.recv.return_value = response_bytes
+
         self.req_patch = patch("labby.server.Req0")
         self.req_mock = self.req_patch.start()
-        self.req_mock.return_value.send.side_effect = ServerRequest.handle_from_msgpack
+        self.req_mock.return_value.send.side_effect = _handle
 
         self.client = Client("foobar")
 
@@ -52,3 +59,7 @@ class ClientTest(TestCase):
     def test_close(self) -> None:
         self.client.close()
         self.req_mock.return_value.close.assert_called_once()
+
+    def test_hello(self) -> None:
+        response = self.client.hello()
+        self.assertEqual(response, "Hello world")

@@ -2,7 +2,7 @@ import os
 import sys
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Set, Type
+from typing import Dict, Generic, Optional, Type, TypeVar, Union, cast, get_args
 
 from mashumaro import DataClassMessagePackMixin
 from mashumaro.serializer.msgpack import EncodedData
@@ -19,32 +19,55 @@ class ServerInfo:
     pid: int
 
 
-_ALL_REQUEST_TYPES: Set[Type["ServerRequest"]] = set([])
+@dataclass(frozen=True)
+class ServerResponse(DataClassMessagePackMixin, ABC):
+    pass
+
+
+TResponse = TypeVar("TResponse", bound=Union[None, ServerResponse])
+TNonOptionalResponse = TypeVar("TResponse", bound=ServerResponse)
+_ALL_REQUEST_TYPES: Dict[str, Type["ServerRequest[ServerResponse]"]] = {}
 
 
 @dataclass(frozen=True)
-class ServerRequest(DataClassMessagePackMixin, ABC):
-    def __init_subclass__(cls) -> None:
-        _ALL_REQUEST_TYPES.add(cls)
+class ServerRequest(Generic[TResponse], DataClassMessagePackMixin, ABC):
+    def __init_subclass__(cls: Type["ServerRequest[ServerResponse]"]) -> None:
+        _ALL_REQUEST_TYPES[cls.__name__] = cls
+
+    def get_response_type(cls) -> TResponse:
+        # pyre-ignore[16]: pyre does not understand __orig_bases__
+        return get_args(cls.__orig_bases__[0])[0]
 
     @classmethod
-    def handle_from_msgpack(cls, msg: EncodedData) -> None:
-        for klass in _ALL_REQUEST_TYPES:
-            try:
-                request = klass.from_msgpack(msg)
-                klass.handle(request)
-            except Exception:
-                pass
+    def handle_from_msgpack(cls, msg: EncodedData) -> Optional[EncodedData]:
+        (request_type, msg) = cast(bytes, msg).split(b":", 1)
+        klass = _ALL_REQUEST_TYPES[request_type.decode()]
+        request = klass.from_msgpack(msg)
+        response = klass.handle(request)
+        if response is None:
+            return None
+        return response.to_msgpack()
 
     @abstractmethod
-    def handle(self) -> None:
+    def handle(self) -> TResponse:
         raise NotImplementedError
 
 
 @dataclass(frozen=True)
-class HaltRequest(ServerRequest):
+class HaltRequest(ServerRequest[None]):
     def handle(self) -> None:
         sys.exit(0)
+
+
+@dataclass(frozen=True)
+class HelloWorldResponse(ServerResponse):
+    content: str
+
+
+@dataclass(frozen=True)
+class HelloWorldRequest(ServerRequest[HelloWorldResponse]):
+    def handle(self) -> HelloWorldResponse:
+        return HelloWorldResponse(content="Hello world")
 
 
 class Server:
@@ -63,7 +86,9 @@ class Server:
     def _run(self, socket: Rep0) -> None:
         while True:
             message = socket.recv()
-            ServerRequest.handle_from_msgpack(message)
+            response = ServerRequest.handle_from_msgpack(message)
+            if response is not None:
+                socket.send(response)
 
 
 class Client:
@@ -72,8 +97,27 @@ class Client:
     def __init__(self, address: str) -> None:
         self.req = Req0(dial=address)
 
+    def _send(self, request: ServerRequest[None]) -> None:
+        self.req.send(
+            type(request).__name__.encode() + b":" + cast(bytes, request.to_msgpack())
+        )
+
+    def _query(
+        self, request: ServerRequest[TNonOptionalResponse]
+    ) -> TNonOptionalResponse:
+        # FIXME: ughh I can't get rid of this copypasta
+        self.req.send(
+            type(request).__name__.encode() + b":" + cast(bytes, request.to_msgpack())
+        )
+        response_type = request.get_response_type()
+        response = self.req.recv()
+        return response_type.from_msgpack(response)
+
     def halt(self) -> None:
-        self.req.send(HaltRequest().to_msgpack())
+        self._send(HaltRequest())
+
+    def hello(self) -> str:
+        return self._query(HelloWorldRequest()).content
 
     def close(self) -> None:
         self.req.close()
