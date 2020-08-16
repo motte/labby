@@ -6,7 +6,7 @@ from typing import cast
 from mashumaro.serializer.msgpack import EncodedData
 
 from labby.config import Config
-from labby.hw.core import auto_discover_drivers
+from labby.hw.core import DeviceType, auto_discover_drivers
 from labby.server import (
     Client,
     DeviceStatus,
@@ -113,7 +113,8 @@ class ClientTest(TestCase):
         )
 
     def test_device_info(self) -> None:
-        self.client.device_info("virtual-power-supply")
+        device_info = self.client.device_info("virtual-power-supply")
+        self.assertEqual(device_info.device_type, DeviceType.POWER_SUPPLY)
         # TODO: handle unknown device (error)
         # TODO: handle multiple different types of devices
         # TODO: handle connection being okay and not okay

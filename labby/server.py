@@ -19,7 +19,7 @@ from mashumaro.serializer.msgpack import EncodedData
 from pynng import Rep0, Req0
 
 from labby.config import Config
-from labby.hw.core import Device, auto_discover_drivers
+from labby.hw.core import Device, DeviceType, auto_discover_drivers
 
 
 _ADDRESS = "tcp://127.0.0.1:14337"
@@ -127,7 +127,7 @@ class ListDevicesRequest(ServerRequest[ListDevicesResponse]):
 
 @dataclass(frozen=True)
 class DeviceInfoResponse(ServerResponse):
-    pass
+    device_type: DeviceType
 
 
 @dataclass(frozen=True)
@@ -135,7 +135,15 @@ class DeviceInfoRequest(ServerRequest[DeviceInfoResponse]):
     device_name: str
 
     def handle(self, config: Config) -> DeviceInfoResponse:
-        return DeviceInfoResponse()
+        config.get_devices
+        try:
+            device = next(
+                device for device in config.devices if device.name == self.device_name
+            )
+        except StopIteration:
+            # TODO implement error handling
+            raise NotImplementedError
+        return DeviceInfoResponse(device_type=device.device_type)
 
 
 class Server:
