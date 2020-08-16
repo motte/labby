@@ -1,12 +1,10 @@
-from importlib import import_module
-from pathlib import Path
-
 import wasabi
 from pynng import Sub0
 
 from labby.cli.core import BaseArgumentParser, Command
 from labby.experiment.runner import ExperimentRunner, ExperimentSequenceStatus
 from labby.experiment.sequence import ExperimentSequence
+from labby.utils import auto_discover_experiments
 
 
 # pyre-ignore[13]: sequence_filename is unitialized
@@ -20,14 +18,8 @@ class RunArgumentParser(BaseArgumentParser):
 class RunCommand(Command[RunArgumentParser]):
     TRIGGER: str = "run"
 
-    def _auto_discover_experiments(self) -> None:
-        EXPERIMENTS_PATH = Path("./experiments")
-        for f in EXPERIMENTS_PATH.glob("*.py"):
-            if "__" not in f.stem:
-                import_module(f"experiments.{f.stem}", __package__)
-
     def main(self, args: RunArgumentParser) -> int:
-        self._auto_discover_experiments()
+        auto_discover_experiments()
 
         with open(args.sequence_filename, "r") as sequence_fd:
             sequence = ExperimentSequence(args.sequence_filename, sequence_fd.read())
