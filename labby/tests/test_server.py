@@ -117,17 +117,19 @@ class ClientTest(TestCase):
 
     def test_device_info(self) -> None:
         device_info = self.client.device_info("virtual-power-supply")
-        self.assertEqual(device_info.device_type, DeviceType.POWER_SUPPLY)
-        self.assertTrue(device_info.is_connected)
         self.assertEqual(
-            device_info.power_supply_info,
-            PowerSupplyInfo(
-                is_output_on=False,
-                mode=PowerSupplyMode.CONSTANT_VOLTAGE,
-                target_voltage=0.0,
-                target_current=0.0,
-                actual_voltage=0.0,
-                actual_current=0.0,
+            device_info,
+            DeviceInfoResponse(
+                device_type=DeviceType.POWER_SUPPLY,
+                is_connected=True,
+                power_supply_info=PowerSupplyInfo(
+                    is_output_on=False,
+                    mode=PowerSupplyMode.CONSTANT_VOLTAGE,
+                    target_voltage=0.0,
+                    target_current=0.0,
+                    actual_voltage=0.0,
+                    actual_current=0.0,
+                ),
             ),
         )
 
