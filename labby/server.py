@@ -2,6 +2,7 @@ import os
 import sys
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import Set, Type
 
 from mashumaro import DataClassMessagePackMixin
 from mashumaro.serializer.msgpack import EncodedData
@@ -18,11 +19,17 @@ class ServerInfo:
     pid: int
 
 
+_ALL_REQUEST_TYPES: Set[Type["ServerRequest"]] = set([])
+
+
 @dataclass(frozen=True)
 class ServerRequest(DataClassMessagePackMixin, ABC):
+    def __init_subclass__(cls) -> None:
+        _ALL_REQUEST_TYPES.add(cls)
+
     @classmethod
     def handle_from_msgpack(cls, msg: EncodedData) -> None:
-        for klass in [HaltRequest]:
+        for klass in _ALL_REQUEST_TYPES:
             try:
                 request = klass.from_msgpack(msg)
                 klass.handle(request)
