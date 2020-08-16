@@ -10,6 +10,7 @@ from labby.hw.core import DeviceType, auto_discover_drivers
 from labby.hw.core.power_supply import PowerSupplyMode
 from labby.server import (
     Client,
+    DeviceInfoResponse,
     DeviceStatus,
     HaltRequest,
     ListDevicesResponse,
@@ -129,6 +130,16 @@ class ClientTest(TestCase):
                 actual_current=0.0,
             ),
         )
+
+    def test_device_info_for_unavailable_device(self) -> None:
+        device_info = self.client.device_info("broken-power-supply")
+        self.assertEqual(
+            device_info,
+            DeviceInfoResponse(
+                device_type=DeviceType.POWER_SUPPLY,
+                is_connected=False,
+                error_type="Exception",
+                error_message="Unavailable device",
+            ),
+        )
         # TODO: handle unknown device (error)
-        # TODO: handle connection being okay and not okay
-        #   - need to pass down error message

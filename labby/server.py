@@ -140,6 +140,8 @@ class PowerSupplyInfo(ServerResponseComponent):
 class DeviceInfoResponse(ServerResponse):
     device_type: DeviceType
     is_connected: bool
+    error_type: Optional[str] = None
+    error_message: Optional[str] = None
     power_supply_info: Optional[PowerSupplyInfo] = None
 
 
@@ -158,6 +160,9 @@ class DeviceInfoRequest(ServerRequest[DeviceInfoResponse]):
         )
 
     def _get_device_info(self, device: Device) -> ServerResponseComponent:
+        device.open()
+        device.test_connection()
+
         if device.device_type == DeviceType.POWER_SUPPLY:
             assert isinstance(device, PowerSupply)
             return self._get_power_supply_info(device)
@@ -181,12 +186,19 @@ class DeviceInfoRequest(ServerRequest[DeviceInfoResponse]):
         try:
             device_info = self._get_device_info(device)
             is_connected = True
-        except Exception:
+            error_type = None
+            error_message = None
+        except Exception as ex:
+            device_info = None
+            error_type = type(ex).__name__
+            error_message = str(ex)
             is_connected = False
 
         return DeviceInfoResponse(
             device_type=device.device_type,
             is_connected=is_connected,
+            error_type=error_type,
+            error_message=error_message,
             # pyre-ignore[6]: ugh super hacky
             **{self._get_key_name(device.device_type): device_info}
         )
