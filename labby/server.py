@@ -2,14 +2,24 @@ import os
 import sys
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Dict, Generic, Optional, Type, TypeVar, Union, cast, get_args
+from typing import (
+    Dict,
+    Generic,
+    Optional,
+    Sequence,
+    Type,
+    TypeVar,
+    Union,
+    cast,
+    get_args,
+)
 
 from mashumaro import DataClassMessagePackMixin
 from mashumaro.serializer.msgpack import EncodedData
 from pynng import Rep0, Req0
 
 from labby.config import Config
-from labby.hw.core import auto_discover_drivers
+from labby.hw.core import Device, auto_discover_drivers
 
 
 _ADDRESS = "tcp://127.0.0.1:14337"
@@ -23,8 +33,11 @@ class ServerInfo:
 
 
 @dataclass(frozen=True)
-class ServerResponse(DataClassMessagePackMixin, ABC):
+class ServerResponseComponent(DataClassMessagePackMixin, ABC):
     pass
+
+
+ServerResponse = ServerResponseComponent
 
 
 TResponse = TypeVar("TResponse", bound=Union[None, ServerResponse])
@@ -73,6 +86,42 @@ class HelloWorldResponse(ServerResponse):
 class HelloWorldRequest(ServerRequest[HelloWorldResponse]):
     def handle(self, config: Config) -> HelloWorldResponse:
         return HelloWorldResponse(content="Hello world")
+
+
+@dataclass(frozen=True)
+class DeviceStatus(ServerResponseComponent):
+    name: str
+    is_available: bool
+    error_type: Optional[str] = None
+    error_message: Optional[str] = None
+
+
+@dataclass(frozen=True)
+class ListDevicesResponse(ServerResponse):
+    devices: Sequence[DeviceStatus]
+
+
+@dataclass(frozen=True)
+class ListDevicesRequest(ServerRequest[ListDevicesResponse]):
+    def _get_device_status(self, device: Device) -> DeviceStatus:
+        try:
+            device.open()
+            device.test_connection()
+            return DeviceStatus(name=str(device.name), is_available=True)
+        except Exception as ex:
+            return DeviceStatus(
+                name=str(device.name),
+                is_available=False,
+                error_type=type(ex).__name__,
+                error_message=str(ex),
+            )
+        finally:
+            device.close()
+
+    def handle(self, config: Config) -> ListDevicesResponse:
+        return ListDevicesResponse(
+            devices=[self._get_device_status(device) for device in config.devices]
+        )
 
 
 class Server:
@@ -128,6 +177,9 @@ class Client:
 
     def hello(self) -> str:
         return self._query(HelloWorldRequest()).content
+
+    def list_devices(self) -> ListDevicesResponse:
+        return self._query(ListDevicesRequest())
 
     def close(self) -> None:
         self.req.close()

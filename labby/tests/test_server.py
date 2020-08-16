@@ -7,7 +7,14 @@ from mashumaro.serializer.msgpack import EncodedData
 
 from labby.config import Config
 from labby.hw.core import auto_discover_drivers
-from labby.server import Client, HaltRequest, Server, ServerRequest
+from labby.server import (
+    Client,
+    DeviceStatus,
+    HaltRequest,
+    ListDevicesResponse,
+    Server,
+    ServerRequest,
+)
 from labby.tests.utils import labby_config
 
 
@@ -20,6 +27,11 @@ devices:
   - name: "virtual-power-supply"
     type: power_supply
     driver: labby.hw.virtual.power_supply.PowerSupply
+    args:
+      load_in_ohms: 5
+  - name: "broken-power-supply"
+    type: power_supply
+    driver: labby.hw.virtual.power_supply.BrokenPowerSupply
     args:
       load_in_ohms: 5
 """
@@ -82,3 +94,20 @@ class ClientTest(TestCase):
     def test_hello(self) -> None:
         response = self.client.hello()
         self.assertEqual(response, "Hello world")
+
+    def test_list_devices(self) -> None:
+        response = self.client.list_devices()
+        self.assertEqual(
+            response,
+            ListDevicesResponse(
+                devices=[
+                    DeviceStatus(name="virtual-power-supply", is_available=True),
+                    DeviceStatus(
+                        name="broken-power-supply",
+                        is_available=False,
+                        error_type="Exception",
+                        error_message="Unavailable device",
+                    ),
+                ]
+            ),
+        )
