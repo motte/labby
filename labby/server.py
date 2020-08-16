@@ -125,6 +125,19 @@ class ListDevicesRequest(ServerRequest[ListDevicesResponse]):
         )
 
 
+@dataclass(frozen=True)
+class DeviceInfoResponse(ServerResponse):
+    pass
+
+
+@dataclass(frozen=True)
+class DeviceInfoRequest(ServerRequest[DeviceInfoResponse]):
+    device_name: str
+
+    def handle(self, config: Config) -> DeviceInfoResponse:
+        return DeviceInfoResponse()
+
+
 class Server:
     def __init__(self, config_filename: str = "labby.yml") -> None:
         self.config_filename = config_filename
@@ -183,6 +196,9 @@ class Client:
 
     def list_devices(self) -> ListDevicesResponse:
         return self._query(ListDevicesRequest())
+
+    def device_info(self, device_name: str) -> DeviceInfoResponse:
+        return self._query(DeviceInfoRequest(device_name=device_name))
 
     def close(self) -> None:
         self.req.close()

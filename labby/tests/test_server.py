@@ -111,3 +111,6 @@ class ClientTest(TestCase):
                 ]
             ),
         )
+
+    def test_device_info(self) -> None:
+        self.client.device_info("virtual-power-supply")
