@@ -70,7 +70,7 @@ class SerialControllerJobType(Enum):
     CLOSE = 2
 
 
-@dataclass(order=True)
+@dataclass(frozen=True, order=True)
 class SerialControllerJob:
     condition: threading.Condition = field(init=False, compare=False)
     uuid: str = field(init=False, compare=False)
@@ -79,8 +79,8 @@ class SerialControllerJob:
     priority: SerialControllerJobPriority = SerialControllerJobPriority.LOW
 
     def __post_init__(self) -> None:
-        self.condition = threading.Condition()
-        self.uuid = str(uuid.uuid4())
+        object.__setattr__(self, "condition", threading.Condition())
+        object.__setattr__(self, "uuid", str(uuid.uuid4()))
 
 
 TResult = TypeVar("TResult")
