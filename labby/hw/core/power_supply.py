@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from enum import Enum
 
-from labby.hw.core import Device
+from labby.hw.core import Device, DeviceType
 
 
 class PowerSupplyMode(Enum):
@@ -10,6 +10,8 @@ class PowerSupplyMode(Enum):
 
 
 class PowerSupply(Device, ABC):
+    device_type: DeviceType = DeviceType.POWER_SUPPLY
+
     def __enter__(self) -> "PowerSupply":
         Device.__enter__(self)
         return self

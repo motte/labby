@@ -1,5 +1,6 @@
 import inspect
 from abc import ABC, abstractmethod
+from enum import Enum
 from importlib import import_module
 from pathlib import Path
 from types import TracebackType
@@ -9,8 +10,13 @@ from typing import Any, Dict, Optional, Type
 ALL_DRIVERS: Dict[str, Type["Device"]] = {}
 
 
+class DeviceType(Enum):
+    POWER_SUPPLY = "POWER_SUPPLY"
+
+
 class Device(ABC):
     name: str = "unnamed device"
+    device_type: DeviceType
 
     def __init_subclass__(cls) -> None:
         ALL_DRIVERS[f"{cls.__module__}.{cls.__name__}"] = cls
