@@ -66,39 +66,39 @@ class SerialDeviceTest(TestCase):
     def test_successful_write_and_read(self, serial_port_mock: Mock) -> None:
         serial_port_mock.readline.return_value = b"0\r\n"
         with TestSerialPowerSupply("/dev/ttyUSB0", 9600) as power_supply:
-            self.assertEquals(power_supply.get_mode(), PowerSupplyMode.CONSTANT_VOLTAGE)
+            self.assertEqual(power_supply.get_mode(), PowerSupplyMode.CONSTANT_VOLTAGE)
 
 
 class SerialControllerTest(TestCase):
     @fake_serial_port
     def test_serial_controllers_are_reused(self, _serial_port_mock: Mock) -> None:
-        self.assertEquals(len(SERIAL_CONTROLLERS), 0)
+        self.assertEqual(len(SERIAL_CONTROLLERS), 0)
         with TestSerialPowerSupply("/dev/ttyUSB0", 9600):
-            self.assertEquals(SERIAL_CONTROLLERS.keys(), {"/dev/ttyUSB0"})
+            self.assertEqual(SERIAL_CONTROLLERS.keys(), {"/dev/ttyUSB0"})
             with TestSerialPowerSupply("/dev/ttyUSB0", 9600):
-                self.assertEquals(SERIAL_CONTROLLERS.keys(), {"/dev/ttyUSB0"})
-        self.assertEquals(len(SERIAL_CONTROLLERS), 0)
+                self.assertEqual(SERIAL_CONTROLLERS.keys(), {"/dev/ttyUSB0"})
+        self.assertEqual(len(SERIAL_CONTROLLERS), 0)
 
     @fake_serial_port
     def test_multiple_serial_controllers(self, _serial_port_mock: Mock) -> None:
-        self.assertEquals(len(SERIAL_CONTROLLERS), 0)
+        self.assertEqual(len(SERIAL_CONTROLLERS), 0)
         with TestSerialPowerSupply("/dev/ttyUSB0", 9600):
-            self.assertEquals(SERIAL_CONTROLLERS.keys(), {"/dev/ttyUSB0"})
+            self.assertEqual(SERIAL_CONTROLLERS.keys(), {"/dev/ttyUSB0"})
             with TestSerialPowerSupply("/dev/ttyUSB1", 9600):
-                self.assertEquals(
+                self.assertEqual(
                     SERIAL_CONTROLLERS.keys(), {"/dev/ttyUSB0", "/dev/ttyUSB1"}
                 )
-        self.assertEquals(len(SERIAL_CONTROLLERS), 0)
+        self.assertEqual(len(SERIAL_CONTROLLERS), 0)
 
     @fake_serial_port
     def test_serial_controllers_are_purged_on_close(
         self, _serial_port_mock: Mock
     ) -> None:
-        self.assertEquals(len(SERIAL_CONTROLLERS), 0)
+        self.assertEqual(len(SERIAL_CONTROLLERS), 0)
         with TestSerialPowerSupply("/dev/ttyUSB0", 9600):
-            self.assertEquals(len(SERIAL_CONTROLLERS), 1)
+            self.assertEqual(len(SERIAL_CONTROLLERS), 1)
             self.assertIn("/dev/ttyUSB0", SERIAL_CONTROLLERS.keys())
-        self.assertEquals(len(SERIAL_CONTROLLERS), 0)
+        self.assertEqual(len(SERIAL_CONTROLLERS), 0)
 
     @fake_serial_port
     def test_serial_controllers_are_purged_on_open_failure(
@@ -107,16 +107,16 @@ class SerialControllerTest(TestCase):
         serial_port_mock.is_open = False
         serial_port_mock.open.side_effect = SerialException("Cannot open serial port")
 
-        self.assertEquals(len(SERIAL_CONTROLLERS), 0)
+        self.assertEqual(len(SERIAL_CONTROLLERS), 0)
 
         with TestSerialPowerSupply("/dev/ttyUSB0", 9600) as power_supply:
-            self.assertEquals(len(SERIAL_CONTROLLERS), 1)
+            self.assertEqual(len(SERIAL_CONTROLLERS), 1)
             self.assertIn("/dev/ttyUSB0", SERIAL_CONTROLLERS.keys())
             with self.assertRaises(SerialException):
                 power_supply.get_mode()
-            self.assertEquals(len(SERIAL_CONTROLLERS), 1)
+            self.assertEqual(len(SERIAL_CONTROLLERS), 1)
 
-        self.assertEquals(len(SERIAL_CONTROLLERS), 0)
+        self.assertEqual(len(SERIAL_CONTROLLERS), 0)
 
     @fake_serial_port
     def test_serial_controllers_are_purged_on_write_failure(
@@ -124,13 +124,13 @@ class SerialControllerTest(TestCase):
     ) -> None:
         serial_port_mock.write.side_effect = SerialTimeoutException("Timeout")
 
-        self.assertEquals(len(SERIAL_CONTROLLERS), 0)
+        self.assertEqual(len(SERIAL_CONTROLLERS), 0)
 
         with TestSerialPowerSupply("/dev/ttyUSB0", 9600) as power_supply:
-            self.assertEquals(len(SERIAL_CONTROLLERS), 1)
+            self.assertEqual(len(SERIAL_CONTROLLERS), 1)
             self.assertIn("/dev/ttyUSB0", SERIAL_CONTROLLERS.keys())
             with self.assertRaises(SerialTimeoutException):
                 power_supply.get_mode()
-            self.assertEquals(len(SERIAL_CONTROLLERS), 1)
+            self.assertEqual(len(SERIAL_CONTROLLERS), 1)
 
-        self.assertEquals(len(SERIAL_CONTROLLERS), 0)
+        self.assertEqual(len(SERIAL_CONTROLLERS), 0)

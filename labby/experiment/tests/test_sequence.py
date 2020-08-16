@@ -51,14 +51,14 @@ sequence:
 """,
         )
 
-        self.assertEquals(len(sequence.experiments), 2)
+        self.assertEqual(len(sequence.experiments), 2)
 
         first_experiment = sequence.experiments[0]
         assert isinstance(first_experiment, TestExperiment)
-        self.assertAlmostEquals(first_experiment.params.current_in_amps, 7)
-        self.assertAlmostEquals(first_experiment.params.voltage_in_volts, 6)
+        self.assertAlmostEqual(first_experiment.params.current_in_amps, 7)
+        self.assertAlmostEqual(first_experiment.params.voltage_in_volts, 6)
 
         second_experiment = sequence.experiments[1]
         assert isinstance(second_experiment, TestExperiment)
-        self.assertAlmostEquals(second_experiment.params.current_in_amps, 3)
-        self.assertAlmostEquals(second_experiment.params.voltage_in_volts, 2)
+        self.assertAlmostEqual(second_experiment.params.current_in_amps, 3)
+        self.assertAlmostEqual(second_experiment.params.voltage_in_volts, 2)

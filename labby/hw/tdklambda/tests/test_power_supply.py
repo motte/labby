@@ -12,14 +12,14 @@ class ZUPTest(TestCase):
     @fake_serial_port
     def test_serial_port_settings(self, serial_port_mock: Mock) -> None:
         with tdklambda_power_supply.ZUP("/dev/ttyUSB0", 9600) as power_supply:
-            self.assertEquals(power_supply.serial_controller.serial.baudrate, 9600)
-            self.assertEquals(power_supply.serial_controller.serial.bytesize, EIGHTBITS)
-            self.assertEquals(power_supply.serial_controller.serial.parity, PARITY_NONE)
-            self.assertEquals(
+            self.assertEqual(power_supply.serial_controller.serial.baudrate, 9600)
+            self.assertEqual(power_supply.serial_controller.serial.bytesize, EIGHTBITS)
+            self.assertEqual(power_supply.serial_controller.serial.parity, PARITY_NONE)
+            self.assertEqual(
                 power_supply.serial_controller.serial.stopbits, STOPBITS_ONE
             )
             self.assertTrue(power_supply.serial_controller.serial.xonxoff)
-            self.assertAlmostEquals(power_supply.serial_controller.serial.timeout, 2.0)
+            self.assertAlmostEqual(power_supply.serial_controller.serial.timeout, 2.0)
 
     @fake_serial_port
     def test_opening_with_default_address(self, serial_port_mock: Mock) -> None:
@@ -66,7 +66,7 @@ class ZUPTest(TestCase):
             serial_port_mock.readline.return_value = b"FOOBAR\r\n"
             returned_model = power_supply.get_model()
             serial_port_mock.write.assert_called_once_with(b":MDL?;")
-            self.assertEquals(returned_model, "FOOBAR")
+            self.assertEqual(returned_model, "FOOBAR")
 
     @fake_serial_port
     def test_get_software_version(self, serial_port_mock: Mock) -> None:
@@ -75,7 +75,7 @@ class ZUPTest(TestCase):
             serial_port_mock.readline.return_value = b"V4.2.0\r\n"
             returned_version = power_supply.get_software_version()
             serial_port_mock.write.assert_called_once_with(b":REV?;")
-            self.assertEquals(returned_version, "V4.2.0")
+            self.assertEqual(returned_version, "V4.2.0")
 
     @fake_serial_port
     def test_is_output_on(self, serial_port_mock: Mock) -> None:

@@ -146,7 +146,7 @@ sequence:
         ):
             (rc, stdout, stderr) = self.main(["run", "sequence/test.yml"])
             makedirs.assert_called_with(PosixPath("output/test/"), exist_ok=True)
-            self.assertEquals(len(output_0.write.call_args_list), 4)
+            self.assertEqual(len(output_0.write.call_args_list), 4)
             output_0.write.assert_has_calls(
                 [
                     call("seconds,voltage\n"),

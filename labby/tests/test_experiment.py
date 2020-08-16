@@ -79,7 +79,7 @@ class ExperimentRunnerTest(TestCase):
         input_parameters = InputParameters()
         experiment = TestExperiment("test_experiment", input_parameters)
         output_data_type = experiment.get_output_data_type()
-        self.assertEquals(output_data_type.get_column_names(), ["voltage"])
+        self.assertEqual(output_data_type.get_column_names(), ["voltage"])
 
     def test_experiment_output(self) -> None:
         config = Config(LABBY_CONFIG_YAML)
@@ -93,7 +93,7 @@ class ExperimentRunnerTest(TestCase):
             runner.join()
 
         makedirs.assert_called_with(PosixPath("output/seq/"), exist_ok=True)
-        self.assertEquals(len(output.write.call_args_list), 4)
+        self.assertEqual(len(output.write.call_args_list), 4)
         output.write.assert_has_calls(
             [
                 call("seconds,voltage\n"),
@@ -122,7 +122,7 @@ class ExperimentRunnerTest(TestCase):
                         break
                 runner.join()
 
-            self.assertEquals(
+            self.assertEqual(
                 received_messages,
                 [
                     ExperimentSequenceStatus(

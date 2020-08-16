@@ -32,7 +32,7 @@ class ServerTest(TestCase):
             server = Server()
             server_info = server.start()
             self.assertFalse(server_info.existing)
-            self.assertEquals(server_info.pid, FAKE_PID)
+            self.assertEqual(server_info.pid, FAKE_PID)
 
     @patch("os.fork", return_value=0)
     @patch("labby.server.Rep0")
