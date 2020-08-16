@@ -49,6 +49,7 @@ _ALL_REQUEST_TYPES: Dict[str, Type["ServerRequest[ServerResponse]"]] = {}
 class ServerRequest(Generic[TResponse], DataClassMessagePackMixin, ABC):
     def __init_subclass__(cls: Type["ServerRequest[ServerResponse]"]) -> None:
         _ALL_REQUEST_TYPES[cls.__name__] = cls
+        super().__init_subclass__()
 
     def get_response_type(cls) -> TResponse:
         # pyre-ignore[16]: pyre does not understand __orig_bases__
