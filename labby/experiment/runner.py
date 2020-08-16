@@ -35,7 +35,7 @@ class ExperimentStatus(DataClassMessagePackMixin):
         return self.state == ExperimentState.FINISHED
 
 
-@dataclass
+@dataclass(frozen=True)
 class ExperimentSequenceStatus(DataClassMessagePackMixin):
     experiments: List[ExperimentStatus]
 
