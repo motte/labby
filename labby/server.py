@@ -1,5 +1,7 @@
+import copy
 import os
 import sys
+import threading
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import (
@@ -211,9 +213,13 @@ class DeviceInfoRequest(ServerRequest[DeviceInfoResponse]):
 
 class Server:
     config: Config
+    _experiment_sequence_status_lock: threading.Lock
+    _experiment_sequence_status: Optional[ExperimentSequenceStatus]
 
     def __init__(self, config_filename: str = "labby.yml") -> None:
         self.config_filename = config_filename
+        self._experiment_sequence_status = None
+        self._experiment_sequence_status_lock = threading.Lock()
 
         auto_discover_drivers()
         with open(self.config_filename, "r") as config_file:
@@ -230,6 +236,12 @@ class Server:
 
         # pyre-ignore[7]: this never returns anything on the child process
         sys.exit(0)
+
+    def set_experiment_sequence_status(
+        self, experiment_sequence_status: ExperimentSequenceStatus,
+    ) -> None:
+        with self._experiment_sequence_status_lock:
+            self._experiment_sequence_status = copy.deepcopy(experiment_sequence_status)
 
     def _run(self, socket: Rep0) -> None:
         while True:
@@ -258,6 +270,7 @@ class RunSequenceRequest(ServerRequest[None]):
                 while True:
                     msg = sub.recv()
                     sequence_status = ExperimentSequenceStatus.from_msgpack(msg)
+                    server.set_experiment_sequence_status(sequence_status)
                     if sequence_status.experiments[index].is_finished():
                         break
             runner.join()
