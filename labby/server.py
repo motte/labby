@@ -66,19 +66,19 @@ class ServerRequest(Generic[TResponse], DataClassMessagePackMixin, ABC):
         (request_type, msg) = cast(bytes, msg).split(b":", 1)
         klass = _ALL_REQUEST_TYPES[request_type.decode()]
         request = klass.from_msgpack(msg)
-        response = request.handle(server.config)
+        response = request.handle(server)
         if response is None:
             return None
         return response.to_msgpack()
 
     @abstractmethod
-    def handle(self, config: Config) -> TResponse:
+    def handle(self, server: "Server") -> TResponse:
         raise NotImplementedError
 
 
 @dataclass(frozen=True)
 class HaltRequest(ServerRequest[None]):
-    def handle(self, config: Config) -> None:
+    def handle(self, server: "Server") -> None:
         sys.exit(0)
 
 
@@ -89,7 +89,7 @@ class HelloWorldResponse(ServerResponse):
 
 @dataclass(frozen=True)
 class HelloWorldRequest(ServerRequest[HelloWorldResponse]):
-    def handle(self, config: Config) -> HelloWorldResponse:
+    def handle(self, server: "Server") -> HelloWorldResponse:
         return HelloWorldResponse(content="Hello world")
 
 
@@ -123,9 +123,11 @@ class ListDevicesRequest(ServerRequest[ListDevicesResponse]):
         finally:
             device.close()
 
-    def handle(self, config: Config) -> ListDevicesResponse:
+    def handle(self, server: "Server") -> ListDevicesResponse:
         return ListDevicesResponse(
-            devices=[self._get_device_status(device) for device in config.devices]
+            devices=[
+                self._get_device_status(device) for device in server.config.devices
+            ]
         )
 
 
@@ -176,7 +178,9 @@ class DeviceInfoRequest(ServerRequest[DeviceInfoResponse]):
             return "power_supply_info"
         raise NotImplementedError
 
-    def handle(self, config: Config) -> DeviceInfoResponse:
+    def handle(self, server: "Server") -> DeviceInfoResponse:
+        config = server.config
+
         try:
             device = next(
                 device for device in config.devices if device.name == self.device_name
@@ -239,13 +243,13 @@ class Server:
 class RunSequenceRequest(ServerRequest[None]):
     sequence_filename: str
 
-    def handle(self, config: Config) -> None:
+    def handle(self, server: Server) -> None:
         auto_discover_experiments()
 
         with open(self.sequence_filename, "r") as sequence_fd:
             sequence = ExperimentSequence(self.sequence_filename, sequence_fd.read())
 
-        runner = ExperimentRunner(config, sequence)
+        runner = ExperimentRunner(server.config, sequence)
         runner.start()
 
         with Sub0(dial=runner.subscription_address) as sub:
