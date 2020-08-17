@@ -206,8 +206,14 @@ class DeviceInfoRequest(ServerRequest[DeviceInfoResponse]):
 
 
 class Server:
+    config: Config
+
     def __init__(self, config_filename: str = "labby.yml") -> None:
         self.config_filename = config_filename
+
+        auto_discover_drivers()
+        with open(self.config_filename, "r") as config_file:
+            self.config = Config(config_file.read())
 
     def start(self) -> ServerInfo:
         child_pid = os.fork()
@@ -222,13 +228,9 @@ class Server:
         sys.exit(0)
 
     def _run(self, socket: Rep0) -> None:
-        auto_discover_drivers()
-        with open(self.config_filename, "r") as config_file:
-            config = Config(config_file.read())
-
         while True:
             message = socket.recv()
-            response = ServerRequest.handle_from_msgpack(config, message)
+            response = ServerRequest.handle_from_msgpack(self.config, message)
             if response is not None:
                 socket.send(response)
 
