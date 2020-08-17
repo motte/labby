@@ -259,6 +259,7 @@ class ExperimentMonitor(threading.Thread):
     sequence: ExperimentSequence
     server: Server
     subscription_address: str
+    has_started: bool
 
     def __init__(
         self, server: Server, sequence: ExperimentSequence, subscription_address: str
@@ -267,10 +268,12 @@ class ExperimentMonitor(threading.Thread):
         self.sequence = sequence
         self.server = server
         self.subscription_address = subscription_address
+        self.has_started = False
 
     def run(self) -> None:
         with Sub0(dial=self.subscription_address) as sub:
             sub.subscribe(b"")
+            self.has_started = True
             for index, experiment in enumerate(self.sequence.experiments):
                 while True:
                     msg = sub.recv()
@@ -291,10 +294,12 @@ class RunSequenceRequest(ServerRequest[None]):
             sequence = ExperimentSequence(self.sequence_filename, sequence_fd.read())
 
         runner = ExperimentRunner(server.config, sequence)
-        runner.start()
-
         monitor = ExperimentMonitor(server, sequence, runner.subscription_address)
+
         monitor.start()
+        while not monitor.has_started:
+            pass
+        runner.start()
 
 
 @dataclass(frozen=True)
