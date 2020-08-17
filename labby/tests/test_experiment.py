@@ -112,7 +112,9 @@ class ExperimentRunnerTest(TestCase):
             sub.subscribe(b"")
             received_messages: List[ExperimentSequenceStatus] = []
 
-            with patch_time("2020-08-08"):
+            with patch_time("2020-08-08"), patch_file_contents(
+                "output/seq/000.csv"
+            ), patch("os.makedirs"):
                 runner.start()
                 while True:
                     msg = sub.recv()
