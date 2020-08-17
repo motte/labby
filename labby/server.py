@@ -61,12 +61,12 @@ class ServerRequest(Generic[TResponse], DataClassMessagePackMixin, ABC):
 
     @classmethod
     def handle_from_msgpack(
-        cls, config: Config, msg: EncodedData
+        cls, server: "Server", msg: EncodedData
     ) -> Optional[EncodedData]:
         (request_type, msg) = cast(bytes, msg).split(b":", 1)
         klass = _ALL_REQUEST_TYPES[request_type.decode()]
         request = klass.from_msgpack(msg)
-        response = request.handle(config)
+        response = request.handle(server.config)
         if response is None:
             return None
         return response.to_msgpack()
@@ -230,7 +230,7 @@ class Server:
     def _run(self, socket: Rep0) -> None:
         while True:
             message = socket.recv()
-            response = ServerRequest.handle_from_msgpack(self.config, message)
+            response = ServerRequest.handle_from_msgpack(self, message)
             if response is not None:
                 socket.send(response)
 

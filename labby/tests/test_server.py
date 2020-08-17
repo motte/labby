@@ -111,9 +111,11 @@ class ClientTest(TestCase):
     def setUp(self) -> None:
         auto_discover_drivers()
         self.config = Config(LABBY_CONFIG_YAML)
+        server_mock: MagicMock = MagicMock()
+        server_mock.config = self.config
 
         def _handle(msg: EncodedData) -> None:
-            response_bytes = ServerRequest.handle_from_msgpack(self.config, msg)
+            response_bytes = ServerRequest.handle_from_msgpack(server_mock, msg)
             self.req_mock.return_value.recv.return_value = response_bytes
 
         self.req_patch = patch("labby.server.Req0")
