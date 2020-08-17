@@ -1,11 +1,18 @@
 import unittest
-from unittest import TestCase
-from unittest.mock import MagicMock, patch
+from dataclasses import dataclass
+from pathlib import PosixPath
 from typing import cast
+from unittest import TestCase
+from unittest.mock import MagicMock, call, patch
 
 from mashumaro.serializer.msgpack import EncodedData
 
 from labby.config import Config
+from labby.experiment import (
+    BaseInputParameters,
+    BaseOutputData,
+    Experiment,
+)
 from labby.hw.core import DeviceType
 from labby.hw.core.power_supply import PowerSupplyMode
 from labby.server import (
@@ -18,7 +25,7 @@ from labby.server import (
     Server,
     ServerRequest,
 )
-from labby.tests.utils import labby_config
+from labby.tests.utils import labby_config, patch_file_contents, patch_time
 from labby.utils import auto_discover_drivers
 
 
@@ -63,6 +70,37 @@ class ServerTest(TestCase):
             server = Server()
             with self.assertRaises(SystemExit):
                 server.start()
+
+
+@dataclass(frozen=True)
+class OutputData(BaseOutputData):
+    voltage: float
+
+
+@dataclass(frozen=True)
+class InputParameters(BaseInputParameters):
+    pass
+
+
+class TestExperiment(Experiment[InputParameters, OutputData]):
+    SAMPLING_RATE_IN_HZ: float = 2.0
+    DURATION_IN_SECONDS: float = 1.0
+
+    def start(self) -> None:
+        power_supply = self.get_power_supply("virtual-power-supply")
+        power_supply.set_target_voltage(15)
+        power_supply.set_target_current(4)
+        power_supply.set_output_on(True)
+        power_supply.open()
+
+    def measure(self) -> OutputData:
+        power_supply = self.get_power_supply("virtual-power-supply")
+        actual_voltage = power_supply.get_actual_voltage()
+        return OutputData(voltage=actual_voltage)
+
+    def stop(self) -> None:
+        power_supply = self.get_power_supply("virtual-power-supply")
+        power_supply.close()
 
 
 class ClientTest(TestCase):
@@ -151,3 +189,40 @@ class ClientTest(TestCase):
         self.assertEqual(
             device_info, DeviceInfoResponse(device_type=None, is_connected=False),
         )
+
+    def test_run_sequence(self) -> None:
+        SEQUENCE_CONTENTS = """
+---
+sequence:
+  - experiment_type: labby.tests.test_server.TestExperiment
+  - experiment_type: labby.tests.test_server.TestExperiment
+"""
+        with patch_file_contents(
+            "sequence/test.yml", SEQUENCE_CONTENTS
+        ), patch_file_contents("output/test/000.csv") as output_0, patch_file_contents(
+            "output/test/001.csv"
+        ) as output_1, patch(
+            "os.makedirs"
+        ) as makedirs, patch_time(
+            "2020-08-08"
+        ):
+            self.client.run_sequence("sequence/test.yml")
+
+            makedirs.assert_called_with(PosixPath("output/test/"), exist_ok=True)
+            self.assertEqual(len(output_0.write.call_args_list), 4)
+            output_0.write.assert_has_calls(
+                [
+                    call("seconds,voltage\n"),
+                    call("0.0,15.0\n"),
+                    call("0.5,15.0\n"),
+                    call("1.0,15.0\n"),
+                ]
+            )
+            output_1.write.assert_has_calls(
+                [
+                    call("seconds,voltage\n"),
+                    call("0.0,15.0\n"),
+                    call("0.5,15.0\n"),
+                    call("1.0,15.0\n"),
+                ]
+            )

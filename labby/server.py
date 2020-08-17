@@ -16,12 +16,14 @@ from typing import (
 
 from mashumaro import DataClassMessagePackMixin
 from mashumaro.serializer.msgpack import EncodedData
-from pynng import Rep0, Req0
+from pynng import Rep0, Req0, Sub0
 
 from labby.config import Config
+from labby.experiment.runner import ExperimentRunner, ExperimentSequenceStatus
+from labby.experiment.sequence import ExperimentSequence
 from labby.hw.core import Device, DeviceType
 from labby.hw.core.power_supply import PowerSupply, PowerSupplyMode
-from labby.utils import auto_discover_drivers
+from labby.utils import auto_discover_experiments, auto_discover_drivers
 
 
 _ADDRESS = "tcp://127.0.0.1:14337"
@@ -199,7 +201,7 @@ class DeviceInfoRequest(ServerRequest[DeviceInfoResponse]):
             error_type=error_type,
             error_message=error_message,
             # pyre-ignore[6]: ugh super hacky
-            **{self._get_key_name(device.device_type): device_info}
+            **{self._get_key_name(device.device_type): device_info},
         )
 
 
@@ -229,6 +231,30 @@ class Server:
             response = ServerRequest.handle_from_msgpack(config, message)
             if response is not None:
                 socket.send(response)
+
+
+@dataclass(frozen=True)
+class RunSequenceRequest(ServerRequest[None]):
+    sequence_filename: str
+
+    def handle(self, config: Config) -> None:
+        auto_discover_experiments()
+
+        with open(self.sequence_filename, "r") as sequence_fd:
+            sequence = ExperimentSequence(self.sequence_filename, sequence_fd.read())
+
+        runner = ExperimentRunner(config, sequence)
+        runner.start()
+
+        with Sub0(dial=runner.subscription_address) as sub:
+            sub.subscribe(b"")
+            for index, experiment in enumerate(sequence.experiments):
+                while True:
+                    msg = sub.recv()
+                    sequence_status = ExperimentSequenceStatus.from_msgpack(msg)
+                    if sequence_status.experiments[index].is_finished():
+                        break
+            runner.join()
 
 
 class Client:
@@ -264,6 +290,9 @@ class Client:
 
     def device_info(self, device_name: str) -> DeviceInfoResponse:
         return self._query(DeviceInfoRequest(device_name=device_name))
+
+    def run_sequence(self, sequence_filename: str) -> None:
+        self._send(RunSequenceRequest(sequence_filename))
 
     def close(self) -> None:
         self.req.close()
