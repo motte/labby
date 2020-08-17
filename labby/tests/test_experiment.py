@@ -151,6 +151,13 @@ class ExperimentRunnerTest(TestCase):
                     ExperimentSequenceStatus(
                         experiments=[
                             ExperimentStatus(
+                                name="000", state=ExperimentState.RUNNING, progress=1.0,
+                            )
+                        ]
+                    ),
+                    ExperimentSequenceStatus(
+                        experiments=[
+                            ExperimentStatus(
                                 name="000",
                                 state=ExperimentState.FINISHED,
                                 progress=1.0,

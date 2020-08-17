@@ -192,7 +192,6 @@ class ClientTest(TestCase):
             device_info, DeviceInfoResponse(device_type=None, is_connected=False),
         )
 
-    # FIXME: this test seems a bit flaky
     def test_run_sequence(self) -> None:
         SEQUENCE_CONTENTS = """
 ---

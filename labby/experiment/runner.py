@@ -1,4 +1,3 @@
-import math
 import os
 import threading
 import time
@@ -70,16 +69,13 @@ class ExperimentRunner(threading.Thread):
         self,
         experiment: Experiment[BaseInputParameters, BaseOutputData],
         relative_time: float,
+        state: ExperimentState = ExperimentState.RUNNING,
     ) -> None:
         try:
             experiment_index = self.sequence.experiments.index(experiment)
             progress = relative_time / experiment.DURATION_IN_SECONDS
             self.sequence_status.experiments[experiment_index] = ExperimentStatus(
-                name=experiment.name,
-                state=ExperimentState.FINISHED
-                if math.isclose(progress, 1.0)
-                else ExperimentState.RUNNING,
-                progress=progress,
+                name=experiment.name, state=state, progress=progress,
             )
 
             msg = Message(self.sequence_status.to_msgpack())
@@ -122,7 +118,6 @@ class ExperimentRunner(threading.Thread):
                 now = time.time()
         finally:
             experiment.stop()
-            self._publish_status(experiment, experiment.DURATION_IN_SECONDS)
 
             return dataframe
 
@@ -132,8 +127,13 @@ class ExperimentRunner(threading.Thread):
             experiment.config = self.config
 
             dataframe = self._run_experiment(experiment)
+
             output_dir = self._get_output_directory()
             os.makedirs(output_dir, exist_ok=True)
             with open(output_dir / f"{experiment.name}.csv", "w") as fd:
                 dataframe.to_csv(fd, index=False)
+
+            self._publish_status(
+                experiment, experiment.DURATION_IN_SECONDS, ExperimentState.FINISHED
+            )
         self.pub.close()
