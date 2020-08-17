@@ -7,7 +7,6 @@ from unittest.mock import MagicMock, call, patch
 
 from mashumaro.serializer.msgpack import EncodedData
 
-from labby.config import Config
 from labby.experiment import (
     BaseInputParameters,
     BaseOutputData,
@@ -110,9 +109,8 @@ class ClientTest(TestCase):
 
     def setUp(self) -> None:
         auto_discover_drivers()
-        self.config = Config(LABBY_CONFIG_YAML)
-        server: Server = Server()
-        server.config = self.config
+        with labby_config(LABBY_CONFIG_YAML):
+            server: Server = Server()
 
         def _handle(msg: EncodedData) -> None:
             response_bytes = ServerRequest.handle_from_msgpack(server, msg)
