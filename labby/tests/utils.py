@@ -35,6 +35,7 @@ class _OpenMockFileStore:
         del self.filename_to_mock[filename]
 
     def open(self, filename: str, *args: object, **kwargs: object) -> MagicMock:
+        filename = str(filename)
         if filename not in self.filename_to_mock.keys():
             return open_orig(filename, *args, **kwargs)
         return self.filename_to_mock[filename]

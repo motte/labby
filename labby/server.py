@@ -243,12 +243,41 @@ class Server:
         with self._experiment_sequence_status_lock:
             self._experiment_sequence_status = copy.deepcopy(experiment_sequence_status)
 
+    def get_experiment_sequence_status(self) -> Optional[ExperimentSequenceStatus]:
+        with self._experiment_sequence_status_lock:
+            return copy.deepcopy(self._experiment_sequence_status)
+
     def _run(self, socket: Rep0) -> None:
         while True:
             message = socket.recv()
             response = ServerRequest.handle_from_msgpack(self, message)
             if response is not None:
                 socket.send(response)
+
+
+class ExperimentMonitor(threading.Thread):
+    sequence: ExperimentSequence
+    server: Server
+    subscription_address: str
+
+    def __init__(
+        self, server: Server, sequence: ExperimentSequence, subscription_address: str
+    ) -> None:
+        super().__init__()
+        self.sequence = sequence
+        self.server = server
+        self.subscription_address = subscription_address
+
+    def run(self) -> None:
+        with Sub0(dial=self.subscription_address) as sub:
+            sub.subscribe(b"")
+            for index, experiment in enumerate(self.sequence.experiments):
+                while True:
+                    msg = sub.recv()
+                    sequence_status = ExperimentSequenceStatus.from_msgpack(msg)
+                    self.server.set_experiment_sequence_status(sequence_status)
+                    if sequence_status.experiments[index].is_finished():
+                        break
 
 
 @dataclass(frozen=True)
@@ -264,16 +293,21 @@ class RunSequenceRequest(ServerRequest[None]):
         runner = ExperimentRunner(server.config, sequence)
         runner.start()
 
-        with Sub0(dial=runner.subscription_address) as sub:
-            sub.subscribe(b"")
-            for index, experiment in enumerate(sequence.experiments):
-                while True:
-                    msg = sub.recv()
-                    sequence_status = ExperimentSequenceStatus.from_msgpack(msg)
-                    server.set_experiment_sequence_status(sequence_status)
-                    if sequence_status.experiments[index].is_finished():
-                        break
-            runner.join()
+        monitor = ExperimentMonitor(server, sequence, runner.subscription_address)
+        monitor.start()
+
+
+@dataclass(frozen=True)
+class ExperimentStatusResponse(ServerResponse):
+    sequence_status: Optional[ExperimentSequenceStatus]
+
+
+@dataclass(frozen=True)
+class ExperimentStatusRequest(ServerRequest[ExperimentStatusResponse]):
+    def handle(self, server: "Server") -> ExperimentStatusResponse:
+        return ExperimentStatusResponse(
+            sequence_status=server.get_experiment_sequence_status()
+        )
 
 
 class Client:
@@ -312,6 +346,9 @@ class Client:
 
     def run_sequence(self, sequence_filename: str) -> None:
         self._send(RunSequenceRequest(sequence_filename))
+
+    def experiment_status(self) -> ExperimentStatusResponse:
+        return self._query(ExperimentStatusRequest())
 
     def close(self) -> None:
         self.req.close()

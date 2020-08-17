@@ -111,11 +111,11 @@ class ClientTest(TestCase):
     def setUp(self) -> None:
         auto_discover_drivers()
         self.config = Config(LABBY_CONFIG_YAML)
-        server_mock: MagicMock = MagicMock()
-        server_mock.config = self.config
+        server: Server = Server()
+        server.config = self.config
 
         def _handle(msg: EncodedData) -> None:
-            response_bytes = ServerRequest.handle_from_msgpack(server_mock, msg)
+            response_bytes = ServerRequest.handle_from_msgpack(server, msg)
             self.req_mock.return_value.recv.return_value = response_bytes
 
         self.req_patch = patch("labby.server.Req0")
@@ -192,6 +192,7 @@ class ClientTest(TestCase):
             device_info, DeviceInfoResponse(device_type=None, is_connected=False),
         )
 
+    # FIXME: this test seems a bit flaky
     def test_run_sequence(self) -> None:
         SEQUENCE_CONTENTS = """
 ---
@@ -209,6 +210,10 @@ sequence:
             "2020-08-08"
         ):
             self.client.run_sequence("sequence/test.yml")
+            while True:
+                sequence_status = self.client.experiment_status().sequence_status
+                if sequence_status and sequence_status.is_finished():
+                    break
 
             makedirs.assert_called_with(PosixPath("output/test/"), exist_ok=True)
             self.assertEqual(len(output_0.write.call_args_list), 4)

@@ -134,5 +134,6 @@ class ExperimentRunner(threading.Thread):
             dataframe = self._run_experiment(experiment)
             output_dir = self._get_output_directory()
             os.makedirs(output_dir, exist_ok=True)
-            dataframe.to_csv(output_dir / f"{experiment.name}.csv", index=False)
+            with open(output_dir / f"{experiment.name}.csv", "w") as fd:
+                dataframe.to_csv(fd, index=False)
         self.pub.close()
