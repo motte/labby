@@ -27,7 +27,9 @@ setup(
     packages=find_packages(exclude=["contrib", "docs", "tests"]),
     python_requires=">=3.7",
     install_requires=[
-        "cffi==1.14.1",
+        "cffi==1.14.2",
+        "mashumaro==1.12",
+        "msgpack==1.0.0",
         "mypy-extensions==0.4.3",
         "numpy==1.19.1; python_version >= '3.6'",
         "pandas==1.1.0",
@@ -37,6 +39,7 @@ setup(
         "pyserial==3.4",
         "python-dateutil==2.8.1; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
         "pytz==2020.1",
+        "pyyaml==5.3.1",
         "ruamel.yaml==0.16.10",
         "ruamel.yaml.clib==0.2.0; python_version < '3.9' and platform_python_implementation == 'CPython'",
         "six==1.15.0; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
