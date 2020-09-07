@@ -1,3 +1,4 @@
+import time
 import wasabi
 from pynng import Sub0
 
@@ -36,6 +37,7 @@ class RunCommand(Command[RunArgumentParser]):
                         sequence_status = ExperimentSequenceStatus.from_msgpack(msg)
                         if sequence_status.experiments[index].is_finished():
                             break
+                        time.sleep(0)
                 wasabi.msg.good(f"Experiment {experiment.name}")
             runner.join()
 

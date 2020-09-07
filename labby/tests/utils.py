@@ -1,8 +1,9 @@
 import io
 import time
-from datetime import timedelta
 from builtins import open as open_orig
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
+from datetime import timedelta
+from time import sleep as sleep_orig
 from typing import Callable, Dict, Generator, Iterator, List, Optional, Tuple, TypeVar
 from unittest.mock import patch, mock_open, MagicMock, Mock
 
@@ -118,6 +119,7 @@ def patch_time(
         t: Ticker = Ticker()
 
         def _sleep(seconds: float) -> None:
+            sleep_orig(1e-10)
             frozen_time.tick(timedelta(seconds=seconds))
             t.tick()
 

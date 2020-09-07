@@ -2,6 +2,7 @@ import copy
 import os
 import sys
 import threading
+import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import (
@@ -298,7 +299,7 @@ class RunSequenceRequest(ServerRequest[None]):
 
         monitor.start()
         while not monitor.has_started:
-            pass
+            time.sleep(0)
         runner.start()
 
 

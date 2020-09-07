@@ -1,3 +1,4 @@
+import time
 import unittest
 from dataclasses import dataclass
 from pathlib import PosixPath
@@ -211,6 +212,7 @@ sequence:
                 sequence_status = self.client.experiment_status().sequence_status
                 if sequence_status and sequence_status.is_finished():
                     break
+                time.sleep(0)
 
             makedirs.assert_called_with(PosixPath("output/test/"), exist_ok=True)
             self.assertEqual(len(output_0.write.call_args_list), 4)
