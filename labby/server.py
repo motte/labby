@@ -227,8 +227,13 @@ class Server:
             self.config = Config(config_file.read())
 
     def start(self) -> ServerInfo:
-        child_pid = os.fork()
         address = _ADDRESS
+
+        existing_pid = self.get_existing_pid()
+        if existing_pid:
+            return ServerInfo(address=address, existing=True, pid=existing_pid)
+
+        child_pid = os.fork()
         if child_pid != 0:
             return ServerInfo(address=address, existing=False, pid=child_pid)
 
@@ -237,6 +242,14 @@ class Server:
 
         # pyre-ignore[7]: this never returns anything on the child process
         sys.exit(0)
+
+    @classmethod
+    def get_existing_pid(cls) -> Optional[int]:
+        try:
+            with open(".labby/pid", "r") as pid_file:
+                return int(pid_file.read())
+        except (FileNotFoundError, ValueError):
+            return None
 
     def set_experiment_sequence_status(
         self, experiment_sequence_status: ExperimentSequenceStatus,

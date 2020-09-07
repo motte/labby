@@ -71,6 +71,15 @@ class ServerTest(TestCase):
             with self.assertRaises(SystemExit):
                 server.start()
 
+    def test_existing_pid(self) -> None:
+        with labby_config(LABBY_CONFIG_YAML), patch_file_contents(
+            ".labby/pid", "12345"
+        ):
+            server = Server()
+            server_info = server.start()
+            self.assertTrue(server_info.existing)
+            self.assertEqual(server_info.pid, 12345)
+
 
 @dataclass(frozen=True)
 class OutputData(BaseOutputData):
