@@ -50,19 +50,32 @@ devices:
 
 class ServerTest(TestCase):
     @patch("os.fork", return_value=FAKE_PID)
-    def test_parent_process_on_start(self, _fork_mock: MagicMock) -> None:
-        with labby_config(LABBY_CONFIG_YAML):
+    @patch("os.makedirs")
+    def test_parent_process_on_start(
+        self, makedirs: MagicMock, _fork_mock: MagicMock
+    ) -> None:
+        with labby_config(LABBY_CONFIG_YAML), patch_file_contents(
+            ".labby/pid"
+        ) as pidfile:
             server = Server()
             server_info = server.start()
             self.assertFalse(server_info.existing)
             self.assertEqual(server_info.pid, FAKE_PID)
+            makedirs.assert_called_with(".labby", exist_ok=True)
+            pidfile.write.assert_called_once_with(str(FAKE_PID))
 
     @patch("os.fork", return_value=0)
+    @patch("os.makedirs")
+    @patch("os.remove")
     @patch("labby.server.Rep0")
     def test_child_process_on_start(
-        self, rep0_mock: MagicMock, _fork_mock: MagicMock
+        self,
+        rep0_mock: MagicMock,
+        remove_mock: MagicMock,
+        _makedirs: MagicMock,
+        _fork_mock: MagicMock,
     ) -> None:
-        with labby_config(LABBY_CONFIG_YAML):
+        with labby_config(LABBY_CONFIG_YAML), patch_file_contents(".labby/pid"):
             rep0_mock.return_value.__enter__.return_value.recv.return_value = (
                 b"HaltRequest:" + cast(bytes, HaltRequest().to_msgpack())
             )
@@ -70,6 +83,7 @@ class ServerTest(TestCase):
             server = Server()
             with self.assertRaises(SystemExit):
                 server.start()
+        remove_mock.assert_called_once_with(".labby/pid")
 
     def test_existing_pid(self) -> None:
         with labby_config(LABBY_CONFIG_YAML), patch_file_contents(

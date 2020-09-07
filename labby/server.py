@@ -82,7 +82,7 @@ class ServerRequest(Generic[TResponse], DataClassMessagePackMixin, ABC):
 @dataclass(frozen=True)
 class HaltRequest(ServerRequest[None]):
     def handle(self, server: "Server") -> None:
-        sys.exit(0)
+        server.stop()
 
 
 @dataclass(frozen=True)
@@ -234,6 +234,7 @@ class Server:
             return ServerInfo(address=address, existing=True, pid=existing_pid)
 
         child_pid = os.fork()
+        self._create_pid_file(child_pid)
         if child_pid != 0:
             return ServerInfo(address=address, existing=False, pid=child_pid)
 
@@ -243,6 +244,10 @@ class Server:
         # pyre-ignore[7]: this never returns anything on the child process
         sys.exit(0)
 
+    def stop(self) -> None:
+        self._delete_pid_file()
+        sys.exit(0)
+
     @classmethod
     def get_existing_pid(cls) -> Optional[int]:
         try:
@@ -250,6 +255,17 @@ class Server:
                 return int(pid_file.read())
         except (FileNotFoundError, ValueError):
             return None
+
+    def _create_pid_file(cls, pid: int) -> Optional[int]:
+        os.makedirs(".labby", exist_ok=True)
+        with open(".labby/pid", "w") as pid_file:
+            pid_file.write(str(pid))
+
+    def _delete_pid_file(self) -> None:
+        try:
+            os.remove(".labby/pid")
+        except OSError:
+            pass
 
     def set_experiment_sequence_status(
         self, experiment_sequence_status: ExperimentSequenceStatus,
