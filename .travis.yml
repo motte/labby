@@ -12,7 +12,7 @@ before_install:
   - export PIPENV_VENV_IN_PROJECT=1
 
 install:
-  - pip install -Iv pipenv==2020.6.2
+  - pip install -Iv pipenv==2020.8.13
   - pipenv install -d
 
 script:
