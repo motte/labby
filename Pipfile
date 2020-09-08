@@ -1,6 +1,3 @@
-[requires]
-python_version = '3.8'
-
 [packages]
 mashumaro = "1.12"
 pandas = "1.1.1"
