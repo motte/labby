@@ -7,7 +7,16 @@ from unittest import skip, TestCase
 from unittest.mock import call, patch, MagicMock
 
 from labby import cli
-from labby.server import DeviceStatus, ListDevicesResponse, Server, ServerInfo
+from labby.hw.core import DeviceType
+from labby.hw.core.power_supply import PowerSupplyMode
+from labby.server import (
+    DeviceInfoResponse,
+    DeviceStatus,
+    ListDevicesResponse,
+    PowerSupplyInfo,
+    Server,
+    ServerInfo,
+)
 from labby.experiment import (
     BaseInputParameters,
     BaseOutputData,
@@ -203,22 +212,40 @@ sequence:
             )
         self.assertEqual(rc, 0)
 
-    @skip("TODO")
     def test_invalid_device_info(self) -> None:
+        self.client_mock.device_info.return_value = DeviceInfoResponse(
+            device_type=None, is_connected=False
+        )
         with labby_config(LABBY_CONFIG):
             (rc, stdout, stderr) = self.main(["device-info", "foobar"])
         self.assertEqual(rc, 1)
         self.assertIn("[x] Unknown device foobar", stdout)
 
-    @skip("TODO")
     def test_available_device_info(self) -> None:
+        self.client_mock.device_info.return_value = DeviceInfoResponse(
+            device_type=DeviceType.POWER_SUPPLY,
+            is_connected=True,
+            power_supply_info=PowerSupplyInfo(
+                is_output_on=False,
+                mode=PowerSupplyMode.CONSTANT_VOLTAGE,
+                actual_current=0.0,
+                actual_voltage=0.0,
+                target_current=0.0,
+                target_voltage=0.0,
+            ),
+        )
         with labby_config(LABBY_CONFIG):
             (rc, stdout, stderr) = self.main(["device-info", "virtual-power-supply"])
         self.assertEqual(rc, 0)
         self.assertIn("Connection       [+] OK", stdout)
 
-    @skip("TODO")
     def test_device_that_cannot_be_opened(self) -> None:
+        self.client_mock.device_info.return_value = DeviceInfoResponse(
+            device_type=DeviceType.POWER_SUPPLY,
+            is_connected=False,
+            error_type="Unavailable",
+            error_message="Unavailable device",
+        )
         with patch(
             "labby.hw.virtual.power_supply.PowerSupply.open", side_effect=Exception
         ):
@@ -226,12 +253,5 @@ sequence:
                 (rc, stdout, stderr) = self.main(
                     ["device-info", "virtual-power-supply"]
                 )
-        self.assertEqual(rc, 0)
-        self.assertIn("Connection   [x] Error", stdout)
-
-    @skip("TODO")
-    def test_unavailable_device_info(self) -> None:
-        with labby_config(LABBY_CONFIG):
-            (rc, stdout, stderr) = self.main(["device-info", "broken-power-supply"])
         self.assertEqual(rc, 0)
         self.assertIn("Connection   [x] Error", stdout)
