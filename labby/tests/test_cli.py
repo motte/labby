@@ -7,7 +7,7 @@ from unittest import skip, TestCase
 from unittest.mock import call, patch, MagicMock
 
 from labby import cli
-from labby.server import Server, ServerInfo
+from labby.server import DeviceStatus, ListDevicesResponse, Server, ServerInfo
 from labby.experiment import (
     BaseInputParameters,
     BaseOutputData,
@@ -128,15 +128,26 @@ class CommandLineTest(TestCase):
         self.assertTrue("labby: error: argument command: invalid choice" in stderr)
         self.assertEqual(rc, 2)
 
-    @skip("TODO")
     def test_list_devices(self) -> None:
+        self.client_mock.list_devices.return_value = ListDevicesResponse(
+            devices=[DeviceStatus(name="virtual-power-supply", is_available=True)]
+        )
         with labby_config(LABBY_CONFIG):
             (rc, stdout, stderr) = self.main(["devices"])
         self.assertEqual(rc, 0)
         self.assertIn("[+] virtual-power-supply", stdout)
 
-    @skip("TODO")
     def test_list_unavailable_devices(self) -> None:
+        self.client_mock.list_devices.return_value = ListDevicesResponse(
+            devices=[
+                DeviceStatus(
+                    name="broken-power-supply",
+                    is_available=False,
+                    error_type="Unavailable",
+                    error_message="Device is unavailable",
+                )
+            ]
+        )
         with labby_config(LABBY_CONFIG):
             (rc, stdout, stderr) = self.main(["devices"])
         self.assertEqual(rc, 0)

@@ -7,15 +7,14 @@ class DevicesCommand(Command[BaseArgumentParser]):
     TRIGGER: str = "devices"
 
     def main(self, args: BaseArgumentParser) -> int:
+        list_devices_response = self.client.list_devices()
         msg.divider("Registered Devices")
-        for device in self.config.devices:
-            try:
-                device.open()
-                device.test_connection()
+        for device in list_devices_response.devices:
+            if device.is_available:
                 msg.good(f"{device.name}")
-            except Exception as ex:
+            else:
                 msg.fail(f"{device.name}:")
-                msg.text(f"  {color(type(ex).__name__, bold=True)}: {str(ex)}")
-            finally:
-                device.close()
+                msg.text(
+                    f"  {color(device.error_type, bold=True)}: {device.error_message}"
+                )
         return 0
