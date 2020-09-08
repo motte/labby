@@ -68,8 +68,7 @@ class DeviceInfoCommand(Command[DeviceInfoArguments]):
             )
             return 1
 
-        # TODO: make this vary depending on device type
-        msg.divider(f"{args.device_name} (Power Supply)")
+        msg.divider(f"{args.device_name} (device_info.device_type.friendly_name)")
 
         if device_info.is_connected:
             msg.table(

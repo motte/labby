@@ -11,6 +11,12 @@ ALL_DRIVERS: Dict[str, Type["Device"]] = {}
 class DeviceType(Enum):
     POWER_SUPPLY = "POWER_SUPPLY"
 
+    @property
+    def friendly_name(self) -> str:
+        if self == DeviceType.POWER_SUPPLY:
+            return "Power Supply"
+        raise NotImplementedError
+
 
 class Device(ABC):
     name: str = "unnamed device"
