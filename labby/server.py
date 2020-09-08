@@ -245,7 +245,6 @@ class Server:
         sys.exit(0)
 
     def stop(self) -> None:
-        self._delete_pid_file()
         sys.exit(0)
 
     @classmethod
@@ -278,11 +277,14 @@ class Server:
             return copy.deepcopy(self._experiment_sequence_status)
 
     def _run(self, socket: Rep0) -> None:
-        while True:
-            message = socket.recv()
-            response = ServerRequest.handle_from_msgpack(self, message)
-            if response is not None:
-                socket.send(response)
+        try:
+            while True:
+                message = socket.recv()
+                response = ServerRequest.handle_from_msgpack(self, message)
+                if response is not None:
+                    socket.send(response)
+        finally:
+            self._delete_pid_file()
 
 
 class ExperimentMonitor(threading.Thread):
