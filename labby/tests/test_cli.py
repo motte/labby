@@ -109,6 +109,11 @@ class CommandLineTest(TestCase):
         self.assertEqual(rc, 0)
         self.assertEqual(stdout, "Hello world\n")
 
+    def test_stop(self) -> None:
+        with labby_config(LABBY_CONFIG):
+            (rc, stdout, _stderr) = self.main(["stop"])
+        self.assertEqual(rc, 0)
+
     def test_command_is_required(self) -> None:
         (rc, stdout, stderr) = self.main([])
         self.assertEqual(rc, 2)
