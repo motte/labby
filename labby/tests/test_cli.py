@@ -11,6 +11,7 @@ from labby.hw.core.power_supply import PowerSupplyMode
 from labby.server import (
     DeviceInfoResponse,
     DeviceStatus,
+    ExperimentStatusResponse,
     ListDevicesResponse,
     PowerSupplyInfo,
     Server,
@@ -20,6 +21,11 @@ from labby.experiment import (
     BaseInputParameters,
     BaseOutputData,
     Experiment,
+)
+from labby.experiment.runner import (
+    ExperimentSequenceStatus,
+    ExperimentStatus,
+    ExperimentState,
 )
 from labby.tests.utils import (
     captured_output,
@@ -224,3 +230,37 @@ class CommandLineTest(TestCase):
         self.client_mock.device_info.assert_called_once_with("virtual-power-supply")
         self.assertEqual(rc, 0)
         self.assertIn("Connection   [x] Error", stdout)
+
+    def test_experiment_status_without_any_experiments_running(self) -> None:
+        self.client_mock.experiment_status.return_value = ExperimentStatusResponse(
+            sequence_status=None,
+        )
+        with labby_config(LABBY_CONFIG):
+            (rc, stdout, stderr) = self.main(["status"])
+        self.client_mock.experiment_status.assert_called_once_with()
+        self.assertEqual(rc, 0)
+        self.assertEqual(stdout, "There are no experiments running.\n")
+
+    def test_experiment_status(self) -> None:
+        self.client_mock.experiment_status.return_value = ExperimentStatusResponse(
+            sequence_status=ExperimentSequenceStatus(
+                experiments=[
+                    ExperimentStatus(
+                        name="exp001", state=ExperimentState.FINISHED, progress=1.0
+                    ),
+                    ExperimentStatus(
+                        name="exp002", state=ExperimentState.RUNNING, progress=0.25
+                    ),
+                    ExperimentStatus(
+                        name="exp003", state=ExperimentState.NOT_STARTED, progress=0.0
+                    ),
+                ]
+            ),
+        )
+        with labby_config(LABBY_CONFIG):
+            (rc, stdout, stderr) = self.main(["status"])
+        self.client_mock.experiment_status.assert_called_once_with()
+        self.assertEqual(rc, 0)
+        self.assertIn("[+] exp001", stdout)
+        self.assertIn("▶ exp002 (25%)", stdout)
+        self.assertIn("  exp003", stdout)
