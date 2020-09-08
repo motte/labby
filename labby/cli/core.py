@@ -5,7 +5,7 @@ from typing import Dict, Generic, Sequence, Type, TypeVar, get_args
 from tap import Tap
 
 from labby.config import Config
-from labby.utils import auto_discover_drivers
+from labby.server import Client, Server
 
 
 class BaseArgumentParser(Tap):
@@ -21,9 +21,11 @@ ALL_COMMANDS: Dict[str, Type[Command[BaseArgumentParser]]] = {}
 class Command(Generic[TArgumentParser], ABC):
     TRIGGER: str
     config: Config
+    client: Client
 
-    def __init__(self, config: Config) -> None:
+    def __init__(self, config: Config, client: Client) -> None:
         self.config = config
+        self.client = client
 
     def __init_subclass__(cls: Type[Command[BaseArgumentParser]]) -> None:
         ALL_COMMANDS[f"{cls.TRIGGER}"] = cls
@@ -35,12 +37,12 @@ class Command(Generic[TArgumentParser], ABC):
         args_klass = get_args(command_klass.__orig_bases__[0])[0]
         args = args_klass(prog=f"labby {trigger}").parse_args(argv)
 
-        auto_discover_drivers()
-        with open(args.config, "r") as config_file:
-            config = Config(config_file.read())
+        server = Server(args.config)
+        server_info = server.start()
+        client = Client(server_info.address)
 
         # pyre-ignore[45]: cannot instantiate Command with abstract method
-        command = command_klass(config)
+        command = command_klass(server.config, client)
         return command.main(args)
 
     @classmethod

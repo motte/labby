@@ -5,5 +5,5 @@ class HelloCommand(Command[BaseArgumentParser]):
     TRIGGER: str = "hello"
 
     def main(self, args: BaseArgumentParser) -> int:
-        print("Hello world")
+        print(self.client.hello())
         return 0

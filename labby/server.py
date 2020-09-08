@@ -234,8 +234,8 @@ class Server:
             return ServerInfo(address=address, existing=True, pid=existing_pid)
 
         child_pid = os.fork()
-        self._create_pid_file(child_pid)
         if child_pid != 0:
+            self._create_pid_file(child_pid)
             return ServerInfo(address=address, existing=False, pid=child_pid)
 
         with Rep0(listen=address) as rep:
