@@ -1,10 +1,9 @@
 import re
 import unittest
 from dataclasses import dataclass
-from pathlib import PosixPath
 from typing import List, Tuple
-from unittest import skip, TestCase
-from unittest.mock import call, patch, MagicMock
+from unittest import TestCase
+from unittest.mock import patch, MagicMock
 
 from labby import cli
 from labby.hw.core import DeviceType
@@ -27,8 +26,6 @@ from labby.tests.utils import (
     cli_arguments,
     environment_variable,
     labby_config,
-    patch_file_contents,
-    patch_time,
 )
 
 
@@ -162,7 +159,6 @@ class CommandLineTest(TestCase):
         self.assertEqual(rc, 0)
         self.assertIn("[x] broken-power-supply", stdout)
 
-    @skip("TODO")
     def test_run_without_sequence_file(self) -> None:
         with labby_config(LABBY_CONFIG):
             (rc, stdout, stderr) = self.main(["run"])
@@ -174,43 +170,13 @@ class CommandLineTest(TestCase):
             in stderr
         )
 
-    @skip("TODO")
     def test_run_sequence(self) -> None:
-        SEQUENCE_CONTENTS = """
----
-sequence:
-  - experiment_type: labby.tests.test_cli.TestExperiment
-  - experiment_type: labby.tests.test_cli.TestExperiment
-"""
-        with labby_config(LABBY_CONFIG), patch_file_contents(
-            "sequence/test.yml", SEQUENCE_CONTENTS
-        ), patch_file_contents("output/test/000.csv") as output_0, patch_file_contents(
-            "output/test/001.csv"
-        ) as output_1, patch(
-            "os.makedirs"
-        ) as makedirs, patch_time(
-            "2020-08-08"
-        ):
+        with labby_config(LABBY_CONFIG):
             (rc, stdout, stderr) = self.main(["run", "sequence/test.yml"])
-            makedirs.assert_called_with(PosixPath("output/test/"), exist_ok=True)
-            self.assertEqual(len(output_0.write.call_args_list), 4)
-            output_0.write.assert_has_calls(
-                [
-                    call("seconds,voltage\n"),
-                    call("0.0,15.0\n"),
-                    call("0.5,15.0\n"),
-                    call("1.0,15.0\n"),
-                ]
-            )
-            output_1.write.assert_has_calls(
-                [
-                    call("seconds,voltage\n"),
-                    call("0.0,15.0\n"),
-                    call("0.5,15.0\n"),
-                    call("1.0,15.0\n"),
-                ]
-            )
+        self.client_mock.run_sequence.assert_called_once_with("sequence/test.yml")
         self.assertEqual(rc, 0)
+        self.assertEqual(stdout, "")
+        self.assertEqual(stderr, "")
 
     def test_invalid_device_info(self) -> None:
         self.client_mock.device_info.return_value = DeviceInfoResponse(
