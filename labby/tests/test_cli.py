@@ -218,6 +218,7 @@ sequence:
         )
         with labby_config(LABBY_CONFIG):
             (rc, stdout, stderr) = self.main(["device-info", "foobar"])
+        self.client_mock.device_info.assert_called_once_with("foobar")
         self.assertEqual(rc, 1)
         self.assertIn("[x] Unknown device foobar", stdout)
 
@@ -236,6 +237,7 @@ sequence:
         )
         with labby_config(LABBY_CONFIG):
             (rc, stdout, stderr) = self.main(["device-info", "virtual-power-supply"])
+        self.client_mock.device_info.assert_called_once_with("virtual-power-supply")
         self.assertEqual(rc, 0)
         self.assertIn("Connection       [+] OK", stdout)
 
@@ -253,5 +255,6 @@ sequence:
                 (rc, stdout, stderr) = self.main(
                     ["device-info", "virtual-power-supply"]
                 )
+        self.client_mock.device_info.assert_called_once_with("virtual-power-supply")
         self.assertEqual(rc, 0)
         self.assertIn("Connection   [x] Error", stdout)
