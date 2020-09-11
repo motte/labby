@@ -347,11 +347,18 @@ class ExperimentStatusRequest(ServerRequest[ExperimentStatusResponse]):
         )
 
 
+DEFAULT_CLIENT_TIMEOUT = 1000
+
+
 class Client:
     req: Req0
 
     def __init__(self, address: str) -> None:
-        self.req = Req0(dial=address)
+        self.req = Req0(
+            dial=address,
+            recv_timeout=DEFAULT_CLIENT_TIMEOUT,
+            send_timeout=DEFAULT_CLIENT_TIMEOUT,
+        )
 
     def _send(self, request: ServerRequest[None]) -> None:
         self.req.send(
