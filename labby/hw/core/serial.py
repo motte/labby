@@ -8,13 +8,15 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, Optional, Type, TypeVar, Union
 
+from pyre_extensions import none_throws
+
 from serial import PARITY_NONE, Serial
 
 
 class SerialDevice(ABC):
     WAIT_TIME_AFTER_WRITE_MS: float = 0.0
 
-    serial_controller: "SerialController"
+    _serial_controller: Optional["SerialController"]
 
     def __init__(
         self,
@@ -26,15 +28,21 @@ class SerialDevice(ABC):
         xonxoff: bool = False,
         timeout_ms: Optional[float] = None,
     ) -> None:
-        self.serial_controller = SerialController.get_or_create(
-            port=port,
-            baudrate=baudrate,
-            bytesize=bytesize,
-            parity=parity,
-            stopbits=stopbits,
-            xonxoff=xonxoff,
-            timeout_ms=timeout_ms,
-            wait_time_after_write_ms=self.WAIT_TIME_AFTER_WRITE_MS,
+        self.port = port
+        self.baudrate = baudrate
+        self.bytesize = bytesize
+        self.parity = parity
+        self.stopbits = stopbits
+        self.xonxoff = xonxoff
+        self.timeout_ms = timeout_ms
+
+        self._serial_controller = None
+
+    @property
+    def serial_controller(self) -> "SerialController":
+        return none_throws(
+            self._serial_controller,
+            "Attempted to access SerialDevice without opening it first",
         )
 
     def _write(self, msg: bytes) -> None:
@@ -44,8 +52,19 @@ class SerialDevice(ABC):
         return self.serial_controller.query(msg)
 
     def open(self) -> None:
-        if not self.serial_controller.is_alive():
-            self.serial_controller.start()
+        serial_controller = SerialController.get_or_create(
+            port=self.port,
+            baudrate=self.baudrate,
+            bytesize=self.bytesize,
+            parity=self.parity,
+            stopbits=self.stopbits,
+            xonxoff=self.xonxoff,
+            timeout_ms=self.timeout_ms,
+            wait_time_after_write_ms=self.WAIT_TIME_AFTER_WRITE_MS,
+        )
+        if not serial_controller.is_alive():
+            serial_controller.start()
+        self._serial_controller = serial_controller
         self._on_open()
 
     def close(self) -> None:

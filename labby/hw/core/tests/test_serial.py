@@ -71,6 +71,19 @@ class SerialDeviceTest(TestCase):
 
 class SerialControllerTest(TestCase):
     @fake_serial_port
+    def test_device_reuse(self, serial_port_mock: Mock) -> None:
+        self.assertEqual(len(SERIAL_CONTROLLERS), 0)
+        power_supply = TestSerialPowerSupply("/dev/ttyUSB0", 9600)
+        power_supply.open()
+        self.assertEqual(len(SERIAL_CONTROLLERS), 1)
+        power_supply.close()
+        self.assertEqual(len(SERIAL_CONTROLLERS), 0)
+        power_supply.open()
+        self.assertEqual(len(SERIAL_CONTROLLERS), 1)
+        power_supply.close()
+        self.assertEqual(len(SERIAL_CONTROLLERS), 0)
+
+    @fake_serial_port
     def test_serial_controllers_are_reused(self, _serial_port_mock: Mock) -> None:
         self.assertEqual(len(SERIAL_CONTROLLERS), 0)
         with TestSerialPowerSupply("/dev/ttyUSB0", 9600):
