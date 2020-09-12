@@ -9,6 +9,7 @@ from unittest.mock import MagicMock, call, patch
 from mashumaro.serializer.msgpack import EncodedData
 
 from labby.client import Client
+from labby.config import Config
 from labby.experiment import (
     BaseInputParameters,
     BaseOutputData,
@@ -17,10 +18,10 @@ from labby.experiment import (
 from labby.hw.core import DeviceType
 from labby.hw.core.power_supply import PowerSupplyMode
 from labby.server import Server, ServerRequest
-from labby.server.requests.halt import HaltRequest
 from labby.server.requests.device_info import DeviceInfoResponse, PowerSupplyInfo
+from labby.server.requests.halt import HaltRequest
 from labby.server.requests.list_devices import DeviceStatus, ListDevicesResponse
-from labby.tests.utils import labby_config, patch_file_contents, patch_time
+from labby.tests.utils import patch_file_contents, patch_time
 from labby.utils import auto_discover_drivers
 
 
@@ -49,10 +50,9 @@ class ServerTest(TestCase):
     def test_parent_process_on_start(
         self, makedirs: MagicMock, _fork_mock: MagicMock
     ) -> None:
-        with labby_config(LABBY_CONFIG_YAML), patch_file_contents(
-            ".labby/pid"
-        ) as pidfile:
-            server = Server()
+        config = Config(LABBY_CONFIG_YAML)
+        with patch_file_contents(".labby/pid") as pidfile:
+            server = Server(config)
             server_info = server.start()
             self.assertFalse(server_info.existing)
             self.assertEqual(server_info.pid, FAKE_PID)
@@ -70,21 +70,21 @@ class ServerTest(TestCase):
         _makedirs: MagicMock,
         _fork_mock: MagicMock,
     ) -> None:
-        with labby_config(LABBY_CONFIG_YAML), patch_file_contents(".labby/pid"):
+        config = Config(LABBY_CONFIG_YAML)
+        with patch_file_contents(".labby/pid"):
             rep0_mock.return_value.__enter__.return_value.recv.return_value = (
                 b"HaltRequest:" + cast(bytes, HaltRequest().to_msgpack())
             )
 
-            server = Server()
+            server = Server(config)
             with self.assertRaises(SystemExit):
                 server.start()
         remove_mock.assert_called_once_with(".labby/pid")
 
     def test_existing_pid(self) -> None:
-        with labby_config(LABBY_CONFIG_YAML), patch_file_contents(
-            ".labby/pid", "12345"
-        ):
-            server = Server()
+        config = Config(LABBY_CONFIG_YAML)
+        with patch_file_contents(".labby/pid", "12345"):
+            server = Server(config)
             server_info = server.start()
             self.assertTrue(server_info.existing)
             self.assertEqual(server_info.pid, 12345)
@@ -128,8 +128,8 @@ class ClientTest(TestCase):
 
     def setUp(self) -> None:
         auto_discover_drivers()
-        with labby_config(LABBY_CONFIG_YAML):
-            server: Server = Server()
+        config: Config = Config(LABBY_CONFIG_YAML)
+        server: Server = Server(config)
 
         def _handle(msg: EncodedData) -> None:
             response_bytes = ServerRequest.handle_from_msgpack(server, msg)

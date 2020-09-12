@@ -13,5 +13,5 @@ class RunCommand(Command[RunArgumentParser]):
     TRIGGER: str = "run"
 
     def main(self, args: RunArgumentParser) -> int:
-        self.client.run_sequence(args.sequence_filename)
+        self.get_client().run_sequence(args.sequence_filename)
         return 0

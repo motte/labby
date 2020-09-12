@@ -9,7 +9,7 @@ class StatusCommand(Command[BaseArgumentParser]):
     TRIGGER: str = "status"
 
     def main(self, args: BaseArgumentParser) -> int:
-        response: ExperimentStatusResponse = self.client.experiment_status()
+        response: ExperimentStatusResponse = self.get_client().experiment_status()
         sequence_status = response.sequence_status
 
         if sequence_status is None:

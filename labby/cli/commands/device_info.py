@@ -60,7 +60,7 @@ class DeviceInfoCommand(Command[DeviceInfoArguments]):
         raise Exception(f"Unknown device type {type(device)}")
 
     def main(self, args: DeviceInfoArguments) -> int:
-        device_info = self.client.device_info(args.device_name)
+        device_info = self.get_client().device_info(args.device_name)
         if device_info.device_type is None:
             msg.fail(
                 f"Unknown device {args.device_name}",

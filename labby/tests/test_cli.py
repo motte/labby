@@ -27,6 +27,7 @@ from labby.tests.utils import (
     cli_arguments,
     environment_variable,
     labby_config,
+    patch_file_contents,
 )
 
 
@@ -116,9 +117,16 @@ class CommandLineTest(TestCase):
         self.assertEqual(rc, 0)
         self.assertEqual(stdout, "Hello world\n")
 
-    def test_stop(self) -> None:
+    @patch("os.fork", return_value=42)
+    @patch("os.makedirs")
+    def test_server_start(self, _makedirs: MagicMock, _fork_mock: MagicMock) -> None:
+        with labby_config(LABBY_CONFIG), patch_file_contents(".labby/pid"):
+            (rc, stdout, _stderr) = self.main(["server", "start"])
+        self.assertEqual(rc, 0)
+
+    def test_server_stop(self) -> None:
         with labby_config(LABBY_CONFIG):
-            (rc, stdout, _stderr) = self.main(["stop"])
+            (rc, stdout, _stderr) = self.main(["server", "stop"])
         self.assertEqual(rc, 0)
 
     def test_command_is_required(self) -> None:

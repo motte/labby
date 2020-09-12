@@ -21,11 +21,10 @@ from pynng import Rep0
 from labby.config import Config
 from labby.experiment.runner import ExperimentSequenceStatus
 from labby.server.logging import logger
-from labby.utils import auto_discover_drivers
 from labby.utils.typing import get_args
 
 
-_ADDRESS = "tcp://127.0.0.1:14337"
+DEFAULT_ADDRESS = "tcp://127.0.0.1:14337"
 
 
 @dataclass(frozen=True)
@@ -82,17 +81,13 @@ class Server:
     _experiment_sequence_status_lock: threading.Lock
     _experiment_sequence_status: Optional[ExperimentSequenceStatus]
 
-    def __init__(self, config_filename: str = "labby.yml") -> None:
-        self.config_filename = config_filename
+    def __init__(self, config: Config) -> None:
+        self.config = config
         self._experiment_sequence_status = None
         self._experiment_sequence_status_lock = threading.Lock()
 
-        auto_discover_drivers()
-        with open(self.config_filename, "r") as config_file:
-            self.config = Config(config_file.read())
-
     def start(self) -> ServerInfo:
-        address = _ADDRESS
+        address = DEFAULT_ADDRESS
 
         existing_pid = self.get_existing_pid()
         if existing_pid:

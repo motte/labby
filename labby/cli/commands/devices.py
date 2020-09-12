@@ -7,7 +7,7 @@ class DevicesCommand(Command[BaseArgumentParser]):
     TRIGGER: str = "devices"
 
     def main(self, args: BaseArgumentParser) -> int:
-        list_devices_response = self.client.list_devices()
+        list_devices_response = self.get_client().list_devices()
         msg.divider("Registered Devices")
         for device in list_devices_response.devices:
             if device.is_available:
