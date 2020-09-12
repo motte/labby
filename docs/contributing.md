@@ -11,10 +11,6 @@ poetry install
 ```
 poetry shell
 ```
-4. Install labby locally on the virtual environment in editable mode:
-```
-pip install -e .
-```
 
 Your development environment should be good to go from here. Now you can
 use `labby` as usual from the command-line while making changes to `labby`
