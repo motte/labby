@@ -8,15 +8,10 @@ from unittest.mock import patch, MagicMock
 from labby import cli
 from labby.hw.core import DeviceType
 from labby.hw.core.power_supply import PowerSupplyMode
-from labby.server import (
-    DeviceInfoResponse,
-    DeviceStatus,
-    ExperimentStatusResponse,
-    ListDevicesResponse,
-    PowerSupplyInfo,
-    Server,
-    ServerInfo,
-)
+from labby.server import Server, ServerInfo
+from labby.server.requests.device_info import DeviceInfoResponse, PowerSupplyInfo
+from labby.server.requests.experiment_status import ExperimentStatusResponse
+from labby.server.requests.list_devices import DeviceStatus, ListDevicesResponse
 from labby.experiment import (
     BaseInputParameters,
     BaseOutputData,

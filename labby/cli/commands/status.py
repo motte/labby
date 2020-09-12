@@ -2,7 +2,7 @@ from wasabi import msg
 
 from labby.cli.core import BaseArgumentParser, Command
 from labby.experiment.runner import ExperimentState
-from labby.server import ExperimentStatusResponse
+from labby.server.requests.experiment_status import ExperimentStatusResponse
 
 
 class StatusCommand(Command[BaseArgumentParser]):

@@ -2,19 +2,16 @@ from typing import cast
 
 from pynng import Req0
 
-from labby.server import (
-    DeviceInfoRequest,
-    DeviceInfoResponse,
+from labby.server import ServerRequest, TNonOptionalResponse
+from labby.server.requests.device_info import DeviceInfoRequest, DeviceInfoResponse
+from labby.server.requests.experiment_status import (
     ExperimentStatusRequest,
     ExperimentStatusResponse,
-    HaltRequest,
-    HelloWorldRequest,
-    ListDevicesRequest,
-    ListDevicesResponse,
-    RunSequenceRequest,
-    ServerRequest,
-    TNonOptionalResponse,
 )
+from labby.server.requests.halt import HaltRequest
+from labby.server.requests.hello import HelloWorldRequest
+from labby.server.requests.list_devices import ListDevicesRequest, ListDevicesResponse
+from labby.server.requests.run_sequence import RunSequenceRequest
 
 
 DEFAULT_CLIENT_TIMEOUT = 1000

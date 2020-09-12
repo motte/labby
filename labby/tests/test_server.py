@@ -16,15 +16,10 @@ from labby.experiment import (
 )
 from labby.hw.core import DeviceType
 from labby.hw.core.power_supply import PowerSupplyMode
-from labby.server import (
-    DeviceInfoResponse,
-    DeviceStatus,
-    HaltRequest,
-    ListDevicesResponse,
-    PowerSupplyInfo,
-    Server,
-    ServerRequest,
-)
+from labby.server import Server, ServerRequest
+from labby.server.requests.halt import HaltRequest
+from labby.server.requests.device_info import DeviceInfoResponse, PowerSupplyInfo
+from labby.server.requests.list_devices import DeviceStatus, ListDevicesResponse
 from labby.tests.utils import labby_config, patch_file_contents, patch_time
 from labby.utils import auto_discover_drivers
 

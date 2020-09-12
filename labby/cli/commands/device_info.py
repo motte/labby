@@ -6,7 +6,7 @@ from wasabi import color, msg, Printer
 from labby.cli.core import BaseArgumentParser, Command
 from labby.hw.core import DeviceType
 from labby.hw.core.power_supply import PowerSupplyMode
-from labby.server import DeviceInfoResponse, PowerSupplyInfo
+from labby.server.requests.device_info import DeviceInfoResponse, PowerSupplyInfo
 
 
 render = Printer(no_print=True)
