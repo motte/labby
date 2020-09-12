@@ -20,6 +20,7 @@ from pynng import Rep0
 
 from labby.config import Config
 from labby.experiment.runner import ExperimentSequenceStatus
+from labby.server.logging import logger
 from labby.utils import auto_discover_drivers
 from labby.utils.typing import get_args
 
@@ -62,9 +63,11 @@ class ServerRequest(Generic[TResponse], DataClassMessagePackMixin, ABC):
         cls, server: "Server", msg: EncodedData
     ) -> Optional[EncodedData]:
         (request_type, msg) = cast(bytes, msg).split(b":", 1)
+        logger.info(f"Received request {request_type.decode()}")
         klass = _ALL_REQUEST_TYPES[request_type.decode()]
         request = klass.from_msgpack(msg)
         response = request.handle(server)
+        logger.debug(f"Prepared response of type {type(response).__name__}")
         if response is None:
             return None
         return response.to_msgpack()
@@ -97,6 +100,7 @@ class Server:
 
         child_pid = os.fork()
         if child_pid != 0:
+            logger.info(f"Started server (pid: {child_pid}) on address {address}")
             self._create_pid_file(child_pid)
             return ServerInfo(address=address, existing=False, pid=child_pid)
 
@@ -107,6 +111,7 @@ class Server:
         sys.exit(0)
 
     def stop(self) -> None:
+        logger.info(f"Stopping server (pid: {os.getpid()})")
         sys.exit(0)
 
     @classmethod
@@ -142,9 +147,12 @@ class Server:
     def _run(self, socket: Rep0) -> None:
         try:
             while True:
+                logger.info("Waiting for requests...")
                 message = socket.recv()
                 response = ServerRequest.handle_from_msgpack(self, message)
                 if response is not None:
+                    logger.debug("Sending response back to client")
                     socket.send(response)
+                    logger.debug("Sent response")
         finally:
             self._delete_pid_file()
