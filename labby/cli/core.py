@@ -4,8 +4,9 @@ from typing import Dict, Generic, Sequence, Type, TypeVar, get_args
 
 from tap import Tap
 
+from labby.client import Client
 from labby.config import Config
-from labby.server import Client, Server
+from labby.server import Server
 
 
 class BaseArgumentParser(Tap):

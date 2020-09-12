@@ -8,6 +8,7 @@ from unittest.mock import MagicMock, call, patch
 
 from mashumaro.serializer.msgpack import EncodedData
 
+from labby.client import Client
 from labby.experiment import (
     BaseInputParameters,
     BaseOutputData,
@@ -16,7 +17,6 @@ from labby.experiment import (
 from labby.hw.core import DeviceType
 from labby.hw.core.power_supply import PowerSupplyMode
 from labby.server import (
-    Client,
     DeviceInfoResponse,
     DeviceStatus,
     HaltRequest,
@@ -140,7 +140,7 @@ class ClientTest(TestCase):
             response_bytes = ServerRequest.handle_from_msgpack(server, msg)
             self.req_mock.return_value.recv.return_value = response_bytes
 
-        self.req_patch = patch("labby.server.Req0")
+        self.req_patch = patch("labby.client.Req0")
         self.req_mock = self.req_patch.start()
         self.req_mock.return_value.send.side_effect = _handle
 
