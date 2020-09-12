@@ -2,6 +2,7 @@
 name = "labby"
 version = "0.0.1"
 description = "An utility for controlling laboratory equipment"
+license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/luizribeiro/labby/"
 repository = "https://github.com/luizribeiro/labby/"
