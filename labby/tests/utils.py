@@ -94,7 +94,8 @@ def environment_variable(name: str, value: str) -> Iterator[None]:
 
 @contextmanager
 def patch_time(
-    start_time: str, ticker: Optional[Generator[float, None, None]] = None,
+    start_time: str,
+    ticker: Optional[Generator[float, None, None]] = None,
 ) -> Iterator[None]:
     def patched_freeze_time(start_time: str) -> freezegun.api._freeze_time:
         # see https://github.com/spulec/freezegun/issues/307

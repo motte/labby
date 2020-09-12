@@ -130,28 +130,36 @@ class ExperimentRunnerTest(TestCase):
                     ExperimentSequenceStatus(
                         experiments=[
                             ExperimentStatus(
-                                name="000", state=ExperimentState.RUNNING, progress=0.0,
+                                name="000",
+                                state=ExperimentState.RUNNING,
+                                progress=0.0,
                             )
                         ]
                     ),
                     ExperimentSequenceStatus(
                         experiments=[
                             ExperimentStatus(
-                                name="000", state=ExperimentState.RUNNING, progress=0.0,
+                                name="000",
+                                state=ExperimentState.RUNNING,
+                                progress=0.0,
                             )
                         ]
                     ),
                     ExperimentSequenceStatus(
                         experiments=[
                             ExperimentStatus(
-                                name="000", state=ExperimentState.RUNNING, progress=0.5,
+                                name="000",
+                                state=ExperimentState.RUNNING,
+                                progress=0.5,
                             )
                         ]
                     ),
                     ExperimentSequenceStatus(
                         experiments=[
                             ExperimentStatus(
-                                name="000", state=ExperimentState.RUNNING, progress=1.0,
+                                name="000",
+                                state=ExperimentState.RUNNING,
+                                progress=1.0,
                             )
                         ]
                     ),

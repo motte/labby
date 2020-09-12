@@ -267,7 +267,8 @@ class Server:
             pass
 
     def set_experiment_sequence_status(
-        self, experiment_sequence_status: ExperimentSequenceStatus,
+        self,
+        experiment_sequence_status: ExperimentSequenceStatus,
     ) -> None:
         with self._experiment_sequence_status_lock:
             self._experiment_sequence_status = copy.deepcopy(experiment_sequence_status)

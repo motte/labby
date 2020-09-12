@@ -25,7 +25,11 @@ class ZUP(SerialDevice, PowerSupply):
 
     def __init__(self, port: str, baudrate: int, address: int = 1) -> None:
         SerialDevice.__init__(
-            self, port, baudrate, xonxoff=True, timeout_ms=TIMEOUT_MS,
+            self,
+            port,
+            baudrate,
+            xonxoff=True,
+            timeout_ms=TIMEOUT_MS,
         )
         self.address = address
 

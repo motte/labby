@@ -75,7 +75,9 @@ class ExperimentRunner(threading.Thread):
             experiment_index = self.sequence.experiments.index(experiment)
             progress = relative_time / experiment.DURATION_IN_SECONDS
             self.sequence_status.experiments[experiment_index] = ExperimentStatus(
-                name=experiment.name, state=state, progress=progress,
+                name=experiment.name,
+                state=state,
+                progress=progress,
             )
 
             msg = Message(self.sequence_status.to_msgpack())
