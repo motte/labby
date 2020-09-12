@@ -168,7 +168,6 @@ class DeviceInfoRequest(ServerRequest[DeviceInfoResponse]):
         )
 
     def _get_device_info(self, device: Device) -> ServerResponseComponent:
-        device.open()
         device.test_connection()
 
         if device.device_type == DeviceType.POWER_SUPPLY:
@@ -192,6 +191,7 @@ class DeviceInfoRequest(ServerRequest[DeviceInfoResponse]):
             return DeviceInfoResponse(device_type=None, is_connected=False)
 
         try:
+            device.open()
             device_info = self._get_device_info(device)
             is_connected = True
             error_type = None
@@ -201,6 +201,8 @@ class DeviceInfoRequest(ServerRequest[DeviceInfoResponse]):
             error_type = type(ex).__name__
             error_message = str(ex)
             is_connected = False
+        finally:
+            device.close()
 
         return DeviceInfoResponse(
             device_type=device.device_type,
