@@ -1,12 +1,13 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Dict, Generic, Sequence, Type, TypeVar, get_args
+from typing import Dict, Generic, Sequence, Type, TypeVar
 
 from tap import Tap
 
 from labby.client import Client
 from labby.config import Config
 from labby.server import Server
+from labby.utils.typing import get_args
 
 
 class BaseArgumentParser(Tap):

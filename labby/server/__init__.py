@@ -12,7 +12,6 @@ from typing import (
     TypeVar,
     Union,
     cast,
-    get_args,
 )
 
 from mashumaro import DataClassMessagePackMixin
@@ -22,6 +21,7 @@ from pynng import Rep0
 from labby.config import Config
 from labby.experiment.runner import ExperimentSequenceStatus
 from labby.utils import auto_discover_drivers
+from labby.utils.typing import get_args
 
 
 _ADDRESS = "tcp://127.0.0.1:14337"

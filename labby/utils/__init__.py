@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 def auto_discover_drivers() -> None:
-    HW_PATH = Path(__file__).parent / "hw"
+    HW_PATH = Path(__file__).parent.parent / "hw"
     for f in HW_PATH.glob("**/*.py"):
         if "__" in f.stem or "test" in f.stem or f.parent.stem == "hw":
             continue

@@ -1,12 +1,13 @@
 import inspect
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Dict, Generic, Optional, Type, TypeVar, Sequence, get_args
+from typing import Any, Dict, Generic, Optional, Type, TypeVar, Sequence
 
 from pyre_extensions import none_throws
 
 from labby.config import Config
 from labby.hw.core.power_supply import PowerSupply
+from labby.utils.typing import get_args
 
 
 @dataclass(frozen=True)
