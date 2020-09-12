@@ -5,11 +5,11 @@ In order to get your development environment setup working:
 1. Start by forking this repository and checking it out.
 2. Install all the development dependencies with:
 ```
-pipenv install -d
+poetry install
 ```
 3. Enter the virtual environment:
 ```
-pipenv shell
+poetry shell
 ```
 4. Install labby locally on the virtual environment in editable mode:
 ```

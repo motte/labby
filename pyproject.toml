@@ -1,0 +1,54 @@
+[tool.poetry]
+name = "labby"
+version = "0.0.1"
+description = "An utility for controlling laboratory equipment"
+readme = "README.md"
+homepage = "https://github.com/luizribeiro/labby/"
+repository = "https://github.com/luizribeiro/labby/"
+authors = [
+  "Luiz Ribeiro <luizribeiro@gmail.com>",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Topic :: Software Development :: Build Tools",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+]
+keywords = [
+  "experiments",
+  "instruments",
+  "lab automation",
+  "laboratory",
+  "science",
+]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/luizribeiro/labby/issues"
+
+[tool.poetry.scripts]
+labby = 'labby.cli:main'
+
+[tool.poetry.dependencies]
+python = "^3.7"
+mashumaro = "1.12"
+pandas = "1.1.1"
+pynng = "0.6.1"
+pyre-extensions = "0.0.18"
+pyserial = "3.4"
+strictyaml = "1.1.0"
+typed-argument-parser = "1.5.4"
+wasabi = "0.8.0"
+
+[tool.poetry.dev-dependencies]
+flake8 = "3.8.3"
+freezegun = "0.3.15"
+green = "3.2.1"
+pre-commit = "2.7.1"
+pyre-check = "0.0.52"
+python-language-server = "0.35.0"
+
+[build-system]
+requires = ["poetry>=1.0.10"]
+build-backend = "poetry.masonry.api"

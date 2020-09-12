@@ -10,18 +10,16 @@ cache:
   pip: true
 
 before_install:
-  - export PIPENV_IGNORE_VIRTUALENVS=1
-  - export PIPENV_VENV_IN_PROJECT=1
+  - pip install poetry
 
 install:
-  - pip install -Iv pipenv==2020.8.13
-  - pipenv install -d
+  - poetry install
 
 script:
-  - pipenv run flake8
-  - pipenv run black --check .
-  - pipenv run pyre --noninteractive
-  - pipenv run green --run-coverage
+  - poetry run flake8
+  - poetry run black --check .
+  - poetry run pyre --noninteractive
+  - poetry run green --run-coverage
 
 after_success:
   - pip install codecov
