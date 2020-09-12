@@ -1,5 +1,4 @@
 from wasabi import msg
-from pynng.exceptions import Timeout
 
 from labby.cli.core import BaseArgumentParser, Command
 from labby.server import Server
@@ -23,16 +22,12 @@ class ServerCommand(Command[ServerArgumentParser]):
             return 0
 
         if args.command == "status":
-            try:
-                response = self.get_client().hello()
-                if response == "Hello world":
-                    msg.good("Active")
-                    return 0
-            except Timeout:
-                msg.fail("Timeout")
-                msg.text(
-                    "The labby server did not respond. Are you sure it is started?"
-                )
+            response = self.get_client().hello()
+            if response == "Hello world":
+                msg.good("Active")
+                return 0
+            msg.fail("Invalid response")
+            msg.text("Server replied with an invalid response. This is probably a bug.")
             return 1
 
         if args.command == "stop":

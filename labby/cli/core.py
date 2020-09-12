@@ -2,6 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Dict, Generic, Sequence, Type, TypeVar
 
+import pynng.exceptions
 from tap import Tap
 
 from labby.client import Client
@@ -36,18 +37,27 @@ class Command(Generic[TArgumentParser], ABC):
 
     @classmethod
     def run(cls, trigger: str, argv: Sequence[str]) -> int:
-        command_klass = ALL_COMMANDS[trigger]
-        # pyre-ignore[16]: command_klass has no __orig_bases__ attribute
-        args_klass = get_args(command_klass.__orig_bases__[0])[0]
-        args = args_klass(prog=f"labby {trigger}").parse_args(argv)
+        try:
+            command_klass = ALL_COMMANDS[trigger]
+            # pyre-ignore[16]: command_klass has no __orig_bases__ attribute
+            args_klass = get_args(command_klass.__orig_bases__[0])[0]
+            args = args_klass(prog=f"labby {trigger}").parse_args(argv)
 
-        auto_discover_drivers()
-        with open(args.config, "r") as config_file:
-            config = Config(config_file.read())
+            auto_discover_drivers()
+            with open(args.config, "r") as config_file:
+                config = Config(config_file.read())
 
-        # pyre-ignore[45]: cannot instantiate Command with abstract method
-        command = command_klass(config)
-        return command.main(args)
+            # pyre-ignore[45]: cannot instantiate Command with abstract method
+            command = command_klass(config)
+            return command.main(args)
+        except pynng.exceptions.Timeout:
+            # this had to be an inline import so the tests would use the
+            # WASABI_LOG_FRIENDLY env variable correctly ¯\_(ツ)_/¯
+            from wasabi import msg
+
+            msg.fail("Timeout")
+            msg.text("The labby server did not respond. Are you sure it is started?")
+            return 1
 
     @classmethod
     def is_valid(cls, trigger: str) -> bool:
