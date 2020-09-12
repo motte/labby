@@ -5,6 +5,8 @@ from typing import List, Tuple
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
 
+from pynng.exceptions import Timeout
+
 from labby import cli
 from labby.hw.core import DeviceType
 from labby.hw.core.power_supply import PowerSupplyMode
@@ -123,6 +125,20 @@ class CommandLineTest(TestCase):
         with labby_config(LABBY_CONFIG), patch_file_contents(".labby/pid"):
             (rc, stdout, _stderr) = self.main(["server", "start"])
         self.assertEqual(rc, 0)
+
+    def test_server_status_active(self) -> None:
+        self.client_mock.hello.return_value = "Hello world"
+        with labby_config(LABBY_CONFIG):
+            (rc, stdout, _stderr) = self.main(["server", "status"])
+        self.assertIn("Active", stdout)
+        self.assertEqual(rc, 0)
+
+    def test_server_status_timeout(self) -> None:
+        self.client_mock.hello.side_effect = Timeout("Shits broken yo", 42)
+        with labby_config(LABBY_CONFIG):
+            (rc, stdout, _stderr) = self.main(["server", "status"])
+        self.assertIn("[x] Timeout", stdout)
+        self.assertEqual(rc, 1)
 
     def test_server_stop(self) -> None:
         with labby_config(LABBY_CONFIG):
