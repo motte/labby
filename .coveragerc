@@ -1,3 +1,6 @@
+[run]
+source = labby
+
 [report]
 exclude_lines =
   pragma: no cover
